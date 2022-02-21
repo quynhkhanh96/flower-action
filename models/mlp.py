@@ -10,13 +10,13 @@ class MLP(nn.Module):
     """
     define MLP model
     """
-    def __init__(self):
+    def __init__(self, num_classes):
         super(MLP, self).__init__()
         self.fp_layer1 = nn.Linear(784, 30, bias=False)
 
         self.ternary_layer1 = nn.Linear(30, 20, bias=False)
 
-        self.fp_layer2 = nn.Linear(20, 10)
+        self.fp_layer2 = nn.Linear(20, num_classes)
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     def get_weights(self) -> flwr.common.Weights:

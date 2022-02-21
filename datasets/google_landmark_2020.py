@@ -242,7 +242,9 @@ def get_landmark_client_loader(client_id, local_bz, test_bz, data_dir, working_d
                                                 local_bz, test_bz,
                                                 dataidxs)
 
-    return train_loader, test_loader
+    class_num = len(np.unique([item['class'] for item in train_files]))
+
+    return train_loader, test_loader, class_num
 
 if __name__ == '__main__':
 

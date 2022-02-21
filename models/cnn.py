@@ -7,7 +7,7 @@ import flwr
 
 # Moderate size of CNN for CIFAR-10 dataset
 class CNN(nn.Module):
-    def __init__(self):
+    def __init__(self, num_classes=10):
         super(CNN, self).__init__()
 
         self.fp_con1 = nn.Sequential(OrderedDict([
@@ -43,7 +43,7 @@ class CNN(nn.Module):
         ]))
 
 
-        self.fp_fc = nn.Linear(4096, 10, bias = False)
+        self.fp_fc = nn.Linear(4096, num_classes, bias = False)
 
     def get_weights(self) -> flwr.common.Weights:
         """Get model weights as a list of NumPy ndarrays."""

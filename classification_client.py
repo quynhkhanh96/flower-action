@@ -36,6 +36,12 @@ if __name__ == '__main__':
         type=str,
         help="Where the split is saved",
     )
+    parser.add_argument(
+        "--data_dir",
+        type=str,
+        default='', # only GLD23k dataset needs it 
+        help="image directory",
+    )
 
     client_args = parser.parse_args()
     client_id = int(client_args.cid)
@@ -56,11 +62,21 @@ if __name__ == '__main__':
                                                             local_bz=cfgs.batch_size, 
                                                             test_bz=cfgs.batch_size, 
                                                             working_dir=client_args.working_dir)   
+        num_classes = 10 
     elif cfgs.dataset == 'mnist':
         train_loader, test_loader = get_mnist_client_loader(client_id, 
                                                             local_bz=cfgs.batch_size, 
                                                             test_bz=cfgs.batch_size, 
                                                             working_dir=client_args.working_dir) 
+        num_classes = 10 
+    elif cfgs.dataset == 'gld23k':
+        if client_args.data_dir == '':
+            raise ValueError('`data_dir` (path to image directory) for gld23k is missing.')
+        train_loader, test_loader, num_classes = get_landmark_client_loader(client_id,
+                                                            local_bz=cfgs.batch_size, 
+                                                            test_bz=cfgs.batch_size, 
+                                                            data_dir=client_args.data_dir, 
+                                                            working_dir=client_args.working_dir)   
     else:
         raise ValueError(f'No data loaders implemented for {cfgs.dataset} dataset.')    
 
@@ -71,8 +87,10 @@ if __name__ == '__main__':
         from models import MLP as Fed_Model
     elif cfgs.model == 'ResNet': 
         from models import ResNet as Fed_Model
+    elif cfgs.model == 'MobileNetV3':
+        from models import MobileNetV3 as Fed_Model
 
-    net = Fed_Model()
+    net = Fed_Model(num_classes=num_classes)
     net.to(cfgs.device)
 
     # Start client

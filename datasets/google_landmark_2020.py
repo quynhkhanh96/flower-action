@@ -4,14 +4,16 @@ import time
 import logging
 import collections
 import csv
+import pickle 
 
 import numpy as np
 import torch
 from torch.utils.data import Dataset, DataLoader
 import torchvision.transforms as transforms
 from PIL import Image
+import yaml
 
-# Dataset and augmentations
+# ************************** Dataset and augmentations **************************
 class Landmarks(Dataset):
 
     def __init__(self, data_dir, allfiles, dataidxs=None, train=True, 
@@ -99,8 +101,7 @@ def _data_transforms_landmarks():
 
     return train_transform, valid_transform
 
-# Data partition
-
+# ************************** Data partition **************************
 def _read_csv(path: str):
   """Reads a csv file, and returns the content inside a list of dictionaries.
   Args:
@@ -112,6 +113,8 @@ def _read_csv(path: str):
   with open(path, 'r') as f:
     return list(csv.DictReader(f))
 
+# TODO: rewrite this function: get_mapping_per_user(fn, n_clients),
+# for now it does not perform data partitioning given user defined number of clients
 def get_mapping_per_user(fn):
     """
     mapping_per_user is {'user_id': [{'user_id': xxx, 'image_id': xxx, 'class': xxx} ... {}], 
@@ -186,7 +189,6 @@ def load_partition_data_landmarks(dataset, data_dir, fed_train_map_file, fed_tes
     test_data_num = len(test_files)
 
     # get local dataset
-    data_local_num_dict = data_local_num_dict
     train_data_local_dict = dict()
     test_data_local_dict = dict()
 
@@ -201,28 +203,78 @@ def load_partition_data_landmarks(dataset, data_dir, fed_train_map_file, fed_tes
         train_data_local_dict[client_idx] = train_data_local
         test_data_local_dict[client_idx] = test_data_local
 
-    # return train_data_num, test_data_num, train_data_global, test_data_global, \
-    #        data_local_num_dict, train_data_local_dict, test_data_local_dict, class_num
-
     return train_data_local_dict, test_data_local_dict, class_num
 
+def landmark_partition(n_clients, fed_train_map_file, fed_test_map_file, working_dir):
+    train_files, _, dataidx_map = get_mapping_per_user(fed_train_map_file)
+    test_files = _read_csv(fed_test_map_file)
+
+    # Ugly hackround that works for 2 clients 
+    net_dataidx_map = {}
+    net_dataidx_map[0] = (dataidx_map[0][0], dataidx_map[len(dataidx_map) // 2][1])
+    net_dataidx_map[1] = (dataidx_map[len(dataidx_map) // 2][1], dataidx_map[len(dataidx_map) - 1][1])
+    # save metadata
+    filehandler = open(working_dir + '/train_files.pkl', 'wb')
+    pickle.dump(train_files, filehandler)
+    filehandler.close()
+
+    filehandler = open(working_dir + '/test_files.pkl', 'wb')
+    pickle.dump(test_files, filehandler)
+    filehandler.close()
+
+    filehandler = open(working_dir + '/idx_map.pkl', 'wb')
+    pickle.dump(net_dataidx_map, filehandler)
+    filehandler.close()
+
+def get_landmark_client_loader(client_id, local_bz, test_bz, data_dir, working_dir):
+    with open(working_dir + '/train_files.pkl', 'rb') as fp:
+        train_files = pickle.load(fp)
+
+    with open(working_dir + '/test_files.pkl', 'rb') as fp:
+        test_files = pickle.load(fp)
+
+    with open(working_dir + '/idx_map.pkl', 'rb') as fp:
+        net_dataidx_map = pickle.load(fp)
+
+    dataidxs = net_dataidx_map[client_id]
+    train_loader, test_loader = get_dataloader(None, data_dir, 
+                                                train_files, test_files, 
+                                                local_bz, test_bz,
+                                                dataidxs)
+
+    return train_loader, test_loader
+
 if __name__ == '__main__':
-    data_dir = '/home/dothi/Desktop/gld/images'
-    fed_g23k_train_map_file = '/home/dothi/Desktop/gld/data_user_dict/gld23k_user_dict_train.csv'
-    fed_g23k_test_map_file = '/home/dothi/Desktop/gld/data_user_dict/gld23k_user_dict_test.csv'
 
-    client_number = 233
-    fed_train_map_file = fed_g23k_train_map_file
-    fed_test_map_file = fed_g23k_test_map_file
+    working_dir = sys.argv[1]
+    cfg_path = sys.argv[2]
+    fed_train_map_file = sys.argv[3]
+    fed_test_map_file = sys.argv[4]
 
-    train_data_local_dict, test_data_local_dict, class_num = \
-        load_partition_data_landmarks(None, data_dir, fed_train_map_file, fed_test_map_file, 
-                            partition_method=None, partition_alpha=None, 
-                            client_number=client_number, batch_size=10)
+    with open(cfg_path, 'r') as yamlfile:
+        cfgs = yaml.load(yamlfile, Loader=yaml.FullLoader)
 
-    for client_idx in range(client_number):
-        for i, (data, label) in enumerate(train_data_local_dict[client_idx]):
-            print(data.shape)
-            print(label)
-            if i > 3:
-                break 
+    landmark_partition(n_clients=cfgs['num_C'], 
+                        fed_train_map_file=fed_train_map_file, 
+                        fed_test_map_file=fed_test_map_file, 
+                        working_dir=working_dir)
+
+    # data_dir = '/home/dothi/Desktop/gld/images'
+    # fed_g23k_train_map_file = '/home/dothi/Desktop/gld/data_user_dict/gld23k_user_dict_train.csv'
+    # fed_g23k_test_map_file = '/home/dothi/Desktop/gld/data_user_dict/gld23k_user_dict_test.csv'
+
+    # client_number = 233
+    # fed_train_map_file = fed_g23k_train_map_file
+    # fed_test_map_file = fed_g23k_test_map_file
+
+    # train_data_local_dict, test_data_local_dict, class_num = \
+    #     load_partition_data_landmarks(None, data_dir, fed_train_map_file, fed_test_map_file, 
+    #                         partition_method=None, partition_alpha=None, 
+    #                         client_number=client_number, batch_size=10)
+
+    # for client_idx in range(client_number):
+    #     for i, (data, label) in enumerate(train_data_local_dict[client_idx]):
+    #         print(data.shape)
+    #         print(label)
+    #         if i > 3:
+    #             break 

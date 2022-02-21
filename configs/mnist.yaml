@@ -1,0 +1,15 @@
+local_e: 5 # local epoch
+epochs: 25 # communication rounds
+device: 'cpu' # GPU or not
+batch_size: 64 # local batch size
+dataset: 'mnist' 
+model: 'MLP'
+optimizer: 'Adam'
+lr: 0.001 # learning rate 
+frac: 1 # partipation ratio
+num_C: 5 # client number
+min_sample_size: 2
+min_num_clients: 2 
+Nc: 10 # number of classes on clients
+iid: True 
+seed: 1234 

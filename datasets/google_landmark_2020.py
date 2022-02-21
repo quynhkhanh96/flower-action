@@ -215,8 +215,7 @@ if __name__ == '__main__':
     fed_train_map_file = fed_g23k_train_map_file
     fed_test_map_file = fed_g23k_test_map_file
 
-    train_data_num, test_data_num, train_data_global, test_data_global, \
-        data_local_num_dict, train_data_local_dict, test_data_local_dict, class_num = \
+    train_data_local_dict, test_data_local_dict, class_num = \
         load_partition_data_landmarks(None, data_dir, fed_train_map_file, fed_test_map_file, 
                             partition_method=None, partition_alpha=None, 
                             client_number=client_number, batch_size=10)

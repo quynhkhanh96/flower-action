@@ -3,8 +3,9 @@ from flwr.common import parameters_to_weights
 import numpy as np
 
 class FedAvgStrategy(flwr.server.strategy.FedAvg):
-    def __init__(self, model_name, device, **kwargs):
+    def __init__(self, model_name, num_classes, device, **kwargs):
         self.model_name = model_name
+        self.num_classes = num_classes
         self.device = device
         super(FedAvgStrategy, self).__init__(**kwargs) 
 
@@ -26,7 +27,7 @@ class FedAvgStrategy(flwr.server.strategy.FedAvg):
             from models import MLP as Fed_Model
         elif self.model_name == 'ResNet':
             from models import ResNet as Fed_Model 
-        net = Fed_Model()
+        net = Fed_Model(self.num_classes)
         net.set_weights(weights)
         net.to(self.device)
 

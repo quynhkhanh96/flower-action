@@ -1,9 +1,9 @@
-local_e: 5 # local epoch
-epochs: 25 # communication rounds
+local_e: 1 # local epoch
+epochs: 100 # communication rounds
 device: 'cpu' # GPU or not
-batch_size: 64 # local batch size
+batch_size: 32 # local batch size
 dataset: 'gld23k' 
-model: 'MLP'
+model: 'MobileNetV3'
 optimizer: 'Adam'
 lr: 0.001 # learning rate 
 frac: 1 # partipation ratio

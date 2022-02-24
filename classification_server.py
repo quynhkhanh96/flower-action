@@ -92,6 +92,6 @@ if __name__ == '__main__':
     flwr.common.logger.configure("server", host=server_args.log_host)
     flwr.server.start_server(
         server_args.server_address,
-        config={"num_rounds": cfgs.epochs},
+        config={"num_rounds": 100},
         strategy=strategy,
     )

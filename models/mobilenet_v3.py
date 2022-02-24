@@ -241,6 +241,17 @@ class MobileNetV3(nn.Module):
 
         self.apply(_weights_init)
 
+    def get_weights(self) -> flwr.common.Weights:
+        """Get model weights as a list of NumPy ndarrays."""
+        return [val.cpu().numpy() for _, val in self.state_dict().items()]
+
+    def set_weights(self, weights) -> None:
+        """Set model weights from a list of NumPy ndarrays."""
+        state_dict = OrderedDict(
+            {k: torch.Tensor(v) for k, v in zip(self.state_dict().keys(), weights)}
+        )
+        self.load_state_dict(state_dict, strict=True)
+
     def forward(self, x):
         out = self.init_conv(x)
         out = self.block(out)

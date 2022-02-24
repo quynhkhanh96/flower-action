@@ -19,7 +19,7 @@ echo "Starting $NUM_CLIENTS clients."
 for ((i = 0; i < $NUM_CLIENTS; i++))
 do
     echo "Starting client(cid=$i) with partition $i out of $NUM_CLIENTS clients."
-    CUDA_VISIBLE_DEVICES=1,2 python -m classification_client \
+    CUDA_VISIBLE_DEVICES=$i python -m classification_client \
       --cid=$i \
       --cfg_path=$cfg_path \
       --working_dir=$WORKING_DIR \

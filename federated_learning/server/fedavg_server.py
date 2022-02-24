@@ -27,9 +27,9 @@ class FedAvgStrategy(flwr.server.strategy.FedAvg):
             from models import MLP as Fed_Model
         elif self.model_name == 'ResNet':
             from models import ResNet as Fed_Model 
-        elif self.model == 'MobileNetV3':
+        elif self.model_name == 'MobileNetV3':
             from models import MobileNetV3 as Fed_Model
-        net = Fed_Model(self.num_classes)
+        net = Fed_Model(num_classes=self.num_classes)
         net.set_weights(weights)
         net.to(self.device)
 

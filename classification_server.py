@@ -1,6 +1,7 @@
 import argparse
 import yaml 
 import flwr 
+import torch
 import functools
 from utils.parsing import Dict2Class
 from evaluation.classification import test_classifer
@@ -80,7 +81,7 @@ if __name__ == '__main__':
     strategy = FedAvgStrategy(
         model_name=cfgs.model,
         num_classes=num_classes,
-        device=cfgs.device,
+        device=torch.device("cuda" if torch.cuda.is_available() else "cpu"),
         fraction_fit=cfgs.frac,
         min_fit_clients=cfgs.min_sample_size,
         min_available_clients=cfgs.min_num_clients,

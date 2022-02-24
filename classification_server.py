@@ -63,6 +63,11 @@ if __name__ == '__main__':
         default='', # only GLD23k dataset needs it 
         help="image directory",
     )
+    parser.add_argument(
+        "--working_dir",
+        type=str,
+        help="Where the split is saved",
+    )
     server_args = parser.parse_args()
 
     # configuration

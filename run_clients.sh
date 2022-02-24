@@ -8,7 +8,7 @@ data_dir=$5
 echo "Partitioning data among clients..."
 # python -m datasets.cifar $WORKING_DIR $cfg_path 
 # python ..datasets/mnist.py $WORKING_DIR $cfg_path
-python -m ..datasets/google_landmark_2020 $WORKING_DIR $cfg_path \
+python -m datasets/google_landmark_2020 $WORKING_DIR $cfg_path \
   $fed_train_map_file $fed_test_map_file
 
 # SERVER_ADDRESS="[::]:8080"
@@ -19,7 +19,7 @@ echo "Starting $NUM_CLIENTS clients."
 for ((i = 0; i < $NUM_CLIENTS; i++))
 do
     echo "Starting client(cid=$i) with partition $i out of $NUM_CLIENTS clients."
-    CUDA_VISIBLE_DEVICES=1,3 python -m classification_client \
+    CUDA_VISIBLE_DEVICES=1,2 python -m classification_client \
       --cid=$i \
       --cfg_path=$cfg_path \
       --working_dir=$WORKING_DIR \

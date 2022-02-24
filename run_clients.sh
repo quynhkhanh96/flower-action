@@ -8,7 +8,7 @@ data_dir=$5
 echo "Partitioning data among clients..."
 # python -m datasets.cifar $WORKING_DIR $cfg_path 
 # python ..datasets/mnist.py $WORKING_DIR $cfg_path
-python -m datasets/google_landmark_2020 $WORKING_DIR $cfg_path \
+python -m datasets.google_landmark_2020 $WORKING_DIR $cfg_path \
   $fed_train_map_file $fed_test_map_file
 
 # SERVER_ADDRESS="[::]:8080"

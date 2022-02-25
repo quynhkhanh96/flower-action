@@ -7,7 +7,7 @@ model: 'MobileNetV3'
 optimizer: 'Adam'
 lr: 0.001 # learning rate 
 frac: 1 # partipation ratio
-num_C: 2 # client number
+num_C: 5 # client number
 min_sample_size: 2
 min_num_clients: 2 
 seed: 1234 

@@ -291,12 +291,14 @@ def landmark_partition(n_clients, fed_train_map_file, fed_test_map_file, working
             class_samples = [(smpl, c) for smpl in class_image_ids[i * n_samples: (i + 1) * n_samples]]
             net_dataidx_map[client_id].extend(class_samples)
 
-    train_files = df_train['image_id'].tolist()
-    test_files = df_test['image_id'].tolist()
+    # train_files = df_train['image_id'].tolist()
+    test_files = []
+    for _, row in df_test.iterrows():
+        test_files.append((row['image_id'], row['class']))
 
-    filehandler = open(working_dir + '/train_files.pkl', 'wb')
-    pickle.dump(train_files, filehandler)
-    filehandler.close()
+    # filehandler = open(working_dir + '/train_files.pkl', 'wb')
+    # pickle.dump(train_files, filehandler)
+    # filehandler.close()
 
     filehandler = open(working_dir + '/test_files.pkl', 'wb')
     pickle.dump(test_files, filehandler)
@@ -305,8 +307,6 @@ def landmark_partition(n_clients, fed_train_map_file, fed_test_map_file, working
     filehandler = open(working_dir + '/idx_map.pkl', 'wb')
     pickle.dump(net_dataidx_map, filehandler)
     filehandler.close()
-
-    return net_dataidx_map
 
 # def get_landmark_client_loader(client_id, local_bz, test_bz, data_dir, working_dir):
 #     with open(working_dir + '/train_files.pkl', 'rb') as fp:
@@ -329,8 +329,8 @@ def landmark_partition(n_clients, fed_train_map_file, fed_test_map_file, working
 #     return train_loader, test_loader, class_num
 
 def get_landmark_client_loader(client_id, local_bz, test_bz, data_dir, working_dir):
-    with open(working_dir + '/train_files.pkl', 'rb') as fp:
-        train_files = pickle.load(fp)
+    # with open(working_dir + '/train_files.pkl', 'rb') as fp:
+    #     train_files = pickle.load(fp)
 
     with open(working_dir + '/test_files.pkl', 'rb') as fp:
         test_files = pickle.load(fp)

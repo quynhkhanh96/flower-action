@@ -7,6 +7,7 @@ import csv
 import pickle 
 
 import numpy as np
+import pandas as pd 
 import torch
 from torch.utils.data import Dataset, DataLoader
 import torchvision.transforms as transforms
@@ -44,6 +45,38 @@ class Landmarks(Dataset):
 
         # convert jpg to PIL (jpg -> Tensor -> PIL)
         image = Image.open(img_name)
+
+        if self.transform:
+            image = self.transform(image)
+
+        if self.target_transform:
+            label = self.target_transform(label)
+
+        return image, label
+
+class GLD23kDataset(Dataset):
+    def __init__(self, data_dir, image_ids,
+                    transform=None, target_transform=None):
+        """
+            image_ids = [(image_id, label), ...]
+        """
+        self.data_dir = data_dir
+        self.local_files = [image_id for (image_id, _) in image_ids]
+        self.labels = [int(label) for (_, label) in image_ids]
+        self.transform = transform
+        self.target_transform = target_transform
+
+    def __len__(self):
+        return len(self.local_files)
+
+    def __getitem__(self, idx):
+        img_name = self.local_files[idx]
+        label = self.labels[idx]
+
+        img_path = os.path.join(self.data_dir, str(img_name) + ".jpg")
+
+        # convert jpg to PIL (jpg -> Tensor -> PIL)
+        image = Image.open(img_path)
 
         if self.transform:
             image = self.transform(image)
@@ -173,6 +206,18 @@ def get_dataloader(dataset, datadir,
     return get_dataloader_Landmarks(datadir, train_files, test_files, 
                                     train_bs, test_bs, dataidxs)
 
+def get_dataloaders(data_dir, train_ids, test_ids, local_bz, test_bz):
+    transform_train, transform_test = _data_transforms_landmarks()
+
+    train_ds = GLD23kDataset(data_dir, train_ids, transform_train)
+    test_ds = GLD23kDataset(data_dir, test_ids, transform_test)
+
+    train_dl = DataLoader(dataset=train_ds, batch_size=local_bz, 
+                            shuffle=True, drop_last=False)
+    test_dl = DataLoader(dataset=test_ds, batch_size=test_bz, 
+                            shuffle=False, drop_last=False)
+
+    return train_dl, test_dl
 
 def load_partition_data_landmarks(dataset, data_dir, fed_train_map_file, fed_test_map_file, 
                             partition_method=None, partition_alpha=None, client_number=233, batch_size=10):
@@ -205,15 +250,50 @@ def load_partition_data_landmarks(dataset, data_dir, fed_train_map_file, fed_tes
 
     return train_data_local_dict, test_data_local_dict, class_num
 
-def landmark_partition(n_clients, fed_train_map_file, fed_test_map_file, working_dir):
-    train_files, _, dataidx_map = get_mapping_per_user(fed_train_map_file)
-    test_files = _read_csv(fed_test_map_file)
+# def landmark_partition(n_clients, fed_train_map_file, fed_test_map_file, working_dir):
+#     train_files, _, dataidx_map = get_mapping_per_user(fed_train_map_file)
+#     test_files = _read_csv(fed_test_map_file)
 
-    # Ugly hackround that works for 2 clients 
-    net_dataidx_map = {}
-    net_dataidx_map[0] = (dataidx_map[0][0], dataidx_map[len(dataidx_map) // 2][1])
-    net_dataidx_map[1] = (dataidx_map[len(dataidx_map) // 2][1], dataidx_map[len(dataidx_map) - 1][1])
-    # save metadata
+#     # Ugly hackround that works for 2 clients 
+#     net_dataidx_map = {}
+#     net_dataidx_map[0] = (dataidx_map[0][0], dataidx_map[len(dataidx_map) // 2][1])
+#     net_dataidx_map[1] = (dataidx_map[len(dataidx_map) // 2][1], dataidx_map[len(dataidx_map) - 1][1])
+#     # save metadata
+#     filehandler = open(working_dir + '/train_files.pkl', 'wb')
+#     pickle.dump(train_files, filehandler)
+#     filehandler.close()
+
+#     filehandler = open(working_dir + '/test_files.pkl', 'wb')
+#     pickle.dump(test_files, filehandler)
+#     filehandler.close()
+
+#     filehandler = open(working_dir + '/idx_map.pkl', 'wb')
+#     pickle.dump(net_dataidx_map, filehandler)
+#     filehandler.close()
+
+def landmark_partition(n_clients, fed_train_map_file, fed_test_map_file, working_dir):
+    """
+        net_dataidx_map = {
+            client_id: list of image_id
+        }
+    """
+    df_train = pd.read_csv(fed_train_map_file)
+    df_test = pd.read_csv(fed_test_map_file)
+
+    sample_count = collections.Counter(df_train['class'].tolist())
+    num_samples_per_client = {k: v // n_clients for k, v in sample_count.items()}
+
+    class_to_image_ids = df_train.groupby('class')['image_id'].agg(list)
+    net_dataidx_map = {client_id: [] for client_id in range(n_clients)}
+    for i, client_id in enumerate(range(n_clients)):
+        for c, class_image_ids in class_to_image_ids.items():
+            n_samples = num_samples_per_client[c]
+            class_samples = [(smpl, c) for smpl in class_image_ids[i * n_samples: (i + 1) * n_samples]]
+            net_dataidx_map[client_id].extend(class_samples)
+
+    train_files = df_train['image_id'].tolist()
+    test_files = df_test['image_id'].tolist()
+
     filehandler = open(working_dir + '/train_files.pkl', 'wb')
     pickle.dump(train_files, filehandler)
     filehandler.close()
@@ -226,6 +306,28 @@ def landmark_partition(n_clients, fed_train_map_file, fed_test_map_file, working
     pickle.dump(net_dataidx_map, filehandler)
     filehandler.close()
 
+    return net_dataidx_map
+
+# def get_landmark_client_loader(client_id, local_bz, test_bz, data_dir, working_dir):
+#     with open(working_dir + '/train_files.pkl', 'rb') as fp:
+#         train_files = pickle.load(fp)
+
+#     with open(working_dir + '/test_files.pkl', 'rb') as fp:
+#         test_files = pickle.load(fp)
+
+#     with open(working_dir + '/idx_map.pkl', 'rb') as fp:
+#         net_dataidx_map = pickle.load(fp)
+
+#     dataidxs = net_dataidx_map[client_id]
+#     train_loader, test_loader = get_dataloader(None, data_dir, 
+#                                                 train_files, test_files, 
+#                                                 local_bz, test_bz,
+#                                                 dataidxs)
+
+#     class_num = len(np.unique([item['class'] for item in train_files]))
+
+#     return train_loader, test_loader, class_num
+
 def get_landmark_client_loader(client_id, local_bz, test_bz, data_dir, working_dir):
     with open(working_dir + '/train_files.pkl', 'rb') as fp:
         train_files = pickle.load(fp)
@@ -236,15 +338,13 @@ def get_landmark_client_loader(client_id, local_bz, test_bz, data_dir, working_d
     with open(working_dir + '/idx_map.pkl', 'rb') as fp:
         net_dataidx_map = pickle.load(fp)
 
-    dataidxs = net_dataidx_map[client_id]
-    train_loader, test_loader = get_dataloader(None, data_dir, 
-                                                train_files, test_files, 
-                                                local_bz, test_bz,
-                                                dataidxs)
+    client_image_ids = net_dataidx_map[client_id]
+    train_loader, test_loader = get_dataloaders(data_dir,
+                                                client_image_ids, test_files,
+                                                local_bz, test_bz)
 
-    class_num = len(np.unique([item['class'] for item in train_files]))
-
-    return train_loader, test_loader, class_num
+    num_classes = len(np.unique([label for (_, label) in client_image_ids]))
+    return train_loader, test_loader, num_classes 
 
 if __name__ == '__main__':
 

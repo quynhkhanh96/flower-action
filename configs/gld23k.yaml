@@ -1,6 +1,6 @@
 local_e: 1 # local epoch
 epochs: 100 # communication rounds
-device: 'cpu' # GPU or not
+device: 'cuda' # GPU or not
 batch_size: 32 # local batch size
 dataset: 'gld23k' 
 model: 'MobileNetV3'

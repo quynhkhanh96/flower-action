@@ -1,0 +1,16 @@
+local_e: 1 # local epoch
+epochs: 100 # communication rounds
+device: 'cuda' # GPU or not
+batch_size: 16 # local batch size
+dataset: 'hmdb51' 
+num_frames: 16 # 16
+frame_rate: 5
+clip_steps: 2
+model: 'MoViNet'
+optimizer: 'Adam'
+lr: 0.00005 # learning rate 
+frac: 1 # partipation ratio
+num_C: 5 # client number
+min_sample_size: 2
+min_num_clients: 2 
+seed: 1234 

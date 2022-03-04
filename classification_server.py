@@ -4,13 +4,14 @@ import flwr
 import torch
 import functools
 from utils.parsing import Dict2Class
-from evaluation.classification import test_classifer
+from evaluation.classification import *
 from datasets import *
 from federated_learning.server.fedavg_server import FedAvgStrategy
 
 DEFAULT_SERVER_ADDRESS = "[::]:8080"
 
 def get_eval_fn(cfgs, server_args):
+    # test loader 
     if cfgs.dataset == 'cifar10':
         test_loader = get_cifar_test_loader(test_bz=cfgs.batch_size)
         num_classes = 10
@@ -25,10 +26,25 @@ def get_eval_fn(cfgs, server_args):
             data_dir=server_args.data_dir, 
             working_dir=server_args.working_dir
         )
+    elif cfgs.dataset == 'hmdb51':
+        if server_args.data_dir == '':
+            raise ValueError('`data_dir` (path to video directory) for hmdb51 is missing.')
+        _, test_loader, num_classes = get_hmdb51_client_loader(0,
+                fold=cfgs.fold, num_frames=cfgs.num_frames, clip_steps=cfgs.clip_steps,
+                local_bz=cfgs.batch_size, test_bz=cfgs.batch_size,
+                video_data_dir=server_args.data_dir, 
+                working_dir=server_args.working_dir 
+        )
     else:
         raise ValueError(f'No implementation for {cfgs.dataset} dataset')
+
+    # evaluate function
+    if 'image' in cfgs:
+        eval_fn = test_classifer
+    elif 'video' in cfgs:
+        eval_fn = test_video_classifer
     
-    return functools.partial(test_classifer, test_loader=test_loader), num_classes
+    return functools.partial(eval_fn, test_loader=test_loader), num_classes
 
 def fit_config(rnd, cfgs):
     """Return a configuration with static batch size and (local) epochs."""
@@ -61,7 +77,7 @@ if __name__ == '__main__':
     parser.add_argument(
         "--data_dir",
         type=str,
-        default='', # only GLD23k dataset needs it 
+        default='', # only GLD23k, HMDB51 dataset needs it 
         help="image directory",
     )
     parser.add_argument(

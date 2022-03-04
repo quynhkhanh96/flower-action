@@ -84,7 +84,7 @@ if __name__ == '__main__':
         train_loader, test_loader, num_classes = get_hmdb51_client_loader(client_id,
                 fold=cfgs.fold, num_frames=cfgs.num_frames, clip_steps=cfgs.clip_steps,
                 local_bz=cfgs.batch_size, test_bz=cfgs.batch_size,
-                video_data_dir=client_args.video_data_dir, 
+                video_data_dir=client_args.data_dir, 
                 working_dir=client_args.working_dir 
         )
     else:

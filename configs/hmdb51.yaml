@@ -3,6 +3,7 @@ epochs: 100 # communication rounds
 device: 'cuda' # GPU or not
 batch_size: 16 # local batch size
 dataset: 'hmdb51' 
+fold: 1
 num_frames: 16 # 16
 frame_rate: 5
 clip_steps: 2

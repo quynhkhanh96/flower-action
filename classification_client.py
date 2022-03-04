@@ -39,7 +39,7 @@ if __name__ == '__main__':
     parser.add_argument(
         "--data_dir",
         type=str,
-        default='', # only GLD23k dataset needs it 
+        default='', # only GLD23k, HMDB51 dataset needs it 
         help="image directory",
     )
 
@@ -77,20 +77,41 @@ if __name__ == '__main__':
                                                             test_bz=cfgs.batch_size, 
                                                             data_dir=client_args.data_dir, 
                                                             working_dir=client_args.working_dir)   
+    
+    elif cfgs.dataset == 'hmdb51':
+        if client_args.data_dir == '':
+            raise ValueError('`data_dir` (path to video directory) for hmdb51 is missing.')
+        train_loader, test_loader, num_classes = get_hmdb51_client_loader(client_id,
+                fold=cfgs.fold, num_frames=cfgs.num_frames, clip_steps=cfgs.clip_steps,
+                local_bz=cfgs.batch_size, test_bz=cfgs.batch_size,
+                video_data_dir=client_args.video_data_dir, 
+                working_dir=client_args.working_dir 
+        )
     else:
         raise ValueError(f'No data loaders implemented for {cfgs.dataset} dataset.')    
 
     # Model
     if cfgs.model == 'CNN':
-        from models import CNN as Fed_Model
+        # from models import CNN as Fed_Model
+        from models.classification import CNN as Fed_Model
+        net = Fed_Model(num_classes=num_classes)
     elif cfgs.model == 'MLP': 
-        from models import MLP as Fed_Model
+        from models.classification import MLP as Fed_Model
+        net = Fed_Model(num_classes=num_classes)
     elif cfgs.model == 'ResNet': 
-        from models import ResNet as Fed_Model
+        from models.classification import ResNet as Fed_Model
+        net = Fed_Model(num_classes=num_classes)
     elif cfgs.model == 'MobileNetV3':
-        from models import MobileNetV3 as Fed_Model
+        from models.classification import MobileNetV3 as Fed_Model
+        net = Fed_Model(num_classes=num_classes)
+    elif cfgs.model == 'MoViNet':
+        from models.video.movinets.models import MoViNet as Fed_Model
+        from models.video.movinets.config import _C
+        net = Fed_Model(_C.MODEL.MoViNetA0, causal=True, pretrained=True , num_classes=num_classes)
+    else:
+        raise ValueError(f'No models implemented for {cfgs.model} model.')
 
-    net = Fed_Model(num_classes=num_classes)
+    # net = Fed_Model(num_classes=num_classes)
     net.to(cfgs.device)
 
     # Start client

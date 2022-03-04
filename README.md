@@ -24,5 +24,9 @@ or in a more manually manner:
     CUDA_VISIBLE_DEVICES=0 python -m classification_client --cid=0 --cfg_path="configs/gld23k.yaml" --working_dir="../working" --server_address="127.0.0.1:8085" --data_dir="/ext_data2/comvis/khanhdtq/gld/images"
 
     CUDA_VISIBLE_DEVICES=1 python -m classification_client --cid=1 --cfg_path="configs/gld23k.yaml" --working_dir="../working" --server_address="127.0.0.1:8085" --data_dir="/ext_data2/comvis/khanhdtq/gld/images"
+
+**HMDB51**
+First split the dataset among the clients by run:
+    
     
 

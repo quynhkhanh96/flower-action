@@ -28,8 +28,8 @@ def test_video_classifer(model, test_loader):
     model.clean_activation_buffers()
     with torch.no_grad():
         for data, _, target in test_loader:
-            output = F.log_softmax(model(data.cuda()), dim=1)
-            loss = F.nll_loss(output, target.cuda(), reduction='sum')
+            output = F.log_softmax(model(data.to(device)), dim=1)
+            loss = F.nll_loss(output, target.to(device), reduction='sum')
             _, pred = torch.max(output, dim=1)
             
             tloss += loss.item()

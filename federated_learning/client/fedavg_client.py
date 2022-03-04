@@ -5,10 +5,14 @@ from flwr.common import parameters_to_weights, weights_to_parameters
 
 import timeit
 import numpy as np 
-from update.base import BaseLocalUpdate
+# from update.base import BaseLocalUpdate
 
 class FedAvgClient(flwr.client.Client):
-    def __init__(self, client_id, dl_train, dl_test, net, loss_func, eval_fn, args):
+    def __init__(self, client_id, 
+                dl_train, dl_test, 
+                net, local_update,
+                eval_fn, args):
+
         self.client_id = client_id
         self.dl_train = dl_train
         self.dl_test = dl_test
@@ -16,7 +20,7 @@ class FedAvgClient(flwr.client.Client):
         self.eval_fn = eval_fn
         self.args = args 
 
-        self.local = BaseLocalUpdate(dl_train, loss_func, args)
+        self.local = local_update # BaseLocalUpdate(dl_train, loss_func, args)
 
     def get_parameters(self) -> ParametersRes:
         weights: Weights = self.net.get_weights()

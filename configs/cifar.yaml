@@ -1,3 +1,4 @@
+task: 'image_classification'
 local_e: 5 # local epoch
 epochs: 25 # communication rounds
 device: 'cuda' # GPU or not

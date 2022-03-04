@@ -1,3 +1,4 @@
+task: 'video_classification'
 local_e: 1 # local epoch
 epochs: 100 # communication rounds
 device: 'cuda' # GPU or not

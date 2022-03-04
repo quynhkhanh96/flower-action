@@ -1,5 +1,5 @@
 from federated_learning import FedAvgClient
-from evaluation.classification import test_classifer
+from evaluation.classification import *
 import yaml 
 import flwr
 import torch 
@@ -114,13 +114,27 @@ if __name__ == '__main__':
     # net = Fed_Model(num_classes=num_classes)
     net.to(cfgs.device)
 
+    # local trainer and evaluate function
+    if 'image' in cfgs.task:
+        from federated_learning.client.update.base import BaseLocalUpdate
+        local_update = BaseLocalUpdate(dl_train=train_loader,
+                                        loss_func=torch.nn.CrossEntropyLoss(),
+                                        args=cfgs)
+        eval_fn = test_classifer
+    elif 'video' in cfgs.task:
+        from federated_learning.client.update.video_base import VideoLocalUpdate
+        local_update = VideoLocalUpdate(dl_train=train_loader,
+                                        loss_func=torch.nn.CrossEntropyLoss(),
+                                        args=cfgs)
+        eval_fn = test_video_classifer
+
     # Start client
     fedavg_client = FedAvgClient(client_id=client_id,
                             dl_train=train_loader,
                             dl_test=test_loader,
                             net=net, 
-                            loss_func=torch.nn.CrossEntropyLoss(),
-                            eval_fn=test_classifer,
+                            local_update=local_update,
+                            eval_fn=eval_fn,
                             args=cfgs
                         )
     flwr.client.start_client(client_args.server_address, fedavg_client)

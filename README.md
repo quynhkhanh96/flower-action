@@ -36,16 +36,16 @@ Set the paths:
     WORKING_DIR="../working"
     CFG_PATH="configs/hmdb51.yaml"
     DATA_DIR=""
-    TEST_TRAIN_SPILTS_PATH=""
+    TEST_TRAIN_SPLITS_PATH=""
 
 First split the dataset among the clients by run:
     
-    python -m dataset.hmdb51 $WORKING_DIR $CFG_PATH $test_train_splits_path
+    python -m datasets.hmdb51 $WORKING_DIR $CFG_PATH $TEST_TRAIN_SPLITS_PATH
 
 Start the server:
 
     SERVER_ADDRESS="127.0.0.1:8085"
-    python -m classification_server --cfg_path=$CFG_PATH --server_address=$SERVER_ADDRESS --data_dir=$data_dir --working_dir=$WORKING_DIR
+    python -m classification_server --cfg_path=$CFG_PATH --server_address=$SERVER_ADDRESS --data_dir=$DATA_DIR --working_dir=$WORKING_DIR
 
 Start the clients:
 

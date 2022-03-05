@@ -82,7 +82,9 @@ if __name__ == '__main__':
         if client_args.data_dir == '':
             raise ValueError('`data_dir` (path to video directory) for hmdb51 is missing.')
         train_loader, test_loader, num_classes = get_hmdb51_client_loader(client_id,
-                fold=cfgs.fold, num_frames=cfgs.num_frames, clip_steps=cfgs.clip_steps,
+                fold=cfgs.fold, 
+                num_frames=cfgs.num_frames, frame_rate=cfgs.frame_rate,
+                clip_steps=cfgs.clip_steps,
                 local_bz=cfgs.batch_size, test_bz=cfgs.batch_size,
                 video_data_dir=client_args.data_dir, 
                 working_dir=client_args.working_dir 

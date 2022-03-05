@@ -41,9 +41,9 @@ def get_eval_fn(cfgs, server_args):
         raise ValueError(f'No implementation for {cfgs.dataset} dataset')
 
     # evaluate function
-    if 'image' in cfgs:
+    if 'image' in cfgs.task:
         eval_fn = test_classifer
-    elif 'video' in cfgs:
+    elif 'video' in cfgs.task:
         eval_fn = test_video_classifer
     
     return functools.partial(eval_fn, test_loader=test_loader), num_classes

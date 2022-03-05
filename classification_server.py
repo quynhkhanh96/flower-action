@@ -30,7 +30,9 @@ def get_eval_fn(cfgs, server_args):
         if server_args.data_dir == '':
             raise ValueError('`data_dir` (path to video directory) for hmdb51 is missing.')
         _, test_loader, num_classes = get_hmdb51_client_loader(0,
-                fold=cfgs.fold, num_frames=cfgs.num_frames, clip_steps=cfgs.clip_steps,
+                fold=cfgs.fold, 
+                num_frames=cfgs.num_frames, frame_rate=cfgs.frame_rate,
+                clip_steps=cfgs.clip_steps,
                 local_bz=cfgs.batch_size, test_bz=cfgs.batch_size,
                 video_data_dir=server_args.data_dir, 
                 working_dir=server_args.working_dir 

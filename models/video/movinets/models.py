@@ -10,6 +10,8 @@ import torch.nn.functional as F
 from typing import Any, Callable, Optional, Tuple, Union
 from einops import rearrange
 from torch import nn, Tensor
+import numpy as np 
+import flwr 
 
 
 class Hardsigmoid(nn.Module):
@@ -657,3 +659,14 @@ class MoViNet(nn.Module):
 
     def clean_activation_buffers(self) -> None:
         self.apply(self._clean_activation_buffers)
+
+    def get_weights(self) -> flwr.common.Weights:
+        """Get model weights as a list of NumPy ndarrays."""
+        return [val.cpu().numpy() for _, val in self.state_dict().items()]
+
+    def set_weights(self, weights) -> None:
+        """Set model weights from a list of NumPy ndarrays."""
+        state_dict = OrderedDict(
+            {k: torch.Tensor(v) for k, v in zip(self.state_dict().keys(), weights)}
+        )
+        self.load_state_dict(state_dict, strict=True)

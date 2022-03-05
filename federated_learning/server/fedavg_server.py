@@ -22,14 +22,25 @@ class FedAvgStrategy(flwr.server.strategy.FedAvg):
                 weights[i] = np.array([0])
 
         if self.model_name == 'CNN':
-            from models import CNN as Fed_Model
+            from models.classification import CNN as Fed_Model
+            net = Fed_Model(num_classes=self.num_classes)
         elif self.model_name == 'MLP':
-            from models import MLP as Fed_Model
+            from models.classification import MLP as Fed_Model
+            net = Fed_Model(num_classes=self.num_classes)
         elif self.model_name == 'ResNet':
-            from models import ResNet as Fed_Model 
+            from models.classification import ResNet as Fed_Model
+            net = Fed_Model(num_classes=self.num_classes) 
         elif self.model_name == 'MobileNetV3':
-            from models import MobileNetV3 as Fed_Model
-        net = Fed_Model(num_classes=self.num_classes)
+            from models.classification import MobileNetV3 as Fed_Model
+            net = Fed_Model(num_classes=self.num_classes)
+        elif self.model_name == 'MoViNet':
+            from models.video.movinets.models import MoViNet as Fed_Model
+            from models.video.movinets.config import _C
+            net = Fed_Model(_C.MODEL.MoViNetA0, causal=True, 
+                            pretrained=True , num_classes=self.num_classes)
+        else:
+            raise ValueError(f'No models implemented for {self.model_name} model.')
+        # net = Fed_Model(num_classes=self.num_classes)
         net.set_weights(weights)
         net.to(self.device)
 

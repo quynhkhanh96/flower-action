@@ -8,9 +8,9 @@ import torch.nn.functional as F
 # including batch generation (for all kind of problem), forward pass 
 # and backpropagation
 class BaseLocalUpdate(object):
-    def __init__(self, train_iter, loss_func, args):
+    def __init__(self, train_loader, loss_func, args):
         self.args = args
-        self.train_iter = train_iter
+        self.train_loader = train_loader
         self.loss_func = loss_func # torch.nn.CrossEntropyLoss()
 
     def train(self, net):
@@ -23,7 +23,7 @@ class BaseLocalUpdate(object):
             optimizer = optim.SGD(net.parameters(), lr=self.args.lr) 
 
         for iter in range(self.args.local_e):
-            for images, labels in self.train_iter:
+            for images, labels in self.train_loader:
                 images, labels = images.to(self.args.device), labels.to(self.args.device)
                 net.zero_grad()
                 log_probs = net(images)

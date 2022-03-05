@@ -119,13 +119,13 @@ if __name__ == '__main__':
     # local trainer and evaluate function
     if 'image' in cfgs.task:
         from federated_learning.client.update.base import BaseLocalUpdate
-        local_update = BaseLocalUpdate(dl_train=train_loader,
+        local_update = BaseLocalUpdate(train_loader=train_loader,
                                         loss_func=torch.nn.CrossEntropyLoss(),
                                         args=cfgs)
         eval_fn = test_classifer
     elif 'video' in cfgs.task:
         from federated_learning.client.update.video_base import VideoLocalUpdate
-        local_update = VideoLocalUpdate(dl_train=train_loader,
+        local_update = VideoLocalUpdate(train_loader=train_loader,
                                         loss_func=torch.nn.CrossEntropyLoss(),
                                         args=cfgs)
         eval_fn = test_video_classifer

@@ -11,10 +11,9 @@ unrar e hmdb51_org.rar
 rm hmdb51_org.rar
 mv *.rar video_data
 
-for filename in video_data/*.rar; do
-    # foldername="${filename%.*}"
-    mkdir -p video_data/${filename%.*}
-    unrar e video_data/$filename video_data/${filename%.*}
+for filepath in video_data/*.rar; do
+    mkdir -p video_data/$(basename ${filepath%.*})
+    unrar e video_data/$(basename $filepath) video_data/$(basename ${filepath%.*})
 done
 
 rm video_data/*.rar

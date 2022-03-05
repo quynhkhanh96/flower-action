@@ -33,7 +33,7 @@ def test_video_classifer(model, test_loader):
             _, pred = torch.max(output, dim=1)
             
             tloss += loss.item()
-            csamp += pred.eq(target.cuda()).sum()
+            csamp += pred.eq(target.to(device)).sum()
             model.clean_activation_buffers()
     aloss = tloss / samples
     accuracy = 100.0 * csamp / samples

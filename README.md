@@ -1,4 +1,4 @@
-# Classification problems
+# Image classification 
 
 Run the following:
 
@@ -25,7 +25,11 @@ or in a more manually manner:
 
     CUDA_VISIBLE_DEVICES=1 python -m classification_client --cid=1 --cfg_path="configs/gld23k.yaml" --working_dir="../working" --server_address="127.0.0.1:8085" --data_dir="/ext_data2/comvis/khanhdtq/gld/images"
 
+# Video recognition
+
 **HMDB51**
+
+## MoViNets
 
 Download and extract HMDB51 dataset:
 
@@ -55,4 +59,24 @@ Start the clients:
 
     CUDA_VISIBLE_DEVICES=1 python -m classification_client --cid=1 --cfg_path=$CFG_PATH --working_dir=$WORKING_DIR --server_address=$SERVER_ADDRESS --data_dir=$DATA_DIR
     
+## SlowOnly
+After data preparation, the data looks like this:
+![Alt text](images/hmdb51_data_prepare.png)
 
+Data partition script will create a directory called `partition` in this directory which contains `.txt` files `hmdb51_train_split_*_client_{i}_rawframes.txt` and `hmdb51_val_split_*_rawframes.txt`. After that, copy `rawframes`, `partition` to machines where clients and server will be running on, put them in the same directory. 
+
+Now we can load client dataset by setting:
+```shell 
+# client i 
+data_train_cfg = dict(
+    type='RawframeDataset',
+    ann_file=f'path/to/partition/hmdb51_train_split_1_client_{i}_rawframes.txt',
+    data_prefix='path/to/rawframes',
+    pipeline=train_pipeline)
+
+val_train_cfg = dict(
+    type='RawframeDataset',
+    ann_file=f'path/to/partition/hmdb51_val_split_1_rawframes.txt',
+    data_prefix='path/to/rawframes',
+    pipeline=val_pipeline)
+```

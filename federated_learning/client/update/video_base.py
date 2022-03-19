@@ -29,3 +29,14 @@ class VideoLocalUpdate:
                 optimizer.step()
                 optimizer.zero_grad()
                 net.clean_activation_buffers()
+
+from mmaction.apis import train_model
+class MMAction2LocalUpdate:
+    def __init__(self, train_dataset, mmaction_cfg):
+        self.train_dataset = train_dataset
+        self.mmaction_cfg = mmaction_cfg 
+
+    def train(self, model):
+        train_model(model, [self.train_dataset], self.mmaction_cfg, 
+                        distributed=False, validate=False)
+

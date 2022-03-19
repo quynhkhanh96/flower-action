@@ -3,3 +3,4 @@ from client.fedavg_client import FedAvgClient
 from client.fedadam_client import FedAdamClient
 from server.fedavg_server import FedAvgStrategy
 from server.fedadam_server import FedAdamStrategy
+from client.fedavg_video_client import FedAvgVideoClient

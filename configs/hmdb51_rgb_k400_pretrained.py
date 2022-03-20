@@ -1,6 +1,6 @@
 _base_ = [
     '_base_/models/slowonly_r50.py', '_base_/schedules/sgd_50e.py',
-    'default_runtime.py'
+    '_base_/default_runtime.py'
 ]
 dataset_name = 'hmdb51'
 # federated learning

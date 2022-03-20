@@ -83,7 +83,7 @@ val_train_cfg = dict(
 
 Split dataset among clients by running:
 ```shell
-python -m dataset.hmdb51_mmaction2 $DATA_DIR 2 1
+python -m datasets.hmdb51_mmaction2 $DATA_DIR 2 1
 ```
 
 Start the server:
@@ -106,5 +106,5 @@ WORK_DIR="/ext_data2/comvis/khanhdtq/fed_hmdb51_slowonly"
 
 CUDA_VISIBLE_DEVICES=0 python -m recognition_video_client --cid=0 --cfg_path=$CFG_PATH --work_dir=$WORK_DIR --data_dir=$DATA_DIR
 
-CUDA_VISIBLE_DEVICES=1 python -m recognition_video_client --cid=0 --cfg_path=$CFG_PATH --work_dir=$WORK_DIR --data_dir=$DATA_DIR
+CUDA_VISIBLE_DEVICES=1 python -m recognition_video_client --cid=1 --cfg_path=$CFG_PATH --work_dir=$WORK_DIR --data_dir=$DATA_DIR
 ```

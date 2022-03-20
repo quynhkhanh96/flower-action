@@ -1,7 +1,7 @@
 local_e: 1 # local epoch
 epochs: 100 # communication rounds
 batch_size: 16 # local batch size
-dataset: 'hmdb51' 
+dataset_name: 'hmdb51' 
 fold: 1
 frac: 1 # partipation ratio
 num_C: 5 # client number

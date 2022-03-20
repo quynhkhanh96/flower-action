@@ -36,6 +36,11 @@ if __name__ == '__main__':
         help="Configuration file path",
     )
     parser.add_argument(
+        "--fed_cfg_path",
+        type=str,
+        help="Configuration file path",
+    )
+    parser.add_argument(
         "--work_dir",
         type=str,
         help="where checkpoints are saved, progress is logged, etc",

@@ -28,7 +28,7 @@ def hmdb51_partition(n_clients, preprocessed_dir, fold):
         metadata_path = '{}/partition/hmdb51_train_split_{}_client_{}_rawframes.txt'.format(
             preprocessed_dir, fold, client_id
         )
-        with open(metadata_path, 'r') as f:
+        with open(metadata_path, 'a') as f:
             for client_file in client_files:
                 f.write(client_file + '\n')
 

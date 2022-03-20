@@ -10,11 +10,13 @@ import copy
 from flwr.server.strategy import FedAvg
 
 class FedAvgVideoStrategy(flwr.server.strategy.FedAvg):
-    def __init__(self, cfg, test_dataset, **kwargs):
+    def __init__(self, cfg, test_dataset, device, **kwargs):
         self.cfg = cfg 
         self.test_dataset = test_dataset 
         # self.device = torch.device("cuda" if torch.cuda.is_available() 
         #                             else "cpu")
+        self.device = device 
+        super(FedAvgVideoStrategy, self).__init__(**kwargs) 
 
     def evaluate(self, parameters):
         if self.eval_fn is None:

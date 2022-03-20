@@ -30,7 +30,7 @@ def hmdb51_partition(n_clients, preprocessed_dir, fold):
         )
         with open(metadata_path, 'a') as f:
             for client_file in client_files:
-                f.write(client_file + '\n')
+                f.write(client_file)
 
     shutil.copy(preprocessed_dir + f'/hmdb51_val_split_{fold}_rawframes.txt',
                 preprocessed_dir + f'/partition/hmdb51_val_split_{fold}_rawframes.txt')
@@ -42,7 +42,7 @@ def hmdb51_partition(n_clients, preprocessed_dir, fold):
 def get_hmdb51_client_dataset(client_id, fold, hmdb51_root):
 
     dataset_type = 'RawframeDataset'
-    data_root = hmdb51_root + f'/rawframes' 
+    data_root = hmdb51_root + '/rawframes' 
     ann_file_train = hmdb51_root + f'/partition/hmdb51_train_split_{fold}_client_{client_id}_rawframes.txt'
     ann_file_val = hmdb51_root + f'/partition/hmdb51_val_split_{fold}_rawframes.txt'
 

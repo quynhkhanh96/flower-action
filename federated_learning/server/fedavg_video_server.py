@@ -57,7 +57,7 @@ class FedAvgVideoStrategy(flwr.server.strategy.FedAvg):
             return None
         top1_acc, top5_acc = eval_res
         metrics = {'top1_accuracy': top1_acc, 'top5_accuracy': top5_acc}
-        return metrics
+        return 0., metrics
 
         
 

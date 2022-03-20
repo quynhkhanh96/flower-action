@@ -55,8 +55,7 @@ class FedAvgVideoStrategy(flwr.server.strategy.FedAvg):
         eval_res = self.eval_fn(model, self.test_dataset, self.device)
         if eval_res is None:
             return None
-        top1_acc, top5_acc = eval_res
-        metrics = {'top1_accuracy': top1_acc, 'top5_accuracy': top5_acc}
+        metrics = {'top1_accuracy': eval_res['top1'], 'top5_accuracy': eval_res['top5']}
         return 0., metrics
 
         

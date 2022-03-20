@@ -89,9 +89,11 @@ optimizer = dict(
 optimizer_config = dict(grad_clip=dict(max_norm=20, norm_type=2))
 # learning policy
 lr_config = dict(policy='step', step=[15, 30])
-total_epochs = 40
+# total_epochs = 40
+total_epochs = 1
 
 # runtime settings
 work_dir = './work_dirs/slowonly_k400_pretrained_r50_8x4x1_40e_hmdb51_rgb'
 load_from = 'https://download.openmmlab.com/mmaction/recognition/slowonly/slowonly_r50_8x8x1_256e_kinetics400_rgb/slowonly_r50_8x8x1_256e_kinetics400_rgb_20200703-a79c555a.pth'  # noqa: E501
 find_unused_parameters = False
+seed = 42

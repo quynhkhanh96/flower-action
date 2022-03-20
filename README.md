@@ -110,3 +110,5 @@ CUDA_VISIBLE_DEVICES=0 python -m recognition_video_client --cid=0 --cfg_path=$CF
 
 CUDA_VISIBLE_DEVICES=1 python -m recognition_video_client --cid=1 --cfg_path=$CFG_PATH --fed_cfg_path=$FED_CFG_PATH --work_dir=$WORK_DIR --data_dir=$DATA_DIR --server_address=$SERVER_ADDRESS
 ```
+
+Note: `total_epochs` in `configs/hmdb51_rgb_k400_pretrained.py` and `local_e` in `configs/hmdb51_mmaction2.yaml` need to be the same. For now, set them manually.

@@ -43,11 +43,11 @@ if __name__ == '__main__':
         default='', 
         help="image, metadata directory",
     )
-    parser.add_argument(
-        "--working_dir",
-        type=str,
-        help="where checkpoints are saved, progress is logged, etc",
-    )
+    # parser.add_argument(
+    #     "--work_dir",
+    #     type=str,
+    #     help="where checkpoints are saved, progress is logged, etc",
+    # )
     parser.add_argument(
         "--fold", type=int, default=1, help="split id"
     )
@@ -56,7 +56,7 @@ if __name__ == '__main__':
     # Configuration
     cfg = Config.fromfile(server_args.cfg_path)
     cfg.omnisource = False # dirty fix 
-    cfg.work_dir = server_args.work_dir 
+    # cfg.work_dir = server_args.work_dir 
 
     # test dataset, evaluation function
     if cfg.dataset_name == 'hmdb51':

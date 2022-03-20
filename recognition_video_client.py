@@ -34,7 +34,7 @@ if __name__ == '__main__':
         help="Configuration file path",
     )
     parser.add_argument(
-        "--working_dir",
+        "--work_dir",
         type=str,
         help="where checkpoints are saved, progress is logged, etc",
     )
@@ -54,7 +54,7 @@ if __name__ == '__main__':
     # Configurations 
     cfg = Config.fromfile(client_args.cfg_path)
     cfg.omnisource = False # dirty fix 
-    cfg.work_dir = client_args.work_dir 
+    cfg.work_dir = client_args.work_dir + f'/client_{client_id}'
     cfg.gpu_ids = range(1) #TODO
 
     # Logger

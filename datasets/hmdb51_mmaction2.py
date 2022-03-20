@@ -99,7 +99,13 @@ def get_hmdb51_client_dataset(client_id, fold, hmdb51_root):
 if __name__ == '__main__':
 
     preprocessed_dir = sys.argv[1]
-    hmdb51_partition(n_clients=4, preprocessed_dir=preprocessed_dir, fold=1)
+    n_clients = int(sys.argv[2])
+    try:
+        fold = int(sys.argv[3])
+    except:
+        fold = 1
+    hmdb51_partition(n_clients=n_clients, 
+                    preprocessed_dir=preprocessed_dir, fold=fold)
 
 
     

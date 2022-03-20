@@ -80,3 +80,31 @@ val_train_cfg = dict(
     data_prefix='path/to/rawframes',
     pipeline=val_pipeline)
 ```
+
+Split dataset among clients by running:
+```shell
+python -m dataset.hmdb51_mmaction2 $DATA_DIR 2 1
+```
+
+Start the server:
+```shell
+SERVER_ADDRESS="127.0.0.1:8085"
+MMACTION="/home/dothi/Desktop/mmaction2"
+CFG_PATH="configs/hmdb51_rgb_k400_pretrained.py"
+DATA_DIR="${MMACTION}/data/hmdb51"
+
+python -m recognition_video_server --server_address=$SERVER_ADDRESS --cfg_path=$CFG_PATH --data_dir=$DATA_DIR
+```
+
+Start the clients:
+```shell
+SERVER_ADDRESS="127.0.0.1:8085"
+MMACTION="/ext_data2/comvis/khanhdtq/mmaction2"
+CFG_PATH="configs/hmdb51_rgb_k400_pretrained.py"
+DATA_DIR="${MMACTION}/data/hmdb51"
+WORK_DIR="/ext_data2/comvis/khanhdtq/fed_hmdb51_slowonly"
+
+CUDA_VISIBLE_DEVICES=0 python -m recognition_video_client --cid=0 --cfg_path=$CFG_PATH --work_dir=$WORK_DIR --data_dir=$DATA_DIR
+
+CUDA_VISIBLE_DEVICES=1 python -m recognition_video_client --cid=0 --cfg_path=$CFG_PATH --work_dir=$WORK_DIR --data_dir=$DATA_DIR
+```

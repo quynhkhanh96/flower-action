@@ -6,7 +6,7 @@ dataset_name = 'hmdb51'
 # federated learning
 rounds = 100 
 local_e = 1 
-num_C = 5
+num_C = 2
 frac = 1
 min_sample_size = 2
 min_num_clients = 2 

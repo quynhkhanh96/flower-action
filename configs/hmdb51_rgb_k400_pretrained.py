@@ -2,15 +2,6 @@ _base_ = [
     '_base_/models/slowonly_r50.py', '_base_/schedules/sgd_50e.py',
     '_base_/default_runtime.py'
 ]
-dataset_name = 'hmdb51'
-# federated learning
-rounds = 100 
-local_e = 1 
-num_C = 2
-frac = 1
-min_sample_size = 2
-min_num_clients = 2 
-
 # model settings
 model = dict(cls_head=dict(num_classes=51))
 

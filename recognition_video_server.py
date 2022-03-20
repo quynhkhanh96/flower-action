@@ -6,6 +6,8 @@ from evaluation.video_recognition import evaluate_video_recognizer
 from federated_learning.server.fedavg_video_server import FedAvgVideoStrategy
 from datasets import * 
 from mmcv import Config
+import yaml 
+from utils.parsing import Dict2Class
 
 DEFAULT_SERVER_ADDRESS = "[::]:8080"
 
@@ -38,6 +40,11 @@ if __name__ == '__main__':
         help="Configuration file path",
     )
     parser.add_argument(
+        "--fed_cfg_path",
+        type=str,
+        help="Configuration file path",
+    )
+    parser.add_argument(
         "--data_dir",
         type=str,
         default='', 
@@ -57,9 +64,12 @@ if __name__ == '__main__':
     cfg = Config.fromfile(server_args.cfg_path)
     cfg.omnisource = False # dirty fix 
     # cfg.work_dir = server_args.work_dir 
+    with open(server_args.fed_cfg_path, 'r') as yamlfile:
+        fed_cfgs = yaml.load(yamlfile, Loader=yaml.FullLoader)
+    fed_cfgs = Dict2Class(fed_cfgs)
 
     # test dataset, evaluation function
-    if cfg.dataset_name == 'hmdb51':
+    if fed_cfgs.dataset_name == 'hmdb51':
         _, test_dataset = get_hmdb51_client_dataset(0, server_args.fold, 
                                                     server_args.data_dir)
     else:
@@ -71,17 +81,17 @@ if __name__ == '__main__':
         cfg=cfg,
         test_dataset=test_dataset,
         device=torch.device("cuda" if torch.cuda.is_available() else "cpu"),
-        fraction_fit=cfg.frac,
-        min_fit_clients=cfg.min_sample_size,
-        min_available_clients=cfg.min_num_clients,
+        fraction_fit=fed_cfgs.frac,
+        min_fit_clients=fed_cfgs.min_sample_size,
+        min_available_clients=fed_cfgs.min_num_clients,
         eval_fn=eval_fn,
-        on_fit_config_fn=functools.partial(fit_config, cfgs=cfg),
+        on_fit_config_fn=functools.partial(fit_config, cfgs=fed_cfgs),
     )
 
     # Configure logger and start server
     flwr.common.logger.configure("server", host=server_args.log_host)
     flwr.server.start_server(
         server_args.server_address,
-        config={"num_rounds": cfg.rounds},
+        config={"num_rounds": fed_cfgs.rounds},
         strategy=strategy,
     )

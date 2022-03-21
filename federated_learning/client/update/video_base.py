@@ -37,6 +37,7 @@ class MMAction2LocalUpdate:
         self.mmaction_cfg = mmaction_cfg 
 
     def train(self, model):
+        print(self.mmaction_cfg.lr_config)
         train_model(model, [self.train_dataset], self.mmaction_cfg, 
                         distributed=False, validate=False)
 

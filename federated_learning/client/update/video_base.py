@@ -35,9 +35,13 @@ class MMAction2LocalUpdate:
     def __init__(self, train_dataset, mmaction_cfg):
         self.train_dataset = train_dataset
         self.mmaction_cfg = mmaction_cfg 
+        self.lr_config_policy = mmaction_cfg.lr_config['policy']
 
     def train(self, model):
-        print(self.mmaction_cfg.lr_config)
+        # print(self.mmaction_cfg.lr_config)
+        if 'policy' not in self.mmaction_cfg.lr_config:
+            self.mmaction_cfg.lr_config['policy'] = self.lr_config_policy
+            
         train_model(model, [self.train_dataset], self.mmaction_cfg, 
                         distributed=False, validate=False)
 

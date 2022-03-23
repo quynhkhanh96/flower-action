@@ -45,7 +45,6 @@ class FedAvgVideoClient(flwr.client.Client):
         state_dict = OrderedDict(
             {k: torch.Tensor(v) for k, v in zip(self.model.state_dict().keys(), weights)}
         )
-        # load_checkpoint(self.model, state_dict) #, map_location='cpu')
         load_state_dict(self.model, state_dict)
 
         fit_begin = timeit.default_timer()
@@ -77,11 +76,6 @@ class FedAvgVideoClient(flwr.client.Client):
                 _ = len(w)
             except:
                 weights[i] = np.array([0])
-        # # Use provided weights to update the local model
-        # state_dict = OrderedDict(
-        #     {k: torch.Tensor(v) for k, v in zip(self.model.state_dict().keys(), weights)}
-        # )
-        # load_checkpoint(self.model, state_dict) #, map_location='cpu')
 
         cfg = copy.deepcopy(self.cfg)
         cfg.model.backbone.pretrained = None
@@ -96,7 +90,6 @@ class FedAvgVideoClient(flwr.client.Client):
         model.eval()
         
         # Evaluate the updated model on the local dataset
-        # topk_accuracy = self.eval_fn(self.model, self.ds_test, 'cuda')
         topk_accuracy = self.eval_fn(model, self.ds_test, 'cuda')
 
         # Return the number of evaluation examples and the evaluation result (loss)

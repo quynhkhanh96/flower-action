@@ -13,8 +13,6 @@ class FedAvgVideoStrategy(flwr.server.strategy.FedAvg):
     def __init__(self, cfg, test_dataset, device, **kwargs):
         self.cfg = cfg 
         self.test_dataset = test_dataset 
-        # self.device = torch.device("cuda" if torch.cuda.is_available() 
-        #                             else "cpu")
         self.device = device 
         super(FedAvgVideoStrategy, self).__init__(**kwargs) 
 
@@ -37,20 +35,8 @@ class FedAvgVideoStrategy(flwr.server.strategy.FedAvg):
         )
         load_state_dict(model, state_dict)
         model.cfg = cfg
-        # model.to('cuda')
         model.to(self.device)
         model.eval()
-
-        # model = build_model(
-        #     self.cfg.model,
-        #     train_cfg=self.cfg.get('train_cfg'),
-        #     test_cfg=self.cfg.get('test_cfg'))
-        # # TODO: add set_weights() method to mmaction2 model 
-        # state_dict = OrderedDict(
-        #     {k: torch.Tensor(v) for k, v in zip(model.state_dict().keys(), weights)}
-        # )
-        # # load_checkpoint(model, state_dict) #, map_location='cpu')
-        # load_state_dict(model, state_dict)
         
         eval_res = self.eval_fn(model, self.test_dataset, self.device)
         if eval_res is None:

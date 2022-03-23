@@ -72,12 +72,16 @@ if __name__ == '__main__':
     flwr.common.logger.configure(f"client_{client_id}", 
                                     host=client_args.log_host)
 
+    # # datasets
+    # if fed_cfgs.dataset_name == 'hmdb51':
+    #     train_dataset, test_dataset = get_hmdb51_client_dataset(client_id, 
+    #                                     client_args.fold, client_args.data_dir)
+    # else:
+    #     raise ValueError(f'No data loaders implemented for {cfg.dataset_name} dataset.') 
+
     # datasets
-    if fed_cfgs.dataset_name == 'hmdb51':
-        train_dataset, test_dataset = get_hmdb51_client_dataset(client_id, 
-                                        client_args.fold, client_args.data_dir)
-    else:
-        raise ValueError(f'No data loaders implemented for {cfg.dataset_name} dataset.') 
+    train_dataset, test_dataset = get_client_dataset(client_id, client_args.fold,
+                                                        client_args.data_dir, cfg)
 
     # Model 
     model = build_model( 

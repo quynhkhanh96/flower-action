@@ -1,0 +1,9 @@
+local_e: 1 # local epoch
+epochs: 20 # communication rounds
+# dataset_name: 'ucf101' 
+fold: 1
+frac: 1 # partipation ratio
+num_C: 4 # client number
+min_sample_size: 2
+min_num_clients: 2 
+seed: 1234 

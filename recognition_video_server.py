@@ -69,11 +69,14 @@ if __name__ == '__main__':
     fed_cfgs = Dict2Class(fed_cfgs)
 
     # test dataset, evaluation function
-    if fed_cfgs.dataset_name == 'hmdb51':
-        _, test_dataset = get_hmdb51_client_dataset(0, server_args.fold, 
-                                                    server_args.data_dir)
-    else:
-        raise ValueError(f'No data loaders implemented for {cfg.dataset_name} dataset.') 
+    # if fed_cfgs.dataset_name == 'hmdb51':
+    #     _, test_dataset = get_hmdb51_client_dataset(0, server_args.fold, 
+    #                                                 server_args.data_dir)
+    # else:
+    #     raise ValueError(f'No data loaders implemented for {cfg.dataset_name} dataset.') 
+
+    _, test_dataset = get_client_dataset(0, server_args.fold, server_args.data_dir, cfg)
+
     eval_fn = evaluate_video_recognizer
 
     # create strategy

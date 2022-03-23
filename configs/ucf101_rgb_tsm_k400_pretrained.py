@@ -94,7 +94,7 @@ optimizer = dict(
 )
 # learning policy
 lr_config = dict(policy='step', step=[10, 20])
-total_epochs = 25
+total_epochs = 1 #25
 
 load_from = 'https://download.openmmlab.com/mmaction/recognition/tsm/tsm_r50_256p_1x1x8_50e_kinetics400_rgb/tsm_r50_256p_1x1x8_50e_kinetics400_rgb_20200726-020785e2.pth'  # noqa: E501
 # runtime settings

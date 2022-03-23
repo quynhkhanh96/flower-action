@@ -27,9 +27,9 @@ or in a more manually manner:
 
 # Video recognition
 
-**HMDB51**
+## **HMDB51**
 
-## MoViNets
+### MoViNets
 
 Download and extract HMDB51 dataset:
 
@@ -59,7 +59,7 @@ Start the clients:
 
     CUDA_VISIBLE_DEVICES=1 python -m classification_client --cid=1 --cfg_path=$CFG_PATH --working_dir=$WORKING_DIR --server_address=$SERVER_ADDRESS --data_dir=$DATA_DIR
     
-## SlowOnly
+### SlowOnly
 After data preparation, the data looks like this:
 ![Alt text](images/hmdb51_data_prepare.png)
 
@@ -112,3 +112,45 @@ CUDA_VISIBLE_DEVICES=1 python -m recognition_video_client --cid=1 --cfg_path=$CF
 ```
 
 Note: `total_epochs` in `configs/hmdb51_rgb_k400_pretrained.py` and `local_e` in `configs/hmdb51_mmaction2.yaml` need to be the same. For now, set them manually.
+
+## **UCF101**
+### TSM 
+Set the paths on both machines:
+- On machine that are to run server:
+```shell
+SERVER_ADDRESS="127.0.0.1:8085"
+MMACTION="/home/dothi/Desktop/mmaction2"
+CFG_PATH="configs/ucf101_rgb_tsm_k400_pretrained.py"
+FED_CFG_PATH="configs/ucf101.yaml"
+DATA_DIR="${MMACTION}/data/ucf101"
+```
+- On machine that are to run clients:
+```shell
+SERVER_ADDRESS="127.0.0.1:8085"
+MMACTION="/ext_data2/comvis/khanhdtq/mmaction2"
+CFG_PATH="configs/ucf101_rgb_tsm_k400_pretrained.py"
+FED_CFG_PATH="configs/ucf101.yaml"
+DATA_DIR="${MMACTION}/data/ucf101"
+WORK_DIR="/ext_data2/comvis/khanhdtq/fed_ucf101_tsm"
+```
+
+Split dataset among clients by running:
+```shell
+python -m datasets.dataset_mmaction2 $DATA_DIR 4 1 
+```
+
+Start the server:
+```shell
+python -m recognition_video_server --server_address=$SERVER_ADDRESS --cfg_path=$CFG_PATH --fed_cfg_path=$FED_CFG_PATH --data_dir=$DATA_DIR
+```
+
+Start the clients:
+```shell 
+CUDA_VISIBLE_DEVICES=0 python -m recognition_video_client --cid=0 --cfg_path=$CFG_PATH --fed_cfg_path=$FED_CFG_PATH --work_dir=$WORK_DIR --data_dir=$DATA_DIR --server_address=$SERVER_ADDRESS
+
+CUDA_VISIBLE_DEVICES=1 python -m recognition_video_client --cid=1 --cfg_path=$CFG_PATH --fed_cfg_path=$FED_CFG_PATH --work_dir=$WORK_DIR --data_dir=$DATA_DIR --server_address=$SERVER_ADDRESS
+
+CUDA_VISIBLE_DEVICES=2 python -m recognition_video_client --cid=2 --cfg_path=$CFG_PATH --fed_cfg_path=$FED_CFG_PATH --work_dir=$WORK_DIR --data_dir=$DATA_DIR --server_address=$SERVER_ADDRESS
+
+CUDA_VISIBLE_DEVICES=3 python -m recognition_video_client --cid=3 --cfg_path=$CFG_PATH --fed_cfg_path=$FED_CFG_PATH --work_dir=$WORK_DIR --data_dir=$DATA_DIR --server_address=$SERVER_ADDRESS
+```

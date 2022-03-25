@@ -53,13 +53,13 @@ def get_client_dataset(client_id, fold, dataset_root, cfg):
     )
 
     data_train_cfg = dict(
-        type=cfg.data.dataset_type,
+        type=cfg.data.train.dataset_type,
         ann_file=ann_file_train,
         data_prefix=data_root,
         pipeline=cfg.data.train.pipeline
     )
     data_val_cfg = dict(
-        type=cfg.data.dataset_type,
+        type=cfg.data.val.dataset_type,
         ann_file=ann_file_val,
         data_prefix=data_root,
         pipeline=cfg.data.val.pipeline

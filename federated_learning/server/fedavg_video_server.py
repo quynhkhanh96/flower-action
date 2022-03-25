@@ -10,10 +10,12 @@ import copy
 from flwr.server.strategy import FedAvg
 
 class FedAvgVideoStrategy(flwr.server.strategy.FedAvg):
-    def __init__(self, cfg, test_dataset, device, **kwargs):
+    def __init__(self, cfg, test_dataset, ckpt_dir, device, **kwargs):
         self.cfg = cfg 
         self.test_dataset = test_dataset 
+        self.ckpt_dir = ckpt_dir
         self.device = device 
+        self.best_top1_acc = -1 
         super(FedAvgVideoStrategy, self).__init__(**kwargs) 
 
     def evaluate(self, parameters):
@@ -41,7 +43,12 @@ class FedAvgVideoStrategy(flwr.server.strategy.FedAvg):
         eval_res = self.eval_fn(model, self.test_dataset, self.device)
         if eval_res is None:
             return None
+        
         metrics = {'top1_accuracy': eval_res['top1'], 'top5_accuracy': eval_res['top5']}
+        if eval_res['top1'] > self.best_top1_acc:
+            self.best_top1_acc = eval_res['top1']
+            torch.save({'state_dict': model.state_dict(),}, self.ckpt_dir + '/best.pth')
+
         return 0., metrics
 
         

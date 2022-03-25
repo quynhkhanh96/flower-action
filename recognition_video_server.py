@@ -50,15 +50,16 @@ if __name__ == '__main__':
         default='', 
         help="image, metadata directory",
     )
-    # parser.add_argument(
-    #     "--work_dir",
-    #     type=str,
-    #     help="where checkpoints are saved, progress is logged, etc",
-    # )
+    parser.add_argument(
+        "--work_dir",
+        type=str,
+        help="where checkpoints are saved, progress is logged, etc",
+    )
     parser.add_argument(
         "--fold", type=int, default=1, help="split id"
     )
     server_args = parser.parse_args()
+    os.makedirs(server_args.work_dir, exist_ok=True)
 
     # Configuration
     cfg = Config.fromfile(server_args.cfg_path)
@@ -83,6 +84,7 @@ if __name__ == '__main__':
     strategy = FedAvgVideoStrategy(
         cfg=cfg,
         test_dataset=test_dataset,
+        ckpt_dir=server_args.work_dir,
         device=torch.device("cuda" if torch.cuda.is_available() else "cpu"),
         fraction_fit=fed_cfgs.frac,
         min_fit_clients=fed_cfgs.min_sample_size,

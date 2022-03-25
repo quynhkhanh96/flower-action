@@ -93,8 +93,9 @@ MMACTION="/home/dothi/Desktop/mmaction2"
 CFG_PATH="configs/hmdb51_rgb_k400_pretrained.py"
 FED_CFG_PATH="configs/hmdb51_mmaction2.yaml"
 DATA_DIR="${MMACTION}/data/hmdb51"
+WORK_DIR="/home/dothi/Desktop/fed_exps/hmdb51_slowonly"
 
-python -m recognition_video_server --server_address=$SERVER_ADDRESS --cfg_path=$CFG_PATH --fed_cfg_path=$FED_CFG_PATH --data_dir=$DATA_DIR
+python -m recognition_video_server --server_address=$SERVER_ADDRESS --cfg_path=$CFG_PATH --fed_cfg_path=$FED_CFG_PATH --data_dir=$DATA_DIR --work_dir=$WORK_DIR
 ```
 
 Start the clients:
@@ -123,6 +124,7 @@ MMACTION="/home/dothi/Desktop/mmaction2"
 CFG_PATH="configs/ucf101_rgb_tsm_k400_pretrained.py"
 FED_CFG_PATH="configs/ucf101.yaml"
 DATA_DIR="${MMACTION}/data/ucf101"
+WORK_DIR="/home/dothi/Desktop/fed_exps/ucf101_tsm"
 ```
 - On machine that are to run clients:
 ```shell
@@ -141,7 +143,7 @@ python -m datasets.dataset_mmaction2 $DATA_DIR 4 1
 
 Start the server:
 ```shell
-python -m recognition_video_server --server_address=$SERVER_ADDRESS --cfg_path=$CFG_PATH --fed_cfg_path=$FED_CFG_PATH --data_dir=$DATA_DIR
+python -m recognition_video_server --server_address=$SERVER_ADDRESS --cfg_path=$CFG_PATH --fed_cfg_path=$FED_CFG_PATH --data_dir=$DATA_DIR --work_dir=$WORK_DIR
 ```
 
 Start the clients:

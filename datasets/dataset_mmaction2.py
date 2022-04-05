@@ -50,7 +50,7 @@ def data_partition(n_clients, preprocessed_dir, fold):
         shutil.copy(preprocessed_dir + f'/{dataset_name}_val_split_{fold}_rawframes.txt',
                     preprocessed_dir + f'/partition/{dataset_name}_val_split_{fold}_rawframes.txt')
     else:
-        shutil.copy(preprocessed_dir + f'{dataset_name}_val_list_rawframes.txt',
+        shutil.copy(preprocessed_dir + f'/{dataset_name}_val_list_rawframes.txt',
                     preprocessed_dir + f'/partition/{dataset_name}_val_list_rawframes.txt')
 
     with open(preprocessed_dir + '/partition/clients.pkl', 'wb') as handle:

@@ -1,6 +1,6 @@
 local_e: 1 # local epoch
 epochs: 50 # communication rounds
-# batch_size: 16 # local batch size
+batch_size: 8 # local batch size or videos_per_gpu
 dataset_name: 'hmdb51' 
 fold: 1
 frac: 1 # partipation ratio

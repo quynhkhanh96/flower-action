@@ -156,3 +156,31 @@ CUDA_VISIBLE_DEVICES=2 python -m recognition_video_client --cid=2 --cfg_path=$CF
 
 CUDA_VISIBLE_DEVICES=3 python -m recognition_video_client --cid=3 --cfg_path=$CFG_PATH --fed_cfg_path=$FED_CFG_PATH --work_dir=$WORK_DIR --data_dir=$DATA_DIR --server_address=$SERVER_ADDRESS
 ```
+
+## **AFORS2022**
+Set the paths:
+```shell 
+SERVER_ADDRESS="127.0.0.1:8085"
+MMACTION="/ext_data2/comvis/khanhdtq/mmaction2"
+CFG_PATH="configs/afors_rgb_slowonly_k400_pretrained.py"
+FED_CFG_PATH="configs/afors.yaml"
+DATA_DIR="${MMACTION}/data/afors"
+WORK_DIR="/ext_data2/comvis/khanhdtq/fed_afors_slowonly"
+```
+
+Split dataset among clients by running:
+```shell
+python -m datasets.dataset_mmaction2 $DATA_DIR 2 
+```
+
+Start the server:
+```shell
+python -m recognition_video_server --server_address=$SERVER_ADDRESS --cfg_path=$CFG_PATH --fed_cfg_path=$FED_CFG_PATH --data_dir=$DATA_DIR --work_dir=$WORK_DIR
+```
+
+Start the clients:
+```shell 
+CUDA_VISIBLE_DEVICES=0 python -m recognition_video_client --cid=0 --cfg_path=$CFG_PATH --fed_cfg_path=$FED_CFG_PATH --work_dir=$WORK_DIR --data_dir=$DATA_DIR --server_address=$SERVER_ADDRESS
+
+CUDA_VISIBLE_DEVICES=1 python -m recognition_video_client --cid=1 --cfg_path=$CFG_PATH --fed_cfg_path=$FED_CFG_PATH --work_dir=$WORK_DIR --data_dir=$DATA_DIR --server_address=$SERVER_ADDRESS
+```

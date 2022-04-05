@@ -54,5 +54,4 @@ def evaluate_video_recognizer(model, test_dataset, device):
             prog_bar.update()
 
     top1_acc, top5_acc = top_k_accuracy(results, labels, topk=(1, 5))
-    return top1_acc, top5_acc
-
+    return {'top1': top1_acc, 'top5': top5_acc}

@@ -1,4 +1,5 @@
 import os 
+import glob 
 import pickle 
 import shutil 
 import sys 
@@ -15,7 +16,13 @@ def data_partition(n_clients, preprocessed_dir, fold):
 
     all_actions = {action: [] 
                     for action in os.listdir(preprocessed_dir + '/rawframes')}
-    with open(preprocessed_dir + f'/{dataset_name}_train_split_{fold}_rawframes.txt', 'r') as f:
+    train_rawframes_file = preprocessed_dir + f'/{dataset_name}_train_split_{fold}_rawframes.txt'
+    no_cross_val = False
+    if not os.path.exists(train_rawframes_file):
+        train_rawframes_file = preprocessed_dir + f'/{dataset_name}_train_list_rawframes.txt'
+        no_cross_val = True 
+    # with open(preprocessed_dir + f'/{dataset_name}_train_split_{fold}_rawframes.txt', 'r') as f:
+    with open(train_rawframes_file, 'r') as f:
         lines = f.readlines()
     for line in lines:
         action, _ = line.split('/')
@@ -27,16 +34,25 @@ def data_partition(n_clients, preprocessed_dir, fold):
         client_files = []
         for action in all_actions:
             client_files.extend(all_actions[action][client_id])
-        metadata_path = '{}/partition/{}_train_split_{}_client_{}_rawframes.txt'.format(
-            preprocessed_dir, dataset_name, fold, client_id
-        )
+        if not no_cross_val:
+            metadata_path = '{}/partition/{}_train_split_{}_client_{}_rawframes.txt'.format(
+                preprocessed_dir, dataset_name, fold, client_id
+            )
+        else:
+            metadata_path = '{}/partition/{}_train_list_client_{}_rawframes.txt'.format(
+                preprocessed_dir, dataset_name, client_id
+            )
         with open(metadata_path, 'a') as f:
             for client_file in client_files:
                 f.write(client_file)
 
-    shutil.copy(preprocessed_dir + f'/{dataset_name}_val_split_{fold}_rawframes.txt',
-                preprocessed_dir + f'/partition/{dataset_name}_val_split_{fold}_rawframes.txt')
-    
+    if not no_cross_val:
+        shutil.copy(preprocessed_dir + f'/{dataset_name}_val_split_{fold}_rawframes.txt',
+                    preprocessed_dir + f'/partition/{dataset_name}_val_split_{fold}_rawframes.txt')
+    else:
+        shutil.copy(preprocessed_dir + f'{dataset_name}_val_list_rawframes.txt',
+                    preprocessed_dir + f'/partition/{dataset_name}_val_list_rawframes.txt')
+
     with open(preprocessed_dir + '/partition/clients.pkl', 'wb') as handle:
         pickle.dump(all_actions, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
@@ -45,12 +61,20 @@ def get_client_dataset(client_id, fold, dataset_root, cfg):
     dataset_name = os.path.basename(dataset_root)
 
     data_root = dataset_root + '/rawframes' 
-    ann_file_train = dataset_root + '/partition/{}_train_split_{}_client_{}_rawframes.txt'.format(
-        dataset_name, fold, client_id
-    )
-    ann_file_val = dataset_root + '/partition/{}_val_split_{}_rawframes.txt'.format(
-        dataset_name, fold
-    )
+    if len(glob.glob(dataset_root + f'/partition/*_split_{fold}_*.txt')):
+        ann_file_train = dataset_root + '/partition/{}_train_split_{}_client_{}_rawframes.txt'.format(
+            dataset_name, fold, client_id
+        )
+        ann_file_val = dataset_root + '/partition/{}_val_split_{}_rawframes.txt'.format(
+            dataset_name, fold
+        )
+    else:
+        ann_file_train = dataset_root + '/partition/{}_train_list_client_{}_rawframes.txt'.format(
+            dataset_name, client_id
+        )
+        ann_file_val = dataset_root + '/partition/{}_val_list_rawframes.txt'.format(
+            dataset_name
+        )
 
     data_train_cfg = dict(
         type=cfg.data.train.type,

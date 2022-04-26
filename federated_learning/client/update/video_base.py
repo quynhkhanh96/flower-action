@@ -34,18 +34,18 @@ from utils import AverageMeter
 
 
 class VideoLocalUpdate:
-    def __init__(self, train_loader, loss_fn, optimizer, args):
+    def __init__(self, train_loader, loss_fn, optimizer, cfgs):
         self.train_loader = train_loader
         self.loss_fn = loss_fn
         self.optimizer = optimizer
-        self.args = args 
+        self.cfgs = cfgs 
 
     def train(self, model):
-        model.to(self.args.device)
+        model.to(self.cfgs.device)
         model.train()
         losses = AverageMeter("loss")	
         for batch_idx, (imgs, labels, _) in enumerate(self.train_loader):			
-            imgs, labels = imgs.to(self.args.device), labels.to(self.args.device)
+            imgs, labels = imgs.to(self.cfgs.device), labels.to(self.cfgs.device)
             imgs, labels = Variable(imgs), Variable(labels)		
             outputs = model(imgs) 		
             loss = self.loss_fn(outputs, labels)	        
@@ -53,7 +53,7 @@ class VideoLocalUpdate:
             loss.backward()
             self.optimizer.step()		 		
             losses.update(loss.item(), labels.size(0))
-            if (batch_idx + 1) % self.args.print_freq == 0:
+            if (batch_idx + 1) % self.cfgs.print_freq == 0:
                 print("Batch {}/{}\t Loss {:.6f} ({:.6f})".format(batch_idx + 1, 
                                     len(self.train_loader), losses.val, losses.avg))
 

@@ -169,8 +169,8 @@ class FedAvgVideoClient(flwr.client.Client):
             for k, v in zip(self.model.state_dict().keys(), weights)}
         )
         self.model.load_state_dict(state_dict)
-        self.model.to(self.cfgs.device)
-        self.model.eval()
+        # self.model.to(self.cfgs.device)
+        # self.model.eval()
         
         # Evaluate the updated model on the local dataset
         topk_accuracy = self.eval_fn(self.model, self.dl_test, 

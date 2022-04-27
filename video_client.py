@@ -4,8 +4,7 @@ from evaluation.video_recognition import evaluate_topk_accuracy
 import flwr
 import torch 
 import argparse
-from datasets import *
-from datasets.video_dataset import * 
+from datasets.video_dataset import get_client_loaders
 import yaml 
 from utils.parsing import Dict2Class
 
@@ -56,7 +55,7 @@ if __name__ == '__main__':
     )
 
     # datasets
-    
+
 
     # model
 

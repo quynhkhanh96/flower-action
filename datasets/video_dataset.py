@@ -5,7 +5,7 @@ import random
 import numpy as np
 import argparse
 import torch
-from torch.utils.data import Dataset
+from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms as T
 from .utils.video_sampler import *
 
@@ -107,7 +107,7 @@ def data_partition(n_clients,
         for person_id in person_list:
             os.system(f'cp -r {video_dir}/{person_id} {working_dir}/client_{i}/videos')
 
-def get_client_dataset(client_id, data_dir, cfgs):
+def get_client_loaders(client_id, data_dir, cfgs):
     """
     Args:
         client_id (int): id of the client 
@@ -135,6 +135,10 @@ def get_client_dataset(client_id, data_dir, cfgs):
         transform=transform,
         use_albumentations=False,
     )
+    train_loader = DataLoader(train_set, batch_size=cfgs.train_bz,
+                                num_workers=cfgs.num_workers, 
+                                shuffle=True
+    )
 
     val_set = VideoDataset(
         video_dir=data_dir + f'/client_{client_id}/videos',
@@ -143,8 +147,12 @@ def get_client_dataset(client_id, data_dir, cfgs):
         transform=transform,
         use_albumentations=False,
     )
+    val_loader = DataLoader(val_set, batch_size=cfgs.test_bz,
+                                num_workers=cfgs.num_workers, 
+                                shuffle=False
+    )
 
-    return train_set, val_set
+    return train_loader, val_loader
 
 if __name__ == '__main__':
 

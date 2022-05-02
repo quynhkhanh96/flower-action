@@ -139,7 +139,7 @@ class FedAvgVideoClient(flwr.client.Client):
         state_dict = OrderedDict(
             {k: torch.Tensor(v) for k, v in zip(self.model.state_dict().keys(), weights)}
         )
-        load_state_dict(self.model, state_dict)
+        self.model.load_state_dict(state_dict)
 
         fit_begin = timeit.default_timer()
         # train model locally 

@@ -2,45 +2,43 @@ import flwr
 from flwr.common import parameters_to_weights
 import numpy as np
 import torch 
-# from mmcv.runner import load_checkpoint
-from mmaction.models import build_recognizer
-from mmcv.runner import load_state_dict
+from models.build import build_model
 from collections import OrderedDict
-import copy 
-from flwr.server.strategy import FedAvg
 
 class FedAvgVideoStrategy(flwr.server.strategy.FedAvg):
-    def __init__(self, cfg, test_dataset, ckpt_dir, device, **kwargs):
-        self.cfg = cfg 
-        self.test_dataset = test_dataset 
+    def __init__(self, cfgs, dl_test, ckpt_dir, device, **kwargs):
+        self.cfgs = cfgs 
+        self.dl_test = dl_test 
         self.ckpt_dir = ckpt_dir
         self.device = device 
         self.best_top1_acc = -1 
         super(FedAvgVideoStrategy, self).__init__(**kwargs) 
 
-    def evaluate(self, parameters):
-        if self.eval_fn is None:
-            return None
-
-        weights = parameters_to_weights(parameters)
+    @staticmethod
+    def postprocess_weights(weights):
         for i, w in enumerate(weights):
             try:
                 _ = len(w)
             except:
                 weights[i] = np.array([0])
 
-        cfg = copy.deepcopy(self.cfg)
-        cfg.model.backbone.pretrained = None
-        model = build_recognizer(cfg.model, test_cfg=cfg.get('test_cfg'))
+        return weights
+
+    def evaluate(self, parameters):
+        if self.eval_fn is None:
+            return None
+
+        weights = parameters_to_weights(parameters)
+        weights = self.postprocess_weights(weights)
+
         state_dict = OrderedDict(
-            {k: torch.Tensor(v) for k, v in zip(model.state_dict().keys(), weights)}
+            {k: torch.Tensor(v) 
+            for k, v in zip(self.model.state_dict().keys(), weights)}
         )
-        load_state_dict(model, state_dict)
-        model.cfg = cfg
-        model.to(self.device)
-        model.eval()
+        model = build_model(self.cfgs, mode='test')
+        model.load_state_dict(state_dict)
         
-        eval_res = self.eval_fn(model, self.test_dataset, self.device)
+        eval_res = self.eval_fn(model, self.dl_test, self.device)
         if eval_res is None:
             return None
         
@@ -50,7 +48,5 @@ class FedAvgVideoStrategy(flwr.server.strategy.FedAvg):
             torch.save({'state_dict': model.state_dict(),}, self.ckpt_dir + '/best.pth')
 
         return 0., metrics
-
-        
 
         

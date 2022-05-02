@@ -184,3 +184,28 @@ CUDA_VISIBLE_DEVICES=0 python -m recognition_video_client --cid=0 --cfg_path=$CF
 
 CUDA_VISIBLE_DEVICES=1 python -m recognition_video_client --cid=1 --cfg_path=$CFG_PATH --fed_cfg_path=$FED_CFG_PATH --work_dir=$WORK_DIR --data_dir=$DATA_DIR --server_address=$SERVER_ADDRESS
 ```
+## **AFOSR**
+```shell
+SERVER_ADDRESS="127.0.0.1:8085"
+CFG_PATH="configs/afosr_movinetA0.yaml"
+VIDEO_DIR="/ext_data2/comvis/datasets/afors2022/data"
+TRAIN_ANNOTATION_PATH="/ext_data2/comvis/datasets/afors2022/train.txt"
+VAL_ANNOTATION_PATH="/ext_data2/comvis/datasets/afors2022/val.txt"
+PARTITION_DIR=""
+```
+
+Split dataset among clients by running:
+```shell 
+python -m datasets.video_dataset --n_clients=4 --video_dir $VIDEO_DIR --train_ann=$TRAIN_ANNOTATION_PATH --val_ann=$VAL_ANNOTATION_PATH --working_dir=$PARTITION_DIR
+```
+
+Start the server:
+```shell 
+SERVER_DIR=""
+python -m video_server --server_address=$SERVER_ADDRESS --cfg_path=$CFG_PATH --data_dir=$PARTITION_DIR --work_dir=$SERVER_DIR
+```
+
+Start the client:
+```shell 
+python -m video_client --server_address=$SERVER_ADDRESS --cid=0 --cfg_path=$CFG_PATH --data_dir=$PARTITION_DIR 
+```

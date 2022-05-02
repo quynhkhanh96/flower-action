@@ -39,9 +39,6 @@ if __name__ == '__main__':
         type=str,
         help="image, metadata directory",
     )
-    parser.add_argument(
-        "--fold", type=int, default=1, help="split id"
-    )
     client_args = parser.parse_args()
     client_id = client_args.cid
 

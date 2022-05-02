@@ -67,7 +67,7 @@ def data_partition(n_clients,
     """
     Args:
         n_clients: number of clients
-        data_dir: path to video directory
+        video_dir: path to video directory
         train_annotation_path: path to train annotation file, 
                                 in which each line is person id 
         val_annotation_path: path to valid annotation file

@@ -1,11 +1,11 @@
+import os 
 import argparse
 import flwr 
 import torch
 import functools
-from evaluation.video_recognition import evaluate_video_recognizer
 from federated_learning.server.fedavg_video_server import FedAvgVideoStrategy
-from datasets import * 
-from mmcv import Config
+from datasets.video_dataset import get_client_loaders
+from evaluation.video_recognition import evaluate_topk_accuracy
 import yaml 
 from utils.parsing import Dict2Class
 
@@ -53,34 +53,33 @@ if __name__ == '__main__':
     os.makedirs(server_args.work_dir, exist_ok=True)
 
     # Configuration
-    cfg = Config.fromfile(server_args.cfg_path)
-    cfg.omnisource = False # dirty fix 
-    # cfg.work_dir = server_args.work_dir 
-    with open(server_args.fed_cfg_path, 'r') as yamlfile:
-        fed_cfgs = yaml.load(yamlfile, Loader=yaml.FullLoader)
-    fed_cfgs = Dict2Class(fed_cfgs)
+    with open(server_args.cfg_path, 'r') as yamlfile:
+        cfgs = yaml.load(yamlfile, Loader=yaml.FullLoader)
+    cfgs = Dict2Class(cfgs)
 
-    _, test_dataset = get_client_dataset(0, server_args.fold, server_args.data_dir, cfg)
+    # Test loader 
+    _, test_loader = get_client_loaders(0, server_args.data_dir, cfgs)
 
-    eval_fn = evaluate_video_recognizer
+    # eval_fn
+    eval_fn = evaluate_topk_accuracy
 
     # create strategy
     strategy = FedAvgVideoStrategy(
-        cfg=cfg,
-        test_dataset=test_dataset,
+        cfgs=cfgs,
+        dl_test=test_loader,
         ckpt_dir=server_args.work_dir,
         device=torch.device("cuda" if torch.cuda.is_available() else "cpu"),
-        fraction_fit=fed_cfgs.frac,
-        min_fit_clients=fed_cfgs.min_sample_size,
-        min_available_clients=fed_cfgs.min_num_clients,
+        fraction_fit=cfgs.frac,
+        min_fit_clients=cfgs.min_sample_size,
+        min_available_clients=cfgs.min_num_clients,
         eval_fn=eval_fn,
-        on_fit_config_fn=functools.partial(fit_config, cfgs=fed_cfgs),
+        on_fit_config_fn=functools.partial(fit_config, cfgs=cfgs),
     )
 
     # Configure logger and start server
     flwr.common.logger.configure("server", host=server_args.log_host)
     flwr.server.start_server(
         server_args.server_address,
-        config={"num_rounds": fed_cfgs.epochs},
+        config={"num_rounds": cfgs.epochs},
         strategy=strategy,
     )

@@ -1,0 +1,29 @@
+# local data loaders
+height: 172
+width: 172
+seq_len: 16
+train_bz: 4
+test_bz: 1
+num_workers: 4
+
+# network architecture
+arch: 'movinet_a0'
+width_mult: 1.0 
+num_classes: 12
+pretrained_model: './log/best_model.pth.tar'
+
+# local training
+local_e: 1
+epochs: 50
+loss: 'CrossEntropyLoss'
+optimizer: 'SGD'
+lr: 0.0003
+
+# federated learning setting 
+FL: 'FedAvg'
+frac: 1 # partipation ratio
+num_C: 2 # client number
+min_sample_size: 2
+min_num_clients: 2 
+seed: 1234 
+

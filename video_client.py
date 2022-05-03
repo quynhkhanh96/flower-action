@@ -57,13 +57,10 @@ if __name__ == '__main__':
 
     # loss 
     criterion = build_loss(cfgs)
-    # optimizer
-    optimizer = build_optimizer(cfgs, model)
 
     # local trainer
     local_update = VideoLocalUpdate(train_loader=train_loader,
-                                    loss_fn=criterion,
-                                    optimizer=optimizer)
+                                    loss_fn=criterion)
 
     # evaluate function
     eval_fn = evaluate_topk_accuracy
@@ -73,7 +70,7 @@ if __name__ == '__main__':
         fl_client = FedAvgVideoClient(client_id=client_id,
                 dl_train=train_loader, dl_test=test_loader,
                 model=model, loss_fn=criterion, 
-                optimizer=optimizer, local_update=local_update, 
+                local_update=local_update, 
                 eval_fn=eval_fn, cfgs=cfgs
         )
     else:

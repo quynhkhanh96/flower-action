@@ -187,9 +187,8 @@ CUDA_VISIBLE_DEVICES=1 python -m recognition_video_client --cid=1 --cfg_path=$CF
 ## **AFOSR**
 First resize the videos (do it only one time):
 ```shell 
-python resize_videos.py /ext_data2/comvis/datasets/afors2022/data /ext_data2/comvis/khanhdtq/afosr2022/data
+python resize_videos.py /ext_data2/comvis/datasets/afors2022/data /ext_data2/comvis/khanhdtq/afosr2022/data_172x172 172 
 ```
-
 
 ```shell
 SERVER_ADDRESS="127.0.0.1:8085"

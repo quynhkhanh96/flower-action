@@ -187,17 +187,17 @@ CUDA_VISIBLE_DEVICES=1 python -m recognition_video_client --cid=1 --cfg_path=$CF
 ## **AFOSR**
 First resize the videos (do it only one time):
 ```shell 
-
+python resize_videos.py /ext_data2/comvis/datasets/afors2022/data /ext_data2/comvis/khanhdtq/afosr2022/data
 ```
 
 
 ```shell
 SERVER_ADDRESS="127.0.0.1:8085"
 CFG_PATH="configs/afosr_movinetA0.yaml"
-VIDEO_DIR="/ext_data2/comvis/datasets/afors2022/data"
-TRAIN_ANNOTATION_PATH="/ext_data2/comvis/datasets/afors2022/train.txt"
-VAL_ANNOTATION_PATH="/ext_data2/comvis/datasets/afors2022/val.txt"
-PARTITION_DIR=""
+VIDEO_DIR="/ext_data2/comvis/khanhdtq/afosr2022/data"
+TRAIN_ANNOTATION_PATH="/ext_data2/comvis/khanhdtq/afosr2022/train.txt"
+VAL_ANNOTATION_PATH="/ext_data2/comvis/khanhdtq/afosr2022/val.txt"
+PARTITION_DIR="/ext_data2/comvis/khanhdtq/afosr2022/partition"
 ```
 
 Split dataset among clients by running:

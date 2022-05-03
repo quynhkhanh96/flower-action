@@ -185,6 +185,12 @@ CUDA_VISIBLE_DEVICES=0 python -m recognition_video_client --cid=0 --cfg_path=$CF
 CUDA_VISIBLE_DEVICES=1 python -m recognition_video_client --cid=1 --cfg_path=$CFG_PATH --fed_cfg_path=$FED_CFG_PATH --work_dir=$WORK_DIR --data_dir=$DATA_DIR --server_address=$SERVER_ADDRESS
 ```
 ## **AFOSR**
+First resize the videos (do it only one time):
+```shell 
+
+```
+
+
 ```shell
 SERVER_ADDRESS="127.0.0.1:8085"
 CFG_PATH="configs/afosr_movinetA0.yaml"
@@ -208,4 +214,4 @@ python -m video_server --server_address=$SERVER_ADDRESS --cfg_path=$CFG_PATH --d
 Start the client:
 ```shell 
 python -m video_client --server_address=$SERVER_ADDRESS --cid=0 --cfg_path=$CFG_PATH --data_dir=$PARTITION_DIR 
-```
+``` 

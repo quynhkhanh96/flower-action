@@ -45,7 +45,7 @@ if __name__ == '__main__':
     # configurations 
     with open(client_args.cfg_path, 'r') as yamlfile:
         cfgs = yaml.load(yamlfile, Loader=yaml.FullLoader)
-    fed_cfgs = Dict2Class(cfgs)
+    cfgs = Dict2Class(cfgs)
 
     # datasets
     train_loader, test_loader = get_client_loaders(client_id, 

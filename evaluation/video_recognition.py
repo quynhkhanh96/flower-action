@@ -51,7 +51,7 @@ def evaluate_topk_accuracy(model, test_loader, device):
             imgs = Variable(imgs)
             outputs = model(imgs)	
 
-        results.extend(outputs)
+        results.extend(outputs.cpu().numpy())
         labels.extend(label)
 
     top1_acc, top5_acc = top_k_accuracy(results, labels, topk=(1, 5))

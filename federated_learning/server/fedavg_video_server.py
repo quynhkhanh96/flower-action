@@ -31,11 +31,11 @@ class FedAvgVideoStrategy(flwr.server.strategy.FedAvg):
         weights = parameters_to_weights(parameters)
         weights = self.postprocess_weights(weights)
 
+        model = build_model(self.cfgs, mode='test')
         state_dict = OrderedDict(
             {k: torch.Tensor(v) 
-            for k, v in zip(self.model.state_dict().keys(), weights)}
+            for k, v in zip(model.state_dict().keys(), weights)}
         )
-        model = build_model(self.cfgs, mode='test')
         model.load_state_dict(state_dict)
         
         eval_res = self.eval_fn(model, self.dl_test, self.device)

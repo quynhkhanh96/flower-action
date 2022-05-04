@@ -60,7 +60,7 @@ if __name__ == '__main__':
 
     # local trainer
     local_update = VideoLocalUpdate(train_loader=train_loader,
-                                    loss_fn=criterion)
+                                    loss_fn=criterion, cfgs=cfgs)
 
     # evaluate function
     eval_fn = evaluate_topk_accuracy

@@ -26,4 +26,5 @@ num_C: 2 # client number
 min_sample_size: 2
 min_num_clients: 2 
 seed: 1234 
+device: 'cuda'
 

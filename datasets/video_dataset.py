@@ -92,6 +92,10 @@ def data_partition(n_clients,
         person_ids = f.readlines()
     person_ids = [x.strip() for x in person_ids]
     random.shuffle(person_ids)
+    
+    with open(val_annotation_path, 'r') as f:
+        val_person_ids = f.readlines()
+    val_person_ids = [x.strip() for x in val_person_ids]
 
     person_lists = [person_ids[i::n_clients] for i in range(n_clients)]
     for i in range(n_clients):
@@ -99,13 +103,17 @@ def data_partition(n_clients,
         with open(working_dir + f'/client_{i}/train.txt', 'a') as f:
             for person_id in person_list:
                 f.write(person_id + '\n')
+
+        for person_id in person_list:
+            os.system(f'cp -r {video_dir}/{person_id} {working_dir}/client_{i}/videos')
+
         os.system(f'cp {val_annotation_path} {working_dir}/client_{i}')
         val_ann_fname = os.path.basename(val_annotation_path)
         if val_ann_fname != 'val.txt':
             os.system(f'mv {working_dir}/client_{i}/{val_ann_fname} {working_dir}/client_{i}/val.txt')
 
-        for person_id in person_list:
-            os.system(f'cp -r {video_dir}/{person_id} {working_dir}/client_{i}/videos')
+        for val_person_id in val_person_ids:
+            os.system(f'cp -r {video_dir}/{val_person_id} {working_dir}/client_{i}/videos')
 
 def get_client_loaders(client_id, data_dir, cfgs):
     """

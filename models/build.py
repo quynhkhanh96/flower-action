@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import os 
 import torch 
 import torch.nn as nn
@@ -11,8 +12,6 @@ from .efficientnet_pytorch_3d import EfficientNet3D
 from . import mobilenet3d_v2
 from .slow_fast_r2plus1d import slow_fast_r3d_18
 # import init_model
-
-from __future__ import absolute_import
 
 from .ResNet import *
 

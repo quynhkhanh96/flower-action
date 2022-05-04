@@ -1,10 +1,8 @@
-from models.build import build_optimizer
-import torch
 import torch.optim as optim
 import numpy as np
 import torch.nn.functional as F
 from torch.autograd import Variable
-from utils import AverageMeter
+from .utils import AverageMeter
 
 class VideoLocalUpdate:
     def __init__(self, train_loader, loss_fn, cfgs):

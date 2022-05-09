@@ -13,7 +13,7 @@ num_classes: 12
 pretrained_model: './log/best_model.pth.tar'
 
 # local training
-local_e: 1
+local_e: 5
 epochs: 50
 loss: 'CrossEntropyLoss'
 optimizer: 'SGD'

@@ -196,7 +196,6 @@ cd tools
 python build_rawframes.py /ext_data2/comvis/datasets/afors2022/data /ext_data2/comvis/khanhdtq/afosr2022/rgb_frames
 ```
 
-
 ```shell
 SERVER_ADDRESS="127.0.0.1:8085"
 CFG_PATH="configs/afosr_movinetA0.yaml"
@@ -209,6 +208,10 @@ PARTITION_DIR="/ext_data2/comvis/khanhdtq/afosr2022/partition"
 Split dataset among clients by running:
 ```shell 
 python -m datasets.video_dataset --n_clients=4 --video_dir $VIDEO_DIR --train_ann=$TRAIN_ANNOTATION_PATH --val_ann=$VAL_ANNOTATION_PATH --working_dir=$PARTITION_DIR
+```
+If `FrameDataset` is used, run the following to partition the data:
+```shell 
+python -m datasets.frame_dataset --n_clients=4 --video_dir $VIDEO_DIR --train_ann=$TRAIN_ANNOTATION_PATH --val_ann=$VAL_ANNOTATION_PATH --working_dir=$PARTITION_DIR
 ```
 
 Start the server:

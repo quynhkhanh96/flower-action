@@ -156,7 +156,7 @@ def get_client_loaders(client_id, data_dir, cfgs):
 		])  
 
     train_set = FrameDataset(
-        video_dir=data_dir + f'/client_{client_id}/videos',
+        frame_dir=data_dir + f'/client_{client_id}/videos',
         annotation_file_path=data_dir + f'/client_{client_id}/train.txt',
         n_frames=cfgs.seq_len,
         mode='train',
@@ -169,7 +169,7 @@ def get_client_loaders(client_id, data_dir, cfgs):
     )
 
     val_set = FrameDataset(
-        video_dir=data_dir + f'/client_{client_id}/videos',
+        frame_dir=data_dir + f'/client_{client_id}/videos',
         annotation_file_path=data_dir + f'/client_{client_id}/val.txt',
         n_frames=cfgs.seq_len,
         mode='test',

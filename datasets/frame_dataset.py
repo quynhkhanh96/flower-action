@@ -1,6 +1,7 @@
 import os
 import cv2
 import random
+import mmcv 
 import numpy as np
 import argparse
 import torch
@@ -66,7 +67,11 @@ class FrameDataset(Dataset):
         video_file = os.path.join(self.frame_dir, video_file)
 
         """ Sample video frames """
-        frames = self.sample_frames(video_file)
+        frame_names = self.sample_frames(video_file)
+        frames = []
+        for frame_name in frame_names:
+            frame = mmcv.imfrombytes(video_file + '/' + frame_name, channel_order='rgb')
+            frames.append(frame)
 
         """ Transform and augment RGB images"""
         if self.to_rgb:

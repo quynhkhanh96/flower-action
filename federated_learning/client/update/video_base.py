@@ -20,16 +20,18 @@ class VideoLocalUpdate:
         else:
             raise ValueError(f'No implementation for {self.cfgs.optimizer} optimizer.')
 
-        losses = AverageMeter("loss")	
-        for batch_idx, (imgs, labels, _) in enumerate(self.train_loader):			
-            imgs, labels = imgs.to(self.cfgs.device), labels.to(self.cfgs.device)
-            imgs, labels = Variable(imgs), Variable(labels)		
-            outputs = model(imgs) 		
-            loss = self.loss_fn(outputs, labels)	        
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()		 		
-            losses.update(loss.item(), labels.size(0))
-            if (batch_idx + 1) % self.cfgs.print_freq == 0:
-                print("Batch {}/{}\t Loss {:.6f} ({:.6f})".format(batch_idx + 1, 
-                                    len(self.train_loader), losses.val, losses.avg))
+        for epoch in range(self.cfgs.local_e):
+            print(f'*************** Epoch {epoch} ***************')
+            losses = AverageMeter("loss")	
+            for batch_idx, (imgs, labels, _) in enumerate(self.train_loader):			
+                imgs, labels = imgs.to(self.cfgs.device), labels.to(self.cfgs.device)
+                imgs, labels = Variable(imgs), Variable(labels)		
+                outputs = model(imgs) 		
+                loss = self.loss_fn(outputs, labels)	        
+                optimizer.zero_grad()
+                loss.backward()
+                optimizer.step()		 		
+                losses.update(loss.item(), labels.size(0))
+                if (batch_idx + 1) % self.cfgs.print_freq == 0:
+                    print("Batch {}/{}\t Loss {:.6f} ({:.6f})".format(batch_idx + 1, 
+                                        len(self.train_loader), losses.val, losses.avg))

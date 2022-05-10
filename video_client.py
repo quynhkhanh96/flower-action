@@ -3,7 +3,8 @@ from federated_learning.client.update.video_base import VideoLocalUpdate
 from evaluation.video_recognition import evaluate_topk_accuracy
 import flwr
 import argparse
-from datasets.video_dataset import get_client_loaders
+# from datasets.video_dataset import get_client_loaders
+from datasets.frame_dataset import get_client_loaders
 from models.build import build_model, build_loss, build_optimizer
 import yaml 
 from utils.parsing import Dict2Class

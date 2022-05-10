@@ -179,18 +179,12 @@ if __name__ == '__main__':
         type=str,
         help="path to val annotation files",
     )
-    parser.add_argument(
-        "--working_dir",
-        type=str,
-        help="path to save partition results",
-    )
     args = parser.parse_args()
 
     data_partition(n_clients=int(args.n_clients),
                     data_dir=args.data_dir,
                     train_annotation_path=args.train_ann,
-                    val_annotation_path=args.val_ann,
-                    working_dir=args.working_dir)
+                    val_annotation_path=args.val_ann)
 
 
 

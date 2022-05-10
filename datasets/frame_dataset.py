@@ -12,7 +12,7 @@ class FrameDataset(Dataset):
                     annotation_file_path,
                     n_frames,
                     mode='train',
-                    to_rgb=False,
+                    to_rgb=True,
                     transform=None,
                     use_albumentations=False):
         self.frame_dir = frame_dir

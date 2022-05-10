@@ -199,7 +199,7 @@ python build_rawframes.py /ext_data2/comvis/datasets/afors2022/data /ext_data2/c
 ```shell
 SERVER_ADDRESS="127.0.0.1:8085"
 CFG_PATH="configs/afosr_movinetA0.yaml"
-VIDEO_DIR="/ext_data2/comvis/khanhdtq/afosr2022/rgb_frames"
+DATA_DIR="/ext_data2/comvis/khanhdtq/afosr2022"
 TRAIN_ANNOTATION_PATH="/ext_data2/comvis/khanhdtq/afosr2022/train.txt"
 VAL_ANNOTATION_PATH="/ext_data2/comvis/khanhdtq/afosr2022/val.txt"
 PARTITION_DIR="/ext_data2/comvis/khanhdtq/afosr2022/partition"
@@ -211,19 +211,19 @@ python -m datasets.video_dataset --n_clients=4 --video_dir $VIDEO_DIR --train_an
 ```
 If `FrameDataset` is used, run the following to partition the data:
 ```shell 
-python -m datasets.frame_dataset --n_clients=4 --video_dir $VIDEO_DIR --train_ann=$TRAIN_ANNOTATION_PATH --val_ann=$VAL_ANNOTATION_PATH --working_dir=$PARTITION_DIR
+python -m datasets.frame_dataset --n_clients=4 --data_dir $DATA_DIR --train_ann=$TRAIN_ANNOTATION_PATH --val_ann=$VAL_ANNOTATION_PATH --working_dir=$PARTITION_DIR
 ```
 
 Start the server:
 ```shell 
 SERVER_DIR="/ext_data2/comvis/khanhdtq/afosr2022/fed_exps/04052022"
-CUDA_VISIBLE_DEVICES=1 python -m video_server --server_address=$SERVER_ADDRESS --cfg_path=$CFG_PATH --data_dir=$VIDEO_DIR --work_dir=$SERVER_DIR
+CUDA_VISIBLE_DEVICES=1 python -m video_server --server_address=$SERVER_ADDRESS --cfg_path=$CFG_PATH --data_dir=$DATA_DIR --work_dir=$SERVER_DIR
 ```
 
 Start the client:
 ```shell 
-CUDA_VISIBLE_DEVICES=2 python -m video_client --server_address=$SERVER_ADDRESS --cid=0 --cfg_path=$CFG_PATH --data_dir=$VIDEO_DIR 
-CUDA_VISIBLE_DEVICES=3 python -m video_client --server_address=$SERVER_ADDRESS --cid=1 --cfg_path=$CFG_PATH --data_dir=$VIDEO_DIR
-CUDA_VISIBLE_DEVICES=3 python -m video_client --server_address=$SERVER_ADDRESS --cid=2 --cfg_path=$CFG_PATH --data_dir=$VIDEO_DIR
-CUDA_VISIBLE_DEVICES=3 python -m video_client --server_address=$SERVER_ADDRESS --cid=3 --cfg_path=$CFG_PATH --data_dir=$VIDEO_DIR
+CUDA_VISIBLE_DEVICES=2 python -m video_client --server_address=$SERVER_ADDRESS --cid=0 --cfg_path=$CFG_PATH --data_dir=$DATA_DIR 
+CUDA_VISIBLE_DEVICES=3 python -m video_client --server_address=$SERVER_ADDRESS --cid=1 --cfg_path=$CFG_PATH --data_dir=$DATA_DIR
+CUDA_VISIBLE_DEVICES=3 python -m video_client --server_address=$SERVER_ADDRESS --cid=2 --cfg_path=$CFG_PATH --data_dir=$DATA_DIR
+CUDA_VISIBLE_DEVICES=3 python -m video_client --server_address=$SERVER_ADDRESS --cid=3 --cfg_path=$CFG_PATH --data_dir=$DATA_DIR
 ``` 

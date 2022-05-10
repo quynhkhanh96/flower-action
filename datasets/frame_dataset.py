@@ -79,30 +79,19 @@ class FrameDataset(Dataset):
         return data, self.labels[item], video_file  
 
 def data_partition(n_clients, 
-                    video_dir,
+                    data_dir,
                     train_annotation_path, 
-                    val_annotation_path,
-                    working_dir):
+                    val_annotation_path):
     """
     Args:
         n_clients: number of clients
-        video_dir: path to video directory
+        data_dir: path to data (including `videos`, `train.txt`, `val.txt`) directory
         train_annotation_path: path to train annotation file, 
                                 in which each line is person id 
         val_annotation_path: path to valid annotation file
-        working_dir: path to directory which has the following structure:
-                        working_dir
-                        ├── client_0
-                        │   ├── train.txt
-                        │   └── val.txt
-                        └── client_1
-                            ├── train.txt
-                            └── val.txt
+
     """
     print(f'Partitioning data among {n_clients} clients ...')
-    os.makedirs(working_dir, exist_ok=True)
-    for i in range(n_clients):
-        os.makedirs(working_dir + f'/client_{i}', exist_ok=True)
         
     with open(train_annotation_path, 'r') as f:
         person_ids = f.readlines()
@@ -116,14 +105,9 @@ def data_partition(n_clients,
     person_lists = [person_ids[i::n_clients] for i in range(n_clients)]
     for i in range(n_clients):
         person_list = person_lists[i]
-        with open(working_dir + f'/client_{i}/train.txt', 'a') as f:
+        with open(data_dir + f'/client_{i}_train.txt', 'a') as f:
             for person_id in person_list:
                 f.write(person_id + '\n')
-
-        os.system(f'cp {val_annotation_path} {working_dir}/client_{i}')
-        val_ann_fname = os.path.basename(val_annotation_path)
-        if val_ann_fname != 'val.txt':
-            os.system(f'mv {working_dir}/client_{i}/{val_ann_fname} {working_dir}/client_{i}/val.txt')
 
 def get_client_loaders(client_id, data_dir, cfgs):
     """
@@ -147,8 +131,8 @@ def get_client_loaders(client_id, data_dir, cfgs):
 		])  
 
     train_set = FrameDataset(
-        frame_dir=data_dir,
-        annotation_file_path=data_dir + f'/client_{client_id}/train.txt',
+        frame_dir=data_dir + '/rgb_frames',
+        annotation_file_path=data_dir + f'/client_{client_id}_train.txt',
         n_frames=cfgs.seq_len,
         mode='train',
         transform=transform,
@@ -160,8 +144,8 @@ def get_client_loaders(client_id, data_dir, cfgs):
     )
 
     val_set = FrameDataset(
-        frame_dir=data_dir,
-        annotation_file_path=data_dir + f'/client_{client_id}/val.txt',
+        frame_dir=data_dir + '/rgb_frames',
+        annotation_file_path=data_dir + f'/val.txt',
         n_frames=cfgs.seq_len,
         mode='test',
         transform=transform,
@@ -181,9 +165,9 @@ if __name__ == '__main__':
         "--n_clients", type=int, required=True, help="Number of clients"
     )
     parser.add_argument(
-        "--video_dir",
+        "--data_dir",
         type=str,
-        help="path to the original video directory",
+        help="path to the original data directory",
     )
     parser.add_argument(
         "--train_ann",
@@ -203,7 +187,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     data_partition(n_clients=int(args.n_clients),
-                    video_dir=args.video_dir,
+                    data_dir=args.data_dir,
                     train_annotation_path=args.train_ann,
                     val_annotation_path=args.val_ann,
                     working_dir=args.working_dir)

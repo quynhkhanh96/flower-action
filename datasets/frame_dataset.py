@@ -94,18 +94,15 @@ def data_partition(n_clients,
                         working_dir
                         ├── client_0
                         │   ├── train.txt
-                        |   ├── val.txt
-                        │   └── videos (contains .mp4 files)
+                        │   └── val.txt
                         └── client_1
                             ├── train.txt
-                            ├── val.txt
-                            └── videos
+                            └── val.txt
     """
     print(f'Partitioning data among {n_clients} clients ...')
     os.makedirs(working_dir, exist_ok=True)
     for i in range(n_clients):
         os.makedirs(working_dir + f'/client_{i}', exist_ok=True)
-        os.makedirs(working_dir + f'/client_{i}/videos', exist_ok=True)
         
     with open(train_annotation_path, 'r') as f:
         person_ids = f.readlines()
@@ -123,16 +120,10 @@ def data_partition(n_clients,
             for person_id in person_list:
                 f.write(person_id + '\n')
 
-        for person_id in person_list:
-            os.system(f'cp -r {video_dir}/{person_id} {working_dir}/client_{i}/videos')
-
         os.system(f'cp {val_annotation_path} {working_dir}/client_{i}')
         val_ann_fname = os.path.basename(val_annotation_path)
         if val_ann_fname != 'val.txt':
             os.system(f'mv {working_dir}/client_{i}/{val_ann_fname} {working_dir}/client_{i}/val.txt')
-
-        for val_person_id in val_person_ids:
-            os.system(f'cp -r {video_dir}/{val_person_id} {working_dir}/client_{i}/videos')
 
 def get_client_loaders(client_id, data_dir, cfgs):
     """
@@ -156,7 +147,7 @@ def get_client_loaders(client_id, data_dir, cfgs):
 		])  
 
     train_set = FrameDataset(
-        frame_dir=data_dir + f'/client_{client_id}/videos',
+        frame_dir=data_dir,
         annotation_file_path=data_dir + f'/client_{client_id}/train.txt',
         n_frames=cfgs.seq_len,
         mode='train',
@@ -169,7 +160,7 @@ def get_client_loaders(client_id, data_dir, cfgs):
     )
 
     val_set = FrameDataset(
-        frame_dir=data_dir + f'/client_{client_id}/videos',
+        frame_dir=data_dir,
         annotation_file_path=data_dir + f'/client_{client_id}/val.txt',
         n_frames=cfgs.seq_len,
         mode='test',

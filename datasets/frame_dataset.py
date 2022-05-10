@@ -32,7 +32,7 @@ class FrameDataset(Dataset):
             subject_dirs = [_.strip() for _ in f.readlines()]
 
             for subject_dir in subject_dirs:
-                subject_dir_path = os.path.join(self.video_dir, subject_dir)
+                subject_dir_path = os.path.join(self.frame_dir, subject_dir)
 
                 for timestamp_dir in sorted(os.listdir(subject_dir_path)):
                     timestamp_dir_path = os.path.join(subject_dir_path, timestamp_dir)
@@ -63,7 +63,7 @@ class FrameDataset(Dataset):
 
     def __getitem__(self, item):
         video_file, _ = self.clips[item]
-        video_file = os.path.join(self.video_dir, video_file)
+        video_file = os.path.join(self.frame_dir, video_file)
 
         """ Sample video frames """
         frames = self.sample_frames(video_file)

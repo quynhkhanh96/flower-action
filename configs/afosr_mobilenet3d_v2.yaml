@@ -1,20 +1,20 @@
 # local data loaders
-height: 172
-width: 172
+height: 112
+width: 112
 seq_len: 16
-train_bz: 4
+train_bz: 16
 test_bz: 8
 num_workers: 4
 
 # network architecture
-arch: 'movinet_a0'
-width_mult: 1.0 
+arch: 'mobilenet3d_v2'
+width_mult: 0.45 
 num_classes: 12
-pretrained_model: './log/best_model.pth.tar'
+pretrained_model: '../pre-trained/kinetics_mobilenetv2_0.45x_RGB_16_best.pth'
 
 # local training
 local_e: 3
-epochs: 50
+epochs: 30
 loss: 'CrossEntropyLoss'
 optimizer: 'SGD'
 lr: 0.0003

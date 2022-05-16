@@ -198,7 +198,7 @@ python build_rawframes.py /ext_data2/comvis/datasets/afors2022/data /ext_data2/c
 
 ```shell
 SERVER_ADDRESS="127.0.0.1:8085"
-CFG_PATH="configs/afosr_movinetA0.yaml"
+CFG_PATH="configs/afosr_movinetA0.yaml" # "configs/afosr_mobilenet3d_v2.yaml"
 DATA_DIR="/ext_data2/comvis/khanhdtq/afosr2022"
 TRAIN_ANNOTATION_PATH="/ext_data2/comvis/khanhdtq/afosr2022/train.txt"
 VAL_ANNOTATION_PATH="/ext_data2/comvis/khanhdtq/afosr2022/val.txt"

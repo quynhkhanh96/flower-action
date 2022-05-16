@@ -86,12 +86,13 @@ def build_model(cfgs, mode='train'):
                                 in_channels=3)
     
     elif cfgs.arch[:14] == 'mobilenet3d_v2':
-        model = mobilenet3d_v2.mobilenet3d_v2(num_classes=cfgs.num_classes,width_mult=cfgs.width_mult)
-        if not os.path.exists(cfgs.pretrained_model):
-            raise IOError("Can't find pretrained model: {}".format(cfgs.pretrained_model))
-        print("Loading checkpoint from '{}'".format(cfgs.pretrained_model))
-        checkpoint = torch.load(cfgs.pretrained_model)
-        model.load_state_dict(checkpoint,strict=False)
+        model = mobilenet3d_v2.mobilenet3d_v2(num_classes=cfgs.num_classes, width_mult=cfgs.width_mult)
+        if mode == 'train':
+            if not os.path.exists(cfgs.pretrained_model):
+                raise IOError("Can't find pretrained model: {}".format(cfgs.pretrained_model))
+            print("Loading checkpoint from '{}'".format(cfgs.pretrained_model))
+            checkpoint = torch.load(cfgs.pretrained_model)
+            model.load_state_dict(checkpoint,strict=False)
     
     elif cfgs.arch == 'slow_fast_r3d_18':
         model = slow_fast_r3d_18(num_classes=cfgs.num_classes,

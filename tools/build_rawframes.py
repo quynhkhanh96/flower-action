@@ -9,23 +9,6 @@ def extract_frames(video_path, out_path, new_height, new_width):
         vr = mmcv.VideoReader(video_path)
         for i, vr_frame in enumerate(vr):
             if vr_frame is not None:
-                # w, h, _ = np.shape(vr_frame)
-                # if args.new_short == 0:
-                #     if new_width == 0 or new_height == 0:
-                #         # Keep original shape
-                #         out_img = vr_frame
-                #     else:
-                #         out_img = mmcv.imresize(
-                #             vr_frame,
-                #             (new_width, new_height))
-                # else:
-                #     if min(h, w) == h:
-                #         new_h = args.new_short
-                #         new_w = int((new_h / h) * w)
-                #     else:
-                #         new_w = args.new_short
-                #         new_h = int((new_w / w) * h)
-                #     out_img = mmcv.imresize(vr_frame, (new_h, new_w))
                 if new_width == 0 or new_height == 0:
                     # Keep original shape
                     out_img = vr_frame 
@@ -45,7 +28,7 @@ def extract_frames(video_path, out_path, new_height, new_width):
 src_dir = sys.argv[1]
 dst_dir = sys.argv[2]
 try:
-    new_height, new_width = sys.argv[3], sys.argv[3]
+    new_height, new_width = int(sys.argv[3]), int(sys.argv[3])
 except:
     new_height, new_width = 0, 0
 os.makedirs(dst_dir, exist_ok=True)

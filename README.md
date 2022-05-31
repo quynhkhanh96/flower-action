@@ -193,7 +193,7 @@ python resize_videos.py /ext_data2/comvis/datasets/afors2022/data /ext_data2/com
 Extract RGB frames:
 ```shell
 cd tools  
-python build_rawframes.py /ext_data2/comvis/datasets/afors2022/data /ext_data2/comvis/khanhdtq/afosr2022/rgb_frames
+python build_rawframes.py /ext_data2/comvis/datasets/afors2022/data /ext_data2/comvis/khanhdtq/afosr2022/rgb_frames_172 172 
 ```
 
 ```shell

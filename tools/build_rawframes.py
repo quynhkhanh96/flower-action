@@ -67,6 +67,6 @@ for iter_, person_id in enumerate(person_ids):
             out_path = dst_dir + '/' + person_id + '/' + timestamp + '/' + vid_name
             os.makedirs(out_path, exist_ok=True)
 
-            extract_frames(video_path, out_path)
+            extract_frames(video_path, out_path, new_height, new_width)
 
     print(f'DONE {iter_ + 1} PEOPLE.')

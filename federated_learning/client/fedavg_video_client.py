@@ -68,8 +68,8 @@ class FedAvgVideoClient(flwr.client.Client):
         return FitRes(
             parameters=params_prime,
             num_examples=num_examples_train,
-            num_examples_ceil=num_examples_train,
-            fit_duration=fit_duration,            
+            # num_examples_ceil=num_examples_train,
+            # fit_duration=fit_duration,            
         )
 
     def evaluate(self, ins: EvaluateIns) -> EvaluateRes:

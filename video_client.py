@@ -1,4 +1,5 @@
-from federated_learning import FedAvgVideoClient
+# from federated_learning import FedAvgVideoClient
+from federated_learning.client.fedavg_video_client import FedAvgVideoClient
 from federated_learning.client.update.video_base import VideoLocalUpdate 
 from evaluation.video_recognition import evaluate_topk_accuracy
 import flwr

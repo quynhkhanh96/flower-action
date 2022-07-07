@@ -29,3 +29,5 @@ min_num_clients: 2
 seed: 1234 
 device: 'cuda'
 
+# WandB
+WANDB_API_KEY: 'f5e95fc1247cb9cfd848a5a8f94a51d588eb6704'

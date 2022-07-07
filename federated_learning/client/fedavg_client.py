@@ -39,7 +39,7 @@ class FedAvgClient(flwr.client.Client):
         fit_begin = timeit.default_timer()
 
         # Train model 
-        self.local.train(net=self.net)
+        self.local.train(net=self.net, client_id)
         weights_prime: Weights = self.net.get_weights()
         for i, w in enumerate(weights_prime):
             try:

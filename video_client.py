@@ -52,7 +52,10 @@ if __name__ == '__main__':
 
     # set up WandB
     os.environ["WANDB_API_KEY"] = cfgs.WANDB_API_KEY
-    wandb.init(project=os.path.basename(client_args.cfg_path).split('.')[0])
+    try:
+        wandb.init(project=os.path.basename(client_args.cfg_path).split('.')[0])
+    except:
+        pass 
 
     # datasets
     train_loader, test_loader = get_client_loaders(client_id, 

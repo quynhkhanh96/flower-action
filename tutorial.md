@@ -81,12 +81,12 @@ python -m datasets.frame_dataset --n_clients=4 \
 ```
 This script will create lists of person ids (saved as `.txt` files, for eg. `<your_dataset>/client_0.txt`) for each clients, so from them we know each video belongs to which client. Now copy the whole preprocessed dataset directory to all of your clients and server (i.e the machines where you want to run your experiments on).
 
-# Start the experiment
+# **Start the experiment**
 Before running the experiments, one extra step you need to do is to prepare your config file, this is where you set all the configuration about how your data will be processed, the model architecture, training setting (for eg. learning rate, optimizer, ...) and federated learning config (number of rounds, number of clients, participation ratio, ...).
 An example from `configs/afosr_mobilenet3d_v2.yaml`:
 ```yaml
 # local data loaders
-height: 112
+height: 112 # height of frame image
 width: 112
 seq_len: 16
 train_bz: 16
@@ -110,15 +110,58 @@ print_freq: 10
 # federated learning setting 
 FL: 'FedAvg'
 frac: 1 # participation ratio
-num_C: 4 # client number
+num_C: 4 # number of clients
 min_sample_size: 2
 min_num_clients: 2 
 seed: 1234 
 device: 'cuda'
 ```
 
-## Start server
+## **Start server**
+On the machine that is to run the server, set the paths and some variables:
+```shell
+SERVER_ADDRESS="127.0.0.1:8085"
+CFG_PATH=<path/to/config/file>
+DATA_DIR=<path/to/preprocessed/dataset>
+TRAIN_ANNOTATION_PATH=<path/to/preprocessed/dataset>/train.txt
+VAL_ANNOTATION_PATH=<path/to/preprocessed/dataset>/val.txt
+```
+In particular:
+- `SERVER_ADDRESS` is where the communication between server and clients happens, make sure that the port is not occupied when the experiment runs.
+- `CFG_PATH` is the path to your .yaml config file, for example: "configs/afosr_movinetA0.yaml"
+- `DATA_DIR` is where the preprocessed dataset is on the server that you just made and copy to there.
 
-## Start clients
+Now start the server:
+```shell
+CUDA_VISIBLE_DEVICES=0 python -m video_server 
+                --server_address=$SERVER_ADDRESS \
+                --cfg_path=$CFG_PATH \
+                --data_dir=$DATA_DIR \
+                --work_dir=$SERVER_DIR
+```
+Note that server can run in a machine with no gpus, but it will be slow due to the evaluation step. 
+## **Start clients**
+On each client, also set the path first:
+```shell
+SERVER_ADDRESS="127.0.0.1:8085"
+CFG_PATH=<path/to/config/file>
+DATA_DIR=<path/to/preprocessed/dataset>
+```
+`DATA_DIR` is also where the preprocessed data is on that client.
 
-## Measure communication cost
+Then start the client:
+```shell
+CUDA_VISIBLE_DEVICES=0 python -m video_client \
+                --server_address=$SERVER_ADDRESS \
+                --cid=0 --cfg_path=$CFG_PATH \
+                --data_dir=$DATA_DIR 
+```
+Here `cid` is the client id. On other client, for example:
+```shell
+CUDA_VISIBLE_DEVICES=0 python -m video_client \
+                --server_address=$SERVER_ADDRESS \
+                --cid=1 --cfg_path=$CFG_PATH \
+                --data_dir=$DATA_DIR 
+```
+## **Measure communication cost**
+The step is optional, and if you wish to measure the communication cost caused by the experiment, you need to set this up before starting the server and clients.

@@ -22,7 +22,7 @@ print_freq: 10
 
 # federated learning setting 
 FL: 'FedAvg'
-frac: 1 # partipation ratio
+frac: 1 # participation ratio
 num_C: 4 # client number
 min_sample_size: 2
 min_num_clients: 2 

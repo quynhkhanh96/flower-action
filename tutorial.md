@@ -5,6 +5,25 @@ cd flower-action
 bash install.sh
 ```
 You also need to download the checkpoints from [here]() and put the directory `pre-train` inside this directory. 
+
+# **Set up machines**
+This step establishes the connection between the server and the clients (but not between the clients), i.e it enables the server to communicate with the clients and vice verse.
+First, on every machine (both server and clients), install and start `openssh` (this step is done only one time):
+```shell
+sudo systemctl enable ssh
+sudo systemctl start ssh
+```
+Now on server, establish connection with one client by running:
+```shell
+ssh -R <port1>:127.0.0.1:<port2> <username_on_client>@<client_ip_address> 
+```
+Here `<port2>` is port for communication on server, `<port1>` on client (make sure that these ports are not occupied on both machines). For example: 
+```shell
+ssh -R 8089:127.0.0.1:8085 khanhdtq@14.232.166.97 -p8001
+```
+After entering the password, type `tail` to keep the session. Do the same for the other clients.
+
+
 # **Prepare the data**
 First you have your dataset on one machine, before running your federated learning experiments, you need to preprocess your data (i.e convert videos to RGB frames and resize them if neccessary, restructure the directories if they are not in required format) and parition it among the clients. 
 
@@ -120,14 +139,14 @@ device: 'cuda'
 ## **Start server**
 On the machine that is to run the server, set the paths and some variables:
 ```shell
-SERVER_ADDRESS="127.0.0.1:8085"
+SERVER_ADDRESS="127.0.0.1:<port2>" # For eg. "127.0.0.1:8085"
 CFG_PATH=<path/to/config/file>
 DATA_DIR=<path/to/preprocessed/dataset>
 TRAIN_ANNOTATION_PATH=<path/to/preprocessed/dataset>/train.txt
 VAL_ANNOTATION_PATH=<path/to/preprocessed/dataset>/val.txt
 ```
 In particular:
-- `SERVER_ADDRESS` is where the communication between server and clients happens, make sure that the port is not occupied when the experiment runs.
+- `<port2>` in `SERVER_ADDRESS` needs to be the same as what is set in set up machines step. 
 - `CFG_PATH` is the path to your .yaml config file, for example: "configs/afosr_movinetA0.yaml"
 - `DATA_DIR` is where the preprocessed dataset is on the server that you just made and copy to there.
 
@@ -141,13 +160,13 @@ CUDA_VISIBLE_DEVICES=0 python -m video_server
 ```
 Note that server can run in a machine with no gpus, but it will be slow due to the evaluation step. 
 ## **Start clients**
-On each client, also set the path first:
+On each client, also set the paths first:
 ```shell
-SERVER_ADDRESS="127.0.0.1:8085"
+SERVER_ADDRESS="127.0.0.1:<port1>" # For eg. "127.0.0.1:8089"
 CFG_PATH=<path/to/config/file>
 DATA_DIR=<path/to/preprocessed/dataset>
 ```
-`DATA_DIR` is also where the preprocessed data is on that client.
+`DATA_DIR` is also where the preprocessed data is on that client. `<port1>` in `SERVER_ADDRESS` needs to be the same as what is set in set up machines step.
 
 Then start the client:
 ```shell
@@ -158,10 +177,11 @@ CUDA_VISIBLE_DEVICES=0 python -m video_client \
 ```
 Here `cid` is the client id. On other client, for example:
 ```shell
-CUDA_VISIBLE_DEVICES=0 python -m video_client \
+CUDA_VISIBLE_DEVICES=1 python -m video_client \
                 --server_address=$SERVER_ADDRESS \
                 --cid=1 --cfg_path=$CFG_PATH \
                 --data_dir=$DATA_DIR 
 ```
+Now the model training should start.
 ## **Measure communication cost**
 The step is optional, and if you wish to measure the communication cost caused by the experiment, you need to set this up before starting the server and clients.

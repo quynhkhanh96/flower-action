@@ -7,13 +7,13 @@ bash install.sh
 You also need to download the checkpoints from [here]() and put the directory `pre-train` inside this directory. 
 
 # **Set up machines**
-This step establishes the connection between the server and the clients (but not between the clients), i.e it enables the server to communicate with the clients and vice verse.
+This step is optional, serves only for when you don't have the direct access to the machines where clients and server will be running on.
 First, on every machine (both server and clients), install and start `openssh` (this step is done only one time):
 ```shell
 sudo systemctl enable ssh
 sudo systemctl start ssh
 ```
-Now on server, establish connection with one client by running:
+Now on server, run this to forward the port:
 ```shell
 ssh -R <port1>:127.0.0.1:<port2> <username_on_client>@<client_ip_address> 
 ```
@@ -86,9 +86,12 @@ We need to convert it to this format, i.e `.mp4` videos are converted to `.jpg` 
 Run this to obtain that:
 ```shell
 cd tools  
-python build_rawframes.py <path/to/your/dataset> <path/to/preprocessed/dataset> 172
+python build_rawframes.py --src_dir <path/to/your/dataset> \
+                        --dst_dir <path/to/preprocessed/dataset> \
+                        --new_height 172 --new_width 172 \
+                        --no_person_ids True
 ```
-If there is no person id in your dataset, set `no_person_ids` to `True`, the script will create a "pseudo" person id for each video, i.e one video belongs to one person. 
+In particular, `src_dir` is the path to your dataset, `dst_dir` is where the new, preprocessed dataset (dataset with videos converted to RGB frames) will be saved. If there is no person id in your dataset, set `no_person_ids` to `True`, the script will create a "pseudo" person id for each video, i.e one video belongs to one person. If you want to resize your frames (highly recommend this because that would effectively reduces the size of your dataset), simply pass the sizes to `new_height` and `new_width`.
 
 ## **Partition the dataset**
 After having the data in the required format, we are ready to partition them among the clients.
@@ -185,3 +188,10 @@ CUDA_VISIBLE_DEVICES=1 python -m video_client \
 Now the model training should start.
 ## **Measure communication cost**
 The step is optional, and if you wish to measure the communication cost caused by the experiment, you need to set this up before starting the server and clients.
+
+On the machine that runs server, open a terminal then run:
+```shell
+cd communication_cost/
+sudo python capture_packets.py --logs_dir <path/to/logs_dir>
+```
+This script will capture every packet that runs to and from `<port2>` of server and get the size of the packet and log it to a file that is named under format `logs_<HhMmSs>.txt` (where `<HhMmSs>` is the time when the experiment starts, for example `logs_15h31m57s.txt`) under directory `logs_dir`.

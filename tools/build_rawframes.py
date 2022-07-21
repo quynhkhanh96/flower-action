@@ -1,10 +1,10 @@
 import os 
-import sys 
 import mmcv 
 import warnings
+import argparse
+from collections import defaultdict
 
 def extract_frames(video_path, out_path, new_height, new_width):
-
     try:
         vr = mmcv.VideoReader(video_path)
         for i, vr_frame in enumerate(vr):
@@ -25,31 +25,66 @@ def extract_frames(video_path, out_path, new_height, new_width):
     except Exception:
         run_success = -1
 
-src_dir = sys.argv[1]
-dst_dir = sys.argv[2]
-try:
-    new_height, new_width = int(sys.argv[3]), int(sys.argv[3])
-except:
-    new_height, new_width = 0, 0
-os.makedirs(dst_dir, exist_ok=True)
+if __name__ == '__main__':
 
-person_ids = os.listdir(src_dir)
-print('Total person ids =', len(person_ids))
-for iter_, person_id in enumerate(person_ids):
-    os.makedirs(dst_dir + '/' + person_id, exist_ok=True)
-    for timestamp in os.listdir(src_dir + '/' + person_id):
-        os.makedirs(dst_dir + '/' + person_id + '/' + timestamp, exist_ok=True)
+    parser = argparse.ArgumentParser(description="Build rawframe dataset")
+    parser.add_argument(
+        "--src_dir",
+        type=str,
+        help="Path to your dataset",
+    )
+    parser.add_argument(
+        "--dst_dir",
+        type=str,
+        help="Path to the preprocessed dataset with raw frames",
+    )
+    parser.add_argument(
+        "--new_height",
+        default=224,
+        type=int,
+        help="Frame height",
+    )
+    parser.add_argument(
+        "--new_width",
+        default=224,
+        type=int,
+        help="Frame width",
+    )
+    parser.add_argument(
+        "--no_person_ids",
+        default=False,
+        type=bool,
+        help="whether there person ids are provided in your dataset",
+    )
+    args = parser.parse_args()
 
-        videos = os.listdir(src_dir + '/' + person_id + '/' + timestamp)
-        videos = [video for video in videos if video.endswith('.mp4')]
-        for video in videos:
+    src_dir, dst_dir = args.src_dir, args.dst_dir
+    new_height, new_width = args.new_height, args.new_width
+    os.makedirs(dst_dir, exist_ok=True)
 
-            video_path = src_dir + '/' + person_id + '/' + timestamp + '/' + video
+    person2videos = defaultdict(list)
+    if args.no_person_ids:
+        # pseudo person id
+        for idx, video_id in enumerate(os.listdir(src_dir + '/videos')):
+            if video_id.endswith('.mp4'):
+                person2videos[f'person_{idx}'].append(video_id)
+    else:
+        for person_id in os.listdir(src_dir + '/videos'):
+            for video_id in os.listdir(src_dir + '/videos/' + person_id):
+                if video_id.endswith('.mp4'):
+                    person2videos[person_id].append(video_id)
 
-            vid_name = video.split('.')[0]
-            out_path = dst_dir + '/' + person_id + '/' + timestamp + '/' + vid_name
+    print('Total person ids =', len(person2videos))
+
+    for i, (person_id, video_ids) in enumerate(person2videos.items()):
+        os.makedirs(dst_dir + '/' + person_id, exist_ok=True)
+        for video_id in video_ids:
+            if args.no_person_ids:
+                video_path = src_dir + '/videos/' + video_id
+            else:
+                video_path = src_dir + '/videos/' + person_id + '/' + video_id
+            out_path = dst_dir + '/' + person_id + '/' + video_id.split('.')[0] 
             os.makedirs(out_path, exist_ok=True)
-
             extract_frames(video_path, out_path, new_height, new_width)
 
-    print(f'DONE {iter_ + 1} PEOPLE.')
+        print(f'DONE {i + 1} PEOPLE.')

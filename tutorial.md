@@ -192,6 +192,10 @@ The step is optional, and if you wish to measure the communication cost caused b
 On the machine that runs server, open a terminal then run:
 ```shell
 cd communication_cost/
-sudo python capture_packets.py --logs_dir <path/to/logs_dir>
+sudo python capture_packets.py <path/to/logs_dir>
 ```
 This script will capture every packet that runs to and from `<port2>` of server and get the size of the packet and log it to a file that is named under format `logs_<HhMmSs>.txt` (where `<HhMmSs>` is the time when the experiment starts, for example `logs_15h31m57s.txt`) under directory `logs_dir`.
+After that start the experiment as described in the above steps, when all is done, stop the packet capture script (by typing `Ctrl` + `C`) and then run the following to compute the total communication cost (in megabytes):
+```shell
+python summarize_comcost.py <path/to/log_file>
+```

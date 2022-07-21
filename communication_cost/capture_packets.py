@@ -1,10 +1,13 @@
 from scapy.all import *
-import os 
+import os
+import sys  
 from datetime import datetime
+
+log_dir = sys.argv[1]
 
 # callback function - called for every packet
 start_time = datetime.now().strftime("%Hh%Mm%Ss")
-LOG_PATH = f'logs_{start_time}.txt'
+LOG_PATH = log_dir + f'/logs_{start_time}.txt'
 
 def traffic_monitor_callback(pkt):
     pkt_size = len(pkt)

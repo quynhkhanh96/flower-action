@@ -9,7 +9,7 @@ from datasets.frame_dataset import get_client_loaders
 from evaluation.video_recognition import evaluate_topk_accuracy
 import yaml 
 from utils.parsing import Dict2Class
-import wandb 
+# import wandb 
 
 DEFAULT_SERVER_ADDRESS = "[::]:8080"
 
@@ -60,11 +60,11 @@ if __name__ == '__main__':
     cfgs = Dict2Class(cfgs)
 
     # set up WandB
-    os.environ["WANDB_API_KEY"] = cfgs.WANDB_API_KEY
-    try:
-        wandb.init(project=os.path.basename(server_args.cfg_path).split('.')[0])
-    except:
-        pass
+    # os.environ["WANDB_API_KEY"] = cfgs.WANDB_API_KEY
+    # try:
+    #     wandb.init(project=os.path.basename(server_args.cfg_path).split('.')[0])
+    # except:
+    #     pass
 
     # Test loader 
     _, test_loader = get_client_loaders(0, server_args.data_dir, cfgs)

@@ -9,7 +9,7 @@ from datasets.frame_dataset import get_client_loaders
 from models.build import build_model, build_loss, build_optimizer
 import yaml 
 from utils.parsing import Dict2Class
-import wandb 
+# import wandb 
 import os 
 DEFAULT_SERVER_ADDRESS = "[::]:8080"
 
@@ -51,11 +51,11 @@ if __name__ == '__main__':
     cfgs = Dict2Class(cfgs)
 
     # set up WandB
-    os.environ["WANDB_API_KEY"] = cfgs.WANDB_API_KEY
-    try:
-        wandb.init(project=os.path.basename(client_args.cfg_path).split('.')[0])
-    except:
-        pass 
+    # os.environ["WANDB_API_KEY"] = cfgs.WANDB_API_KEY
+    # try:
+    #     wandb.init(project=os.path.basename(client_args.cfg_path).split('.')[0])
+    # except:
+    #     pass 
 
     # datasets
     train_loader, test_loader = get_client_loaders(client_id, 

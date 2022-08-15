@@ -3,7 +3,7 @@ import numpy as np
 import torch.nn.functional as F
 from torch.autograd import Variable
 from .utils import AverageMeter
-import wandb
+# import wandb
 
 class VideoLocalUpdate:
     def __init__(self, train_loader, loss_fn, cfgs):
@@ -33,7 +33,7 @@ class VideoLocalUpdate:
                 loss.backward()
                 optimizer.step()		 		
                 losses.update(loss.item(), labels.size(0))
-                wandb.log({f"client{client_id}_loss": loss.item()})
+                # wandb.log({f"client{client_id}_loss": loss.item()})
                 if (batch_idx + 1) % self.cfgs.print_freq == 0:
                     print("Batch {}/{}\t Loss {:.6f} ({:.6f})".format(batch_idx + 1, 
                                         len(self.train_loader), losses.val, losses.avg))

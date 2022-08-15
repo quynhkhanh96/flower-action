@@ -4,7 +4,7 @@ import numpy as np
 import torch 
 from models.build import build_model
 from collections import OrderedDict
-import wandb
+# import wandb
 
 class FedAvgVideoStrategy(flwr.server.strategy.FedAvg):
     def __init__(self, cfgs, dl_test, ckpt_dir, device, **kwargs):
@@ -44,8 +44,8 @@ class FedAvgVideoStrategy(flwr.server.strategy.FedAvg):
             return None
         
         metrics = {'top1_accuracy': eval_res['top1'], 'top5_accuracy': eval_res['top5']}
-        wandb.log({f"top1_accuracy": eval_res['top1']})
-        wandb.log({f"top5_accuracy": eval_res['top5']})
+        # wandb.log({f"top1_accuracy": eval_res['top1']})
+        # wandb.log({f"top5_accuracy": eval_res['top5']})
         
         if eval_res['top1'] > self.best_top1_acc:
             self.best_top1_acc = eval_res['top1']

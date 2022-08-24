@@ -65,12 +65,12 @@ if __name__ == '__main__':
     person2videos = defaultdict(list)
     if args.no_person_ids:
         # pseudo person id
-        for idx, video_id in enumerate(os.listdir(src_dir + '/videos')):
+        for idx, video_id in enumerate(os.listdir(src_dir + '/rgb_frames')):
             if video_id.endswith('.mp4'):
                 person2videos[f'person_{idx}'].append(video_id)
     else:
-        for person_id in os.listdir(src_dir + '/videos'):
-            for video_id in os.listdir(src_dir + '/videos/' + person_id):
+        for person_id in os.listdir(src_dir + '/rgb_frames'):
+            for video_id in os.listdir(src_dir + '/rgb_frames/' + person_id):
                 if video_id.endswith('.mp4'):
                     person2videos[person_id].append(video_id)
 
@@ -80,9 +80,9 @@ if __name__ == '__main__':
         os.makedirs(dst_dir + '/' + person_id, exist_ok=True)
         for video_id in video_ids:
             if args.no_person_ids:
-                video_path = src_dir + '/videos/' + video_id
+                video_path = src_dir + '/rgb_frames/' + video_id
             else:
-                video_path = src_dir + '/videos/' + person_id + '/' + video_id
+                video_path = src_dir + '/rgb_frames/' + person_id + '/' + video_id
             out_path = dst_dir + '/' + person_id + '/' + video_id.split('.')[0] 
             os.makedirs(out_path, exist_ok=True)
             extract_frames(video_path, out_path, new_height, new_width)

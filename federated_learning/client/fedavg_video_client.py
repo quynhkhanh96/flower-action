@@ -56,7 +56,7 @@ class FedAvgVideoClient(flwr.client.Client):
 
         fit_begin = timeit.default_timer()
         # train model locally 
-        self.local.train(model=self.model)
+        self.local.train(model=self.model, client_id=self.client_id)
 
         weights_prime: Weights = [val.cpu().numpy() 
                             for _, val in self.model.state_dict().items()]

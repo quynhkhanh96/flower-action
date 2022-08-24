@@ -4,7 +4,7 @@ Clone this repo to all the devices where you will run your experiments and then 
 cd flower-action
 bash install.sh
 ```
-You also need to download the checkpoints from [here]() and put the directory `pre-train` inside this directory. 
+You also need to download the checkpoints from [here](https://drive.google.com/file/d/14lRhTH_eNZmFLeMx0KYlXsnzVtT0gxS-/view?usp=sharing) and put the directory `pre-train` inside this directory. 
 
 # **Set up machines**
 This step is optional, serves only for when you don't have the direct access to the machines where clients and server will be running on.
@@ -32,7 +32,7 @@ At the beginning your dataset is assumed to be in one of the following formats:
 - When person ids are provided:
     ```
     <your_dataset>
-    ├── videos
+    ├── rgb_frames
     │   ├── person_000
     │   │   ├── video_000.mp4
     │   │   ├── video_001.mp4
@@ -48,7 +48,7 @@ At the beginning your dataset is assumed to be in one of the following formats:
 - When there is no person id:
     ```
     <your_dataset>
-    ├── videos
+    ├── rgb_frames
     │   ├── video_000.mp4
     │   ├── video_001.mp4
     │   └── ...
@@ -58,7 +58,7 @@ At the beginning your dataset is assumed to be in one of the following formats:
 We need to convert it to this format, i.e `.mp4` videos are converted to `.jpg` RGB frames:
 ```
 <your_dataset>
-├── videos
+├── rgb_frames
 │   ├── person_000
 │   │   ├── video_000
 │   │   │   ├── frame_0000.jpg
@@ -98,8 +98,8 @@ After having the data in the required format, we are ready to partition them amo
 ```shell 
 python -m datasets.frame_dataset --n_clients=4 \
         --data_dir <path/to/preprocessed/dataset> \
-        --train_ann=<path/to/preprocessed/dataset>/train.txt \
-        --val_ann=<path/to/preprocessed/dataset>/val.txt
+        --train_ann <path/to/preprocessed/dataset>/train.txt \
+        --val_ann <path/to/preprocessed/dataset>/val.txt
 ```
 This script will create lists of person ids (saved as `.txt` files, for eg. `<your_dataset>/client_0.txt`) for each clients, so from them we know each video belongs to which client. Now copy the whole preprocessed dataset directory to all of your clients and server (i.e the machines where you want to run your experiments on).
 

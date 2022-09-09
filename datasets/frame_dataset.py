@@ -1,4 +1,5 @@
 import os
+from collections import defaultdict 
 import cv2
 import random 
 import numpy as np
@@ -25,28 +26,19 @@ class FrameDataset(Dataset):
 
         self.mode = mode 
 
-        self.clips = []
-        self.labels = []
-
         with open(self.annotation_file_path) as f:
-            subject_dirs = [_.strip() for _ in f.readlines()]
-
-            for subject_dir in subject_dirs:
-                subject_dir_path = os.path.join(self.frame_dir, subject_dir)
-
-                for timestamp_dir in sorted(os.listdir(subject_dir_path)):
-                    timestamp_dir_path = os.path.join(subject_dir_path, timestamp_dir)
-
-                    for video_file in sorted(os.listdir(timestamp_dir_path)):
-                        label = int(os.path.splitext(video_file)[0]) - 1
-                        video_file = os.path.join(subject_dir, timestamp_dir, video_file)
-                        self.clips.append((video_file, subject_dir))
-                        self.labels.append(label)
+            self.clips = [l.strip().split(' ')[0] for l in f.readlines()]
+            self.labels = [int(l.strip().split(' ')[1]) for l in f.readlines()]
 
     def __len__(self):
         return len(self.clips)
 
     def sample_frames(self, video_file):
+        '''
+            Inside each /<video_id> directory, there are images named `frame_<id>.jpg`,
+            for eg. `frame_000.jpg`. This function samples a subsequence of length 
+            `self.n_frames` of them.
+        '''
         all_frames = np.array(sorted(os.listdir(video_file), 
                             key=lambda x: int(x.split('_')[1].split('.')[0])))
 
@@ -59,20 +51,20 @@ class FrameDataset(Dataset):
             sampled_frame_ids = np.linspace(start_frame, end_frame, self.n_frames)
 
         frames = all_frames[sampled_frame_ids.round().astype(np.int64)]
-        return frames 
+        return frames
+    
+    def __getitem__(self, idx):
+        video_id = self.clips[idx]
+        video_file = os.path.join(self.frame_dir, video_id)
 
-    def __getitem__(self, item):
-        video_file, _ = self.clips[item]
-        video_file = os.path.join(self.frame_dir, video_file)
-
-        """ Sample video frames """
+        ''' Sample video frames '''
         frame_names = self.sample_frames(video_file)
         frames = []
         for frame_name in frame_names:
             frame = cv2.imread(video_file + '/' + frame_name)
             frames.append(frame)
 
-        """ Transform and augment RGB images"""
+        ''' Transform and augment RGB images '''
         if self.to_rgb:
             frames = [cv2.cvtColor(frame, cv2.COLOR_BGR2RGB) for frame in frames]
         if self.transform is not None:
@@ -80,50 +72,57 @@ class FrameDataset(Dataset):
                       else self.transform(image=frame)['image'] for frame in frames]                
         data = torch.from_numpy(np.stack(frames).transpose((1, 0, 2, 3)))        
         # data shape (c, s, w, h) where s is seq_len, c is number of channels
-        return data, self.labels[item], video_file  
+        return data, self.labels[idx], video_file 
 
-def data_partition(n_clients, 
-                    data_dir,
-                    train_annotation_path, 
-                    val_annotation_path):
-    """
+def data_partition(n_clients, data_dir,
+                    train_annotation_path,
+                    val_annotation_path,
+                    mode='iid'):
+    '''
     Args:
         n_clients: number of clients
-        data_dir: path to data (including `videos`, `train.txt`, `val.txt`) directory
-        train_annotation_path: path to train annotation file, 
-                                in which each line is person id 
-        val_annotation_path: path to valid annotation file
-
-    """
+        data_dir: path to data (including `rgb_frames`, `train.txt` and `val.txt` directories)
+        train_annotation_path: path to train annotation file, in which each line is 
+                                <video_id> <label>
+        val_annotation_path: path to validation annotation file
+    '''
     print(f'Partitioning data among {n_clients} clients ...')
-        
     with open(train_annotation_path, 'r') as f:
-        person_ids = f.readlines()
-    person_ids = [x.strip() for x in person_ids]
-    random.shuffle(person_ids)
-    
+        train_video_ids = [l.strip().split(' ')[0] for l in f.readlines()]
+        train_labels = [int(l.strip().split(' ')[1]) for l in f.readlines()]
     with open(val_annotation_path, 'r') as f:
-        val_person_ids = f.readlines()
-    val_person_ids = [x.strip() for x in val_person_ids]
+        val_video_ids = [l.strip().split(' ')[0] for l in f.readlines()]
+        val_labels = [int(l.strip().split(' ')[1]) for l in f.readlines()]
 
-    person_lists = [person_ids[i::n_clients] for i in range(n_clients)]
-    for i in range(n_clients):
-        person_list = person_lists[i]
-        with open(data_dir + f'/client_{i}_train.txt', 'a') as f:
-            for person_id in person_list:
-                f.write(person_id + '\n')
+    if mode == 'iid':
+        # split by labels to `n_clients` clients
+        res = defaultdict(list)
+        n_classes = len(set(train_labels))
+        for cls in range(n_classes):
+            ids = np.where(train_labels == cls)[0]
+            random.shuffle(ids)
+            ids = [ids[i::n_clients] for i in range(n_clients)]
+            for client_id in range(n_clients):
+                res[client_id].append(ids[client_id])
+
+        for i in range(n_clients):
+            with open(data_dir + f'/client_{i}_train.txt', 'a') as f:
+                for id in res[i]:
+                    f.write('{} {}'.format(
+                        train_video_ids[id], train_labels[id]))
+    else:
+        raise ValueError(f'Partition mode {mode} not implemented.')
 
 def get_client_loaders(client_id, data_dir, cfgs):
-    """
+    '''
     Args:
         client_id (int): id of the client 
         data_dir (str): path that contains <client_id> directory, the results from 
                         data partition step 
-        cfgs: 
+        cfgs: configuration object
     Returns:
         Tuple[torch.utils.data.dataset]: train and val dataset
-    """
-
+    '''
     scaler = T.Resize(((cfgs.height, cfgs.width)))
     normalize = T.Normalize(mean=[0.485, 0.456, 0.406],
 		                    std=[0.229, 0.224, 0.225])    
@@ -133,7 +132,7 @@ def get_client_loaders(client_id, data_dir, cfgs):
 		T.ToTensor(),
 		normalize      
 		])  
-
+    
     train_set = FrameDataset(
         frame_dir=data_dir + '/rgb_frames',
         annotation_file_path=data_dir + f'/client_{client_id}_train.txt',
@@ -183,13 +182,16 @@ if __name__ == '__main__':
         type=str,
         help="path to val annotation files",
     )
+    parser.add_argument(
+        "--mode",
+        type=str,
+        default="iid",
+        help="Data partition mode"
+    )
     args = parser.parse_args()
 
     data_partition(n_clients=int(args.n_clients),
                     data_dir=args.data_dir,
                     train_annotation_path=args.train_ann,
-                    val_annotation_path=args.val_ann)
-
-
-
-
+                    val_annotation_path=args.val_ann,
+                    mode=args.mode)

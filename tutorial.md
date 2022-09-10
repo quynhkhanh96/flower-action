@@ -28,70 +28,23 @@ After entering the password, type `tail` to keep the session. Do the same for th
 First you have your dataset on one machine, before running your federated learning experiments, you need to preprocess your data (i.e convert videos to RGB frames and resize them if neccessary, restructure the directories if they are not in required format) and parition it among the clients. 
 
 ## **Convert dataset to required format**
-At the beginning your dataset is assumed to be in one of the following formats:
-- When person ids are provided:
-    ```
-    <your_dataset>
-    ├── rgb_frames
-    │   ├── person_000
-    │   │   ├── video_000.mp4
-    │   │   ├── video_001.mp4
-    │   │   └── ...
-    │   ├── person_001
-    │   │   ├── video_000.mp4
-    │   │   ├── video_001.mp4
-    │   │   └── ...
-    │   └── ...
-    ├── train.txt
-    └── val.txt
-    ```
-- When there is no person id:
-    ```
-    <your_dataset>
-    ├── rgb_frames
-    │   ├── video_000.mp4
-    │   ├── video_001.mp4
-    │   └── ...
-    ├── train.txt
-    └── val.txt
-    ```
-We need to convert it to this format, i.e `.mp4` videos are converted to `.jpg` RGB frames:
+Your dataset needs to be the following format, i.e `.mp4` videos are converted to `.jpg` RGB frames:
 ```
 <your_dataset>
 ├── rgb_frames
-│   ├── person_000
-│   │   ├── video_000
-│   │   │   ├── frame_0000.jpg
-│   │   │   ├── frame_0001.jpg
-│   │   │   └── ...
-│   │   ├── video_001
-│   │   │   ├── frame_0000.jpg
-│   │   │   ├── frame_0001.jpg
-│   │   │   └── ...
+│   ├── <video_id1>
+│   │   ├── frame_0000.jpg
+│   │   ├── frame_0001.jpg
 │   │   └── ...
-│   ├── person_001
-│   │   ├── video_000
-│   │   │   ├── frame_0000.jpg
-│   │   │   ├── frame_0001.jpg
-│   │   │   └── ...
-│   │   ├── video_001
-│   │   │   ├── frame_0000.jpg
-│   │   │   ├── frame_0001.jpg
-│   │   │   └── ...
+│   ├── <video_id2>
+│   │   ├── frame_0000.jpg
+│   │   ├── frame_0001.jpg
 │   │   └── ...
 │   └── ...
 ├── train.txt
 └── val.txt
 ```
-Run this to obtain that:
-```shell
-cd tools  
-python build_rawframes.py --src_dir <path/to/your/dataset> \
-                        --dst_dir <path/to/preprocessed/dataset> \
-                        --new_height 172 --new_width 172 \
-                        --no_person_ids True
-```
-In particular, `src_dir` is the path to your dataset, `dst_dir` is where the new, preprocessed dataset (dataset with videos converted to RGB frames) will be saved. If there is no person id in your dataset, set `no_person_ids` to `True`, the script will create a "pseudo" person id for each video, i.e one video belongs to one person. If you want to resize your frames (highly recommend this because that would effectively reduces the size of your dataset), simply pass the sizes to `new_height` and `new_width`.
+Each line in `train.txt` or `val.txt` is `<video_id> <label>`, where label (one of `0`, `1`, ..., `N_CLASSES-1`) is the corresponding ground truth of video `<video_id>`. 
 
 ## **Partition the dataset**
 After having the data in the required format, we are ready to partition them among the clients.

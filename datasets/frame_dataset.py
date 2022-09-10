@@ -98,6 +98,7 @@ def data_partition(n_clients, data_dir,
         # split by labels to `n_clients` clients
         res = defaultdict(list)
         n_classes = len(set(train_labels))
+        train_labels = np.array(train_labels)
         for cls in range(n_classes):
             ids = np.where(train_labels == cls)[0]
             random.shuffle(ids)

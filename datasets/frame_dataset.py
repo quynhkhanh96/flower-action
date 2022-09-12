@@ -76,23 +76,19 @@ class FrameDataset(Dataset):
 
 def data_partition(n_clients, data_dir,
                     train_annotation_path,
-                    val_annotation_path,
                     mode='iid'):
     '''
     Args:
-        n_clients: number of clients
-        data_dir: path to data (including `rgb_frames`, `train.txt` and `val.txt` directories)
-        train_annotation_path: path to train annotation file, in which each line is 
+        n_clients (int): number of clients
+        data_dir (str): path to data (including `rgb_frames`, `train.txt` and `val.txt` directories)
+        train_annotation_path (str): path to train annotation file, in which each line is 
                                 <video_id> <label>
-        val_annotation_path: path to validation annotation file
+        mode (str): data partition mode
     '''
     print(f'Partitioning data among {n_clients} clients ...')
     with open(train_annotation_path, 'r') as f:
         train_video_ids = [l.strip().split(' ')[0] for l in f.readlines()]
         train_labels = [int(l.strip().split(' ')[1]) for l in f.readlines()]
-    with open(val_annotation_path, 'r') as f:
-        val_video_ids = [l.strip().split(' ')[0] for l in f.readlines()]
-        val_labels = [int(l.strip().split(' ')[1]) for l in f.readlines()]
 
     if mode == 'iid':
         # split by labels to `n_clients` clients

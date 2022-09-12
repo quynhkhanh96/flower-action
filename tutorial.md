@@ -50,11 +50,11 @@ Each line in `train.txt` or `val.txt` is `<video_id> <label>`, where label (one 
 After having the data in the required format, we are ready to partition them among the clients.
 ```shell 
 python -m datasets.frame_dataset --n_clients=4 \
-        --data_dir <path/to/preprocessed/dataset> \
-        --train_ann <path/to/preprocessed/dataset>/train.txt \
-        --val_ann <path/to/preprocessed/dataset>/val.txt
+        --data_dir=<path/to/preprocessed/dataset> \
+        --train_ann=<path/to/preprocessed/dataset>/train.txt \
+        --mode="iid"
 ```
-This script will create lists of person ids (saved as `.txt` files, for eg. `<your_dataset>/client_0.txt`) for each clients, so from them we know each video belongs to which client. Now copy the whole preprocessed dataset directory to all of your clients and server (i.e the machines where you want to run your experiments on).
+This script will perform data partition according to the partition scheme `mode` that is passed in, for now, only IID split is supported. After running this script, some files named `client_0_train.txt`, `client_1_train.txt`, ... should be seen in `data_dir` directory, they have the same structure as `train.txt` and will be train files for each client. Now copy the whole preprocessed dataset directory to all of your clients and server (i.e the machines where you want to run your experiments on).
 
 # **Start the experiment**
 Before running the experiments, one extra step you need to do is to prepare your config file, this is where you set all the configuration about how your data will be processed, the model architecture, training setting (for eg. learning rate, optimizer, ...) and federated learning config (number of rounds, number of clients, participation ratio, ...).

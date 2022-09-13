@@ -27,8 +27,9 @@ class FrameDataset(Dataset):
         self.mode = mode 
 
         with open(self.annotation_file_path) as f:
-            self.clips = [l.strip().split(' ')[0] for l in f.readlines()]
-            self.labels = [int(l.strip().split(' ')[1]) for l in f.readlines()]
+            lines = [l.strip() for l in f.readlines()]
+            self.clips = [l.strip().split(' ')[0] for l in lines]
+            self.labels = [int(l.strip().split(' ')[1]) for l in lines]
 
     def __len__(self):
         return len(self.clips)

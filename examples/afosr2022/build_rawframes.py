@@ -63,11 +63,11 @@ if __name__ == '__main__':
         val_person_ids = set([l.strip() for l in f.readlines()])    
 
     video_paths = []
-    for person_id in os.listdir(src_dir):
-        for date_id in os.listdir(src_dir + '/' + person_id):
-            for fname in os.listdir(src_dir + '/' + person_id + '/' + date_id):
+    for person_id in os.listdir(src_dir + '/data'):
+        for date_id in os.listdir(src_dir + '/data/' + person_id):
+            for fname in os.listdir(src_dir + '/data/' + person_id + '/' + date_id):
                 if fname.endswith('.mp4'):
-                    video_paths.append(src_dir + '/' + person_id + '/' + date_id + '/' + fname)
+                    video_paths.append(src_dir + '/data/' + person_id + '/' + date_id + '/' + fname)
 
     train_info, val_info = [], []
     n_videos = len(video_paths)

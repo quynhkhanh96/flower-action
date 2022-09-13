@@ -77,7 +77,7 @@ if __name__ == '__main__':
         os.makedirs(out_path, exist_ok=True)
         extract_frames(video_path, out_path, new_height, new_width)
         # The original label is 1-indexed
-        label = int(video.split('/')[-1].split('.')[0]) - 1
+        label = int(video_path.split('/')[-1].split('.')[0]) - 1
 
         person_id = video_path.split('/')[-3] 
         if person_id in train_person_ids:

@@ -87,8 +87,9 @@ def data_partition(n_clients, data_dir,
     '''
     print(f'Partitioning data among {n_clients} clients ...')
     with open(train_annotation_path, 'r') as f:
-        train_video_ids = [l.strip().split(' ')[0] for l in f.readlines()]
-        train_labels = [int(l.strip().split(' ')[1]) for l in f.readlines()]
+        lines = [l.strip() for l in f.readlines()]
+        train_video_ids = [l.split(' ')[0] for l in lines]
+        train_labels = [int(l.split(' ')[1]) for l in lines]
 
     if mode == 'iid':
         # split by labels to `n_clients` clients
@@ -105,7 +106,7 @@ def data_partition(n_clients, data_dir,
         for i in range(n_clients):
             with open(data_dir + f'/client_{i}_train.txt', 'a') as f:
                 for id in res[i]:
-                    f.write('{} {}'.format(
+                    f.write('{} {}\n'.format(
                         train_video_ids[id], train_labels[id]))
     else:
         raise ValueError(f'Partition mode {mode} not implemented.')

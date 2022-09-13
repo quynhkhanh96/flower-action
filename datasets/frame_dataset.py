@@ -101,7 +101,7 @@ def data_partition(n_clients, data_dir,
             random.shuffle(ids)
             ids = [ids[i::n_clients] for i in range(n_clients)]
             for client_id in range(n_clients):
-                res[client_id].append(ids[client_id])
+                res[client_id] += list(ids[client_id])
 
         for i in range(n_clients):
             with open(data_dir + f'/client_{i}_train.txt', 'a') as f:

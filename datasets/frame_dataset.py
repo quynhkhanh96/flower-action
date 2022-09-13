@@ -190,5 +190,4 @@ if __name__ == '__main__':
     data_partition(n_clients=int(args.n_clients),
                     data_dir=args.data_dir,
                     train_annotation_path=args.train_ann,
-                    val_annotation_path=args.val_ann,
                     mode=args.mode)

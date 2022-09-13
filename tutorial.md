@@ -33,12 +33,12 @@ Your dataset needs to be the following format, i.e `.mp4` videos are converted t
 <your_dataset>
 ├── rgb_frames
 │   ├── <video_id1>
-│   │   ├── frame_0000.jpg
-│   │   ├── frame_0001.jpg
+│   │   ├── frame_0.jpg
+│   │   ├── frame_1.jpg
 │   │   └── ...
 │   ├── <video_id2>
-│   │   ├── frame_0000.jpg
-│   │   ├── frame_0001.jpg
+│   │   ├── frame_0.jpg
+│   │   ├── frame_1.jpg
 │   │   └── ...
 │   └── ...
 ├── train.txt

@@ -90,7 +90,7 @@ if __name__ == '__main__':
 
     with open(dst_dir + '/train.txt', 'a') as f:
         for video_id, label in train_info:
-            f.write(f'{video_id} {label}')
+            f.write(f'{video_id} {label}\n')
     with open(dst_dir + '/val.txt', 'a') as f:
         for video_id, label in val_info:
-            f.write(f'{video_id} {label}')
+            f.write(f'{video_id} {label}\n')

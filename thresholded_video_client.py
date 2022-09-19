@@ -52,7 +52,7 @@ if __name__ == '__main__':
     # datasets
     train_loader, val_loader = get_client_local_loaders(client_id, 
                                         client_args.data_dir,
-                                        work_dir,
+                                        client_args.work_dir,
                                         cfgs)
 
     # model

@@ -223,6 +223,7 @@ def get_client_local_loaders(client_id, data_dir, work_dir, cfgs):
                                 num_workers=cfgs.num_workers, 
                                 shuffle=False
     )
+    return train_loader, val_loader
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description="Data paritioning")

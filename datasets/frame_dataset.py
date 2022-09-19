@@ -7,6 +7,7 @@ import argparse
 import torch
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms as T
+from sklearn.model_selection import train_test_split
 
 class FrameDataset(Dataset):
     def __init__(self, frame_dir,
@@ -160,6 +161,68 @@ def get_client_loaders(client_id, data_dir, cfgs):
 
     return train_loader, val_loader
 
+def get_client_local_loaders(client_id, data_dir, work_dir, cfgs):
+    '''
+    Args:
+        client_id (int): id of the client 
+        data_dir (str): path that contains <client_id> directory, the results from 
+                        data partition step 
+        work_dir (str): path to saving logs, checkpoints, ... 
+        cfgs: configuration object
+    Returns:
+        Tuple[torch.utils.data.dataset]: client's local train and val dataset
+    '''
+    scaler = T.Resize(((cfgs.height, cfgs.width)))
+    normalize = T.Normalize(mean=[0.485, 0.456, 0.406],
+		                    std=[0.229, 0.224, 0.225])    
+    transform= T.Compose([
+        T.ToPILImage(),
+        scaler,
+        T.ToTensor(),
+        normalize      
+        ])  
+    
+    # split client's video ids 8:2 to create local train & val set
+    with open(data_dir + f'/client_{client_id}_train.txt') as f:
+        lines = [l.strip() for l in f.readlines()]
+        video_ids = [l.strip().split(' ')[0] for l in lines]
+        labels = [int(l.strip().split(' ')[1]) for l in lines]
+
+    train_inds, val_inds = train_test_split(list(range(len(video_ids))), 
+                                            test_size=0.33,
+                                            random_state=int(cfgs.seed))
+    with open(work_dir + f'/client_{client_id}_local_train.txt', 'a') as f:
+        for idx in train_inds:
+            f.write('{} {}\n'.format(video_ids[id], labels[id]))
+    with open(work_dir + f'/client_{client_id}_local_val.txt', 'a') as f:
+        for idx in val_inds:
+            f.write('{} {}\n'.format(video_ids[id], labels[id]))
+    
+    train_set = FrameDataset(
+        frame_dir=data_dir + '/rgb_frames',
+        annotation_file_path=work_dir + f'/client_{client_id}_local_train.txt',
+        n_frames=cfgs.seq_len,
+        mode='train',
+        transform=transform,
+        use_albumentations=False,
+    )
+    train_loader = DataLoader(train_set, batch_size=cfgs.train_bz,
+                                num_workers=cfgs.num_workers, 
+                                shuffle=True
+    )
+
+    val_set = FrameDataset(
+        frame_dir=data_dir + '/rgb_frames',
+        annotation_file_path=work_dir + f'/client_{client_id}_local_val.txt',
+        n_frames=cfgs.seq_len,
+        mode='test',
+        transform=transform,
+        use_albumentations=False,
+    )
+    val_loader = DataLoader(val_set, batch_size=cfgs.train_bz,
+                                num_workers=cfgs.num_workers, 
+                                shuffle=False
+    )
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description="Data paritioning")

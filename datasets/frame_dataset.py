@@ -193,10 +193,10 @@ def get_client_local_loaders(client_id, data_dir, work_dir, cfgs):
                                             random_state=int(cfgs.seed))
     with open(work_dir + f'/client_{client_id}_local_train.txt', 'a') as f:
         for idx in train_inds:
-            f.write('{} {}\n'.format(video_ids[id], labels[id]))
+            f.write('{} {}\n'.format(video_ids[idx], labels[idx]))
     with open(work_dir + f'/client_{client_id}_local_val.txt', 'a') as f:
         for idx in val_inds:
-            f.write('{} {}\n'.format(video_ids[id], labels[id]))
+            f.write('{} {}\n'.format(video_ids[idx], labels[idx]))
     
     train_set = FrameDataset(
         frame_dir=data_dir + '/rgb_frames',

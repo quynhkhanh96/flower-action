@@ -67,9 +67,7 @@ class FedAvgVideoClient(flwr.client.Client):
         fit_duration = timeit.default_timer() - fit_begin 
         return FitRes(
             parameters=params_prime,
-            num_examples=num_examples_train,
-            # num_examples_ceil=num_examples_train,
-            # fit_duration=fit_duration,            
+            num_examples=num_examples_train        
         )
 
     def evaluate(self, ins: EvaluateIns) -> EvaluateRes:
@@ -82,8 +80,6 @@ class FedAvgVideoClient(flwr.client.Client):
             for k, v in zip(self.model.state_dict().keys(), weights)}
         )
         self.model.load_state_dict(state_dict)
-        # self.model.to(self.cfgs.device)
-        # self.model.eval()
         
         # Evaluate the updated model on the local dataset
         topk_accuracy = self.eval_fn(self.model, self.dl_test, 
@@ -93,4 +89,45 @@ class FedAvgVideoClient(flwr.client.Client):
         return EvaluateRes(
             loss=0., num_examples=len(self.ds_test), 
             metrics=topk_accuracy
+        )
+
+class ThresholdedFedAvgVideoClient(FedAvgVideoClient):
+    def __init__(self, **kwargs, work_dir):
+        super(FedAvgVideoStrategy, self).__init__(**kwargs) 
+        self.work_dir = work_dir
+
+    def fit(self, ins: FitIns) -> FitRes:
+        # set local model weights with that of the new global model
+        weights: Weights = parameters_to_weights(ins.parameters)
+        weights = self.postprocess_weights(weights)
+        
+        state_dict = OrderedDict(
+            {k: torch.Tensor(v) for k, v in zip(self.model.state_dict().keys(), weights)}
+        )
+        self.model.load_state_dict(state_dict)
+
+        fit_begin = timeit.default_timer()
+        # train model locally 
+        self.local.train(model=self.model, client_id=self.client_id)
+
+        # Evaluate the updated model on the local dataset
+        topk_accuracy = self.eval_fn(self.model, self.dl_test, 
+                                        self.cfgs.device)
+        
+        # For now save the topk accs by round
+        with open(self.work_dir + f'/client_{self.client_id}_accs.txt', 'a') as f:
+            f.write('{:.3f} {:.3f}\n'.format(topk_accuracy['top1'],
+                                            topk_accuracy['top5']))
+        
+        # get the weight ready to send to the server
+        weights_prime: Weights = [val.cpu().numpy() 
+                            for _, val in self.model.state_dict().items()]
+        weights_prime = self.postprocess_weights(weights_prime)
+
+        params_prime = weights_to_parameters(weights_prime)
+        num_examples_train = len(self.dl_train.dataset)
+        fit_duration = timeit.default_timer() - fit_begin 
+        return FitRes(
+            parameters=params_prime,
+            num_examples=num_examples_train        
         )

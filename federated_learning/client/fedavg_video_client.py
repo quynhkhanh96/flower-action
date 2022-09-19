@@ -94,7 +94,7 @@ class FedAvgVideoClient(flwr.client.Client):
 class ThresholdedFedAvgVideoClient(FedAvgVideoClient):
     def __init__(self, work_dir, **kwargs):
         self.work_dir = work_dir
-        super(FedAvgVideoStrategy, self).__init__(**kwargs) 
+        super(ThresholdedFedAvgVideoClient, self).__init__(**kwargs) 
 
     def fit(self, ins: FitIns) -> FitRes:
         # set local model weights with that of the new global model

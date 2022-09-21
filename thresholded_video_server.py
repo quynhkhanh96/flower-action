@@ -73,7 +73,7 @@ if __name__ == '__main__':
     eval_fn = evaluate_topk_accuracy
 
     # create strategy
-    strategy = FedAvgVideoStrategy(
+    strategy = ThresholdedFedAvgVideoStrategy(
         cfgs=cfgs,
         dl_test=test_loader,
         ckpt_dir=server_args.work_dir,

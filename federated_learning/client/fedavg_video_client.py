@@ -94,6 +94,7 @@ class FedAvgVideoClient(flwr.client.Client):
 class ThresholdedFedAvgVideoClient(FedAvgVideoClient):
     def __init__(self, work_dir, **kwargs):
         self.work_dir = work_dir
+        self.round = 0
         super(ThresholdedFedAvgVideoClient, self).__init__(**kwargs) 
 
     def fit(self, ins: FitIns) -> FitRes:
@@ -114,19 +115,38 @@ class ThresholdedFedAvgVideoClient(FedAvgVideoClient):
         topk_accuracy = self.eval_fn(self.model, self.dl_test, 
                                         self.cfgs.device)
         
-        # For now save the topk accs by round
-        with open(self.work_dir + f'/client_{self.client_id}_accs.txt', 'a') as f:
-            f.write('{:.3f} {:.3f}\n'.format(topk_accuracy['top1'],
-                                            topk_accuracy['top5']))
-        
-        # get the weight ready to send to the server
-        weights_prime: Weights = [val.cpu().numpy() 
-                            for _, val in self.model.state_dict().items()]
-        weights_prime = self.postprocess_weights(weights_prime)
+        # # For now save the topk accs by round
+        # with open(self.work_dir + f'/client_{self.client_id}_accs.txt', 'a') as f:
+        #     f.write('{:.3f} {:.3f}\n'.format(topk_accuracy['top1'],
+        #                                     topk_accuracy['top5']))
 
+        # Thresholding (average top1 accuracy of that round)
+        thresh = 0
+        n_clients = int(self.cfgs.num_C)
+        for i in range(n_clients):
+            with open(self.work_dir + f'/client_{i}_accs.txt', 'r') as f:
+                top1_accs = [float(x.strip().split(' ')[0]) for x in f.readlines()]
+            thresh += top1_accs[self.round]
+        thresh /= n_clients 
+
+        if topk_accuracy['top1'] >= thresh:
+            weights_prime: Weights = [val.cpu().numpy() 
+                                for _, val in self.model.state_dict().items()]
+            weights_prime = self.postprocess_weights(weights_prime)
+        else:
+            # If the top1 acc does not exceed the average top1 acc of that round
+            # the client will not send the weights by only send the empty np.darray
+            # of each layer
+            weights_prime = [np.array([]) for _ in self.model.state_dict().items()]
+            print(f'At round {self.round}, client {self.client} does not send weight to server.')
+            with open(self.work_dir + f'/client_{i}_drops.txt', 'a') as f:
+                f.write(f'{self.round}\n')
         params_prime = weights_to_parameters(weights_prime)
+
         num_examples_train = len(self.dl_train.dataset)
         fit_duration = timeit.default_timer() - fit_begin 
+
+        self.round += 1
         return FitRes(
             parameters=params_prime,
             num_examples=num_examples_train        

@@ -3,7 +3,8 @@ import os
 import sys  
 from datetime import datetime
 
-log_dir = sys.argv[1]
+port = sys.argv[1]
+log_dir = sys.argv[2]
 
 # callback function - called for every packet
 start_time = datetime.now().strftime("%Hh%Mm%Ss")
@@ -24,4 +25,4 @@ if os.path.exists(LOG_PATH):
     os.remove(LOG_PATH)
 
 # capture traffic
-sniff(filter="port 8085", iface='lo', prn=traffic_monitor_callback)
+sniff(filter=f"port {port}", iface='lo', prn=traffic_monitor_callback)

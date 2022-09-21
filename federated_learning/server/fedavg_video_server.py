@@ -55,11 +55,9 @@ class FedAvgVideoStrategy(flwr.server.strategy.FedAvg):
 
 class ThresholdedFedAvgVideoStrategy(FedAvgVideoStrategy):
     def aggregate_fit(
-        self,
-        rnd: int,
-        results: List[Tuple[ClientProxy, FitRes]],
-        failures: List[BaseException],
-    ) -> Tuple[Optional[Parameters], Dict[str, Scalar]]:
+        self, rnd,
+        results, failures,
+    ):
 
         """Aggregate fit results using weighted average."""
         if not results:

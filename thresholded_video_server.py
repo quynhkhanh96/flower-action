@@ -3,7 +3,7 @@ import argparse
 import flwr 
 import torch
 import functools
-from federated_learning.server.fedavg_video_server import FedAvgVideoStrategy, ThresholdedFedAvgVideoStrategy
+from federated_learning.server.fedavg_video_server import ThresholdedFedAvgVideoStrategy
 # from datasets.video_dataset import get_client_loaders
 from datasets.frame_dataset import get_client_loaders
 from evaluation.video_recognition import evaluate_topk_accuracy

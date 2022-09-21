@@ -129,7 +129,14 @@ class ThresholdedFedAvgVideoClient(FedAvgVideoClient):
             thresh += top1_accs[self.round]
         thresh /= n_clients 
 
-        if topk_accuracy['top1'] >= thresh:
+        # if topk_accuracy['top1'] >= thresh:
+        if self.client_id == 0:
+            prob = 1
+        elif self.client_id == 1:
+            prob = np.random.binomial(1, 0.6)
+        else:
+            prob = np.random.binomial(1, 0.3)
+        if prob:
             weights_prime: Weights = [val.cpu().numpy() 
                                 for _, val in self.model.state_dict().items()]
             weights_prime = self.postprocess_weights(weights_prime)
@@ -139,7 +146,7 @@ class ThresholdedFedAvgVideoClient(FedAvgVideoClient):
             # of each layer
             weights_prime = [np.array([]) for _ in self.model.state_dict().items()]
             print(f'At round {self.round}, client {self.client_id} does not send weight to server.')
-            with open(self.work_dir + f'/client_{i}_drops.txt', 'a') as f:
+            with open(self.work_dir + f'/client_{self.client_id}_drops.txt', 'a') as f:
                 f.write(f'{self.round}\n')
         params_prime = weights_to_parameters(weights_prime)
 

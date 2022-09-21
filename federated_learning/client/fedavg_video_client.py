@@ -138,7 +138,7 @@ class ThresholdedFedAvgVideoClient(FedAvgVideoClient):
             # the client will not send the weights by only send the empty np.darray
             # of each layer
             weights_prime = [np.array([]) for _ in self.model.state_dict().items()]
-            print(f'At round {self.round}, client {self.client} does not send weight to server.')
+            print(f'At round {self.round}, client {self.client_id} does not send weight to server.')
             with open(self.work_dir + f'/client_{i}_drops.txt', 'a') as f:
                 f.write(f'{self.round}\n')
         params_prime = weights_to_parameters(weights_prime)

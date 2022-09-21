@@ -124,7 +124,7 @@ class ThresholdedFedAvgVideoClient(FedAvgVideoClient):
         thresh = 0
         n_clients = int(self.cfgs.num_C)
         for i in range(n_clients):
-            with open(self.work_dir + f'/client_{i}_accs.txt', 'r') as f:
+            with open(self.work_dir + f'/client_{self.client_id}_accs.txt', 'r') as f:
                 top1_accs = [float(x.strip().split(' ')[0]) for x in f.readlines()]
             thresh += top1_accs[self.round]
         thresh /= n_clients 

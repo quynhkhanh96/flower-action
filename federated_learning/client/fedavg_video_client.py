@@ -117,17 +117,16 @@ class ThresholdedFedAvgVideoClient(FedAvgVideoClient):
         #                                     topk_accuracy['top5']))
 
         # Thresholding (average top1 accuracy of that round)
-        thresh = 0
-        n_clients = int(self.cfgs.num_C)
-        for _ in range(n_clients):
-            with open(self.work_dir + f'/client_{self.client_id}_accs.txt', 'r') as f:
-                top1_accs = [float(x.strip().split(' ')[0]) for x in f.readlines()]
-            thresh += top1_accs[self.round]
-        thresh /= n_clients
-
         if self.client_id == 0:
             prob = 1
         else:
+            thresh = 0
+            n_clients = int(self.cfgs.num_C)
+            for _ in range(n_clients):
+                with open(self.work_dir + f'/client_{self.client_id}_accs.txt', 'r') as f:
+                    top1_accs = [float(x.strip().split(' ')[0]) for x in f.readlines()]
+                thresh += top1_accs[self.round]
+            thresh /= n_clients
             prob = topk_accuracy['top1'] >= thresh
 
         if prob:

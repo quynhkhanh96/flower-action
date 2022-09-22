@@ -120,13 +120,16 @@ class ThresholdedFedAvgVideoClient(FedAvgVideoClient):
         if self.client_id == 0:
             prob = 1
         else:
-            thresh = 0
+            thresh = []
             n_clients = int(self.cfgs.num_C)
-            for _ in range(n_clients):
-                with open(self.work_dir + f'/client_{self.client_id}_accs.txt', 'r') as f:
+            for client_id in range(n_clients):
+                with open(self.work_dir + f'/client_{client_id}_accs.txt', 'r') as f:
                     top1_accs = [float(x.strip().split(' ')[0]) for x in f.readlines()]
-                thresh += top1_accs[self.round]
-            thresh /= n_clients
+                try:
+                    thresh.append(top1_accs[self.round])
+                except:
+                    pass 
+            thresh = np.mean(thresh)
             prob = topk_accuracy['top1'] >= thresh
 
         if prob:

@@ -8,10 +8,6 @@ import numpy as np
 import torch 
 from collections import OrderedDict
 
-from mmaction.models import build_recognizer
-from mmcv.runner import load_state_dict
-import copy 
-
 class FedAvgVideoClient(flwr.client.Client):
     def __init__(self, client_id, dl_train, dl_test,
                         model, loss_fn, local_update, 
@@ -123,19 +119,17 @@ class ThresholdedFedAvgVideoClient(FedAvgVideoClient):
         # Thresholding (average top1 accuracy of that round)
         thresh = 0
         n_clients = int(self.cfgs.num_C)
-        for i in range(n_clients):
+        for _ in range(n_clients):
             with open(self.work_dir + f'/client_{self.client_id}_accs.txt', 'r') as f:
                 top1_accs = [float(x.strip().split(' ')[0]) for x in f.readlines()]
             thresh += top1_accs[self.round]
-        thresh /= n_clients 
+        thresh /= n_clients
 
-        # if topk_accuracy['top1'] >= thresh:
         if self.client_id == 0:
             prob = 1
-        elif self.client_id == 1:
-            prob = np.random.binomial(1, 0.6)
         else:
-            prob = np.random.binomial(1, 0.3)
+            prob = topk_accuracy['top1'] >= thresh
+
         if prob:
             weights_prime: Weights = [val.cpu().numpy() 
                                 for _, val in self.model.state_dict().items()]
@@ -151,10 +145,8 @@ class ThresholdedFedAvgVideoClient(FedAvgVideoClient):
         params_prime = weights_to_parameters(weights_prime)
 
         num_examples_train = len(self.dl_train.dataset)
-        fit_duration = timeit.default_timer() - fit_begin 
-
         self.round += 1
         return FitRes(
             parameters=params_prime,
-            num_examples=num_examples_train        
+            num_examples=num_examples_train       
         )

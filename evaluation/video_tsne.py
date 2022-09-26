@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd 
 import torch 
 import os
 from sklearn.decomposition import PCA
@@ -39,10 +40,11 @@ def gen_tsne(model, test_loader, device, plot_path):
     tx, ty = tsne[:,0], tsne[:,1]
     tx = (tx-np.min(tx)) / (np.max(tx) - np.min(tx))
     ty = (ty-np.min(ty)) / (np.max(ty) - np.min(ty))
+    df_cluster = pd.DataFrame({'x': tx, 'y': ty, 'label': labels})
     n_cls = len(set(labels))
 
     plt.figure(figsize=(16, 10))
-    sns.scatterplot(x=tx, y=ty, hue=labels, 
-                    palette=sns.hls_palette('hls', n_cls), 
+    sns.scatterplot(data=df_cluster, x='x', y='y', hue='label', 
+                    palette=sns.hls_palette(n_cls), 
                     legend='full');
     plt.savefig(plot_path)

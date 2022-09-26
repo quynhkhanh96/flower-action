@@ -6,6 +6,9 @@ from sklearn.manifold import TSNE
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+# Credit:
+# https://github.com/sinanatra/image-tsne/blob/master/notebooks/image_tsne.ipynb
+# https://www.kaggle.com/code/dehaozhang/t-sne-visualization
 def gen_tsne(model, test_loader, device, plot_path):
     model.to(device)
     model.eval()

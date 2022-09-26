@@ -35,3 +35,10 @@ CUDA_VISIBLE_DEVICES=2 python -m thresholded_video_client --server_address=$SERV
 # screen -S client2
 CUDA_VISIBLE_DEVICES=3 python -m thresholded_video_client --server_address=$SERVER_ADDRESS --cid=2 --cfg_path=$CFG_PATH --data_dir=$DATA_DIR --work_dir="$DATA_DIR/fed_exps"
 ```
+
+# Visualization
+## t-SNE
+```shell
+python -m visualize_tsne --cid=0 --cfg_path=$CFG_PATH --data_dir=$DATA_DIR --work_dir="$DATA_DIR/fed_exps"
+```
+## Local top1 accuracies before and after server update

@@ -2,6 +2,8 @@
 # opencv, numpy, pandas, yaml 
 pip install numpy pandas sklearn matplotlib
 pip install opencv-python
+pip install seaborn
+pip install notebook
 pip install PyYAML
 pip install wandb
 

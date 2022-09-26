@@ -43,6 +43,6 @@ def gen_tsne(model, test_loader, device, plot_path):
 
     plt.figure(figsize=(16, 10))
     sns.scatterplot(x=tx, y=ty, hue=labels, 
-                    palette=sns.hls_palette(n_cls), 
+                    palette=sns.hls_palette('hls', n_cls), 
                     legend='full');
     plt.savefig(plot_path)

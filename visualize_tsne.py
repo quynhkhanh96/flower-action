@@ -49,5 +49,5 @@ if __name__ == '__main__':
 
     # Generate t-SNE visualization
     gen_tsne(model, val_loader, 
-            args.device, 
+            cfgs.device, 
             args.work_dir + f'/client_{client_id}_tSNE.png')

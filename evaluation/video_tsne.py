@@ -39,9 +39,10 @@ def gen_tsne(model, test_loader, device, plot_path):
     tx, ty = tsne[:,0], tsne[:,1]
     tx = (tx-np.min(tx)) / (np.max(tx) - np.min(tx))
     ty = (ty-np.min(ty)) / (np.max(ty) - np.min(ty))
+    n_cls = len(set(labels))
 
     plt.figure(figsize=(16, 10))
     sns.scatterplot(x=tx, y=ty, hue=labels, 
-                    palette=sns.hls_palette(10), 
+                    palette=sns.hls_palette(n_cls), 
                     legend='full');
     plt.savefig(plot_path)

@@ -50,7 +50,7 @@ class FedAvgVideoStrategy(flwr.server.strategy.FedAvg):
         
         if eval_res['top1'] > self.best_top1_acc:
             self.best_top1_acc = eval_res['top1']
-            torch.save({'state_dict': model.state_dict(),}, self.ckpt_dir + '/best.pth')
+            torch.save({'state_dict': model.state_dict()}, self.ckpt_dir + '/best.pth')
 
         return 0., metrics
 

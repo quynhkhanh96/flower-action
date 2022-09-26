@@ -187,6 +187,20 @@ class ResNet(nn.Module):
             param = param.data
             print("loading "+name)
             own_state[name].copy_(param)
+    
+    def get_embedding(self, x):
+        x = self.conv1(x)
+        x = self.bn1(x)
+        x = self.relu(x)
+        x = self.maxpool(x)
+        x = self.layer1(x)
+        x = self.layer2(x)
+        x = self.layer3(x)
+        x = self.layer4(x)
+        x = self.avgpool(x)
+        x = x.view(x.size(0), -1)
+
+        return x 
 
     def forward(self, x):
         # default size is (b, s, c, w, h), s for seq_len, c for channel

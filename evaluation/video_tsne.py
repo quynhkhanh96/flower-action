@@ -23,7 +23,7 @@ def gen_tsne(model, test_loader, device, plot_path):
             emb = model.get_embedding(imgs)	
 
         embeddings.extend(emb.cpu().numpy())
-        labels.extend(label)
+        labels.extend(label.cpu().numpy())
 
     # PCA transform
     embeddings = np.array(embeddings)

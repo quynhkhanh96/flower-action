@@ -75,3 +75,31 @@ class ThresholdedFedAvgVideoStrategy(FedAvgVideoStrategy):
             weights_results.append((weights, fit_res.num_examples))
 
         return weights_to_parameters(aggregate(weights_results)), {}
+
+class SortedFedAvgVideoStrategy(FedAvgVideoStrategy):
+    def __init__(self, num_selected, **kwargs):
+        self.num_selected = num_selected # number of clients' weights selected
+        super(SortedFedAvgVideoStrategy, self).__init__(**kwargs) 
+    def aggregate_fit(
+        self, rnd,
+        results, failures,
+    ):
+        """Aggregate fit results using weighted average."""
+        if not results:
+            return None, {}
+        # Do not aggregate if there are failures and failures are not accepted
+        if not self.accept_failures and failures:
+            return None, {}
+
+        # Sort clients by their local accuracy
+        accs = np.array([fit_res.metrics['top1'] for _, fit_res in results])
+        inds = np.argsort(accs)[-self.num_selected:]
+
+        # Convert results
+        weights_results = []
+        for idx, (_, fit_res) in enumerate(results):
+            if idx in inds:
+                weights = parameters_to_weights(fit_res.parameters)
+                weights_results.append((weights, fit_res.num_examples))
+
+        return weights_to_parameters(aggregate(weights_results)), {}

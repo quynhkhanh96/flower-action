@@ -83,7 +83,7 @@ class FedAvgVideoClient(flwr.client.Client):
 
         # Return the number of evaluation examples and the evaluation result (loss)
         return EvaluateRes(
-            loss=0., num_examples=len(self.ds_test), 
+            loss=0., num_examples=len(self.dl_test), 
             metrics=topk_accuracy
         )
 
@@ -166,4 +166,56 @@ class ThresholdedFedAvgVideoClient(FedAvgVideoClient):
         return FitRes(
             parameters=params_prime,
             num_examples=num_examples_train       
+        )
+
+class SortedFedAvgVideoClient(FedAvgVideoClient):
+    def __init__(self, work_dir, **kwargs):
+        self.work_dir = work_dir
+        self.round = 0
+        super(SortedFedAvgVideoClient, self).__init__(**kwargs) 
+
+    def fit(self, ins: FitIns) -> FitRes:
+        # set local model weights with that of the new global model
+        weights: Weights = parameters_to_weights(ins.parameters)
+        weights = self.postprocess_weights(weights)
+        
+        state_dict = OrderedDict(
+            {k: torch.Tensor(v) for k, v in zip(self.model.state_dict().keys(), weights)}
+        )
+        self.model.load_state_dict(state_dict)
+        # Evaluate the updated model on the local dataset before training
+        # logged as `self.round-1` result
+        ## Topk accuracy
+        topk_accuracy_before = self.eval_fn(self.model, self.dl_test, 
+                                        self.cfgs.device)
+        torch.save({'state_dict': self.model.state_dict()}, 
+                    self.work_dir + '/client_{}_round_{}_before.pth'.format(
+                        self.client_id, self.round
+                    ))
+
+        # train model locally 
+        self.local.train(model=self.model, client_id=self.client_id)
+
+        # Evaluate the updated model on the local dataset after training
+        topk_accuracy = self.eval_fn(self.model, self.dl_test, 
+                                        self.cfgs.device)
+        with open(self.work_dir + f'/client_{self.client_id}_accs.txt', 'a') as f:
+            f.write('{:.3f} {:.3f}\n'.format(topk_accuracy_before['top1'],
+                                            topk_accuracy['top1']))
+        torch.save({'state_dict': self.model.state_dict()}, 
+                    self.work_dir + '/client_{}_round_{}_after.pth'.format(
+                        self.client_id, self.round
+                    ))
+
+        weights_prime: Weights = [val.cpu().numpy() 
+                            for _, val in self.model.state_dict().items()]
+        weights_prime = self.postprocess_weights(weights_prime)
+
+        params_prime = weights_to_parameters(weights_prime)
+        num_examples_train = len(self.dl_train.dataset)
+        self.round += 1
+        return FitRes(
+            parameters=params_prime,
+            num_examples=num_examples_train,
+            metrics=topk_accuracy       
         )

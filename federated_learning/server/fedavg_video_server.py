@@ -47,7 +47,9 @@ class FedAvgVideoStrategy(flwr.server.strategy.FedAvg):
         metrics = {'top1_accuracy': eval_res['top1'], 'top5_accuracy': eval_res['top5']}
         # wandb.log({f"top1_accuracy": eval_res['top1']})
         # wandb.log({f"top5_accuracy": eval_res['top5']})
-        
+        with open(self.ckpt_dir + '/server_accs.txt', 'a') as f:
+            f.write('{:.3f} {:.3f}\n'.format(metrics['top1_accuracy'],
+                                            metrics['top5_accuracy']))
         if eval_res['top1'] > self.best_top1_acc:
             self.best_top1_acc = eval_res['top1']
             torch.save({'state_dict': model.state_dict()}, self.ckpt_dir + '/best.pth')
@@ -95,7 +97,7 @@ class SortedFedAvgVideoStrategy(FedAvgVideoStrategy):
         accs = np.array([fit_res.metrics['top1'] for _, fit_res in results])
         inds = np.argsort(accs)[-self.num_selected:]
         # Logs for debugging
-        with open(self.ckpt_dir + '/server_logs.txt', 'a') as f:
+        with open(self.ckpt_dir + '/server_selected.txt', 'a') as f:
             accs_str = ' '.join(accs) 
             inds_str = ' '.join(inds)
             f.write(f'Round {rnd}: Accuracies {accs_str}, Selected {inds_str}\n')

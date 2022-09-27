@@ -94,6 +94,11 @@ class SortedFedAvgVideoStrategy(FedAvgVideoStrategy):
         # Sort clients by their local accuracy
         accs = np.array([fit_res.metrics['top1'] for _, fit_res in results])
         inds = np.argsort(accs)[-self.num_selected:]
+        # Logs for debugging
+        with open(self.ckpt_dir + '/server_logs.txt', 'a') as f:
+            accs_str = ' '.join(accs) 
+            inds_str = ' '.join(inds)
+            f.write(f'Round {rnd}: Accuracies {accs_str}, Selected {inds_str}\n')
 
         # Convert results
         weights_results = []

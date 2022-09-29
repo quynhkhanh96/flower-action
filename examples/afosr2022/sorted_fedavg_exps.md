@@ -15,17 +15,59 @@ source set_paths.sh
 ### **Run experiment with `partition rate = 1.0`**
 First start server 
 ```shell
-
+# screen -S fed_server
+CUDA_VISIBLE_DEVICES=1 python -m video_server --server_address=$SERVER_ADDRESS --cfg_path="examples/afosr2022/configs/afosr_fedavg_p10.yaml" --data_dir=$DATA_DIR --work_dir="$DATA_DIR/fed_exps_p10" --num_selected=2
 ```
 Start clients
 ```shell
+# screen -S client0
+CUDA_VISIBLE_DEVICES=2 python -m sorted_video_client --server_address=$SERVER_ADDRESS --cid=0 --cfg_path="examples/afosr2022/configs/afosr_fedavg_p10.yaml" --data_dir=$DATA_DIR --work_dir="$DATA_DIR/fed_exps_p10"
 
+# screen -S client1
+CUDA_VISIBLE_DEVICES=2 python -m sorted_video_client --server_address=$SERVER_ADDRESS --cid=1 --cfg_path="examples/afosr2022/configs/afosr_fedavg_p10.yaml" --data_dir=$DATA_DIR --work_dir="$DATA_DIR/fed_exps_p10"
+
+# screen -S client2
+CUDA_VISIBLE_DEVICES=3 python -m sorted_video_client --server_address=$SERVER_ADDRESS --cid=2 --cfg_path="examples/afosr2022/configs/afosr_fedavg_p10.yaml" --data_dir=$DATA_DIR --work_dir="$DATA_DIR/fed_exps_p10"
 ```
-### **Run experiment with `partition rate = 0.6`**
+### **Run experiment with `partition rate = 0.7`**
+```shell
+# screen -S fed_server
+CUDA_VISIBLE_DEVICES=1 python -m video_server --server_address=$SERVER_ADDRESS --cfg_path="examples/afosr2022/configs/afosr_fedavg_p07.yaml" --data_dir=$DATA_DIR --work_dir="$DATA_DIR/fed_sorted_exps" --num_selected=2
+```
+Then start clients
+```shell
+# screen -S client0
+CUDA_VISIBLE_DEVICES=2 python -m sorted_video_client --server_address=$SERVER_ADDRESS --cid=0 --cfg_path="examples/afosr2022/configs/afosr_fedavg_p07.yaml" --data_dir=$DATA_DIR --work_dir="$DATA_DIR/fed_exps_p07"
 
+# screen -S client1
+CUDA_VISIBLE_DEVICES=2 python -m sorted_video_client --server_address=$SERVER_ADDRESS --cid=1 --cfg_path="examples/afosr2022/configs/afosr_fedavg_p07.yaml" --data_dir=$DATA_DIR --work_dir="$DATA_DIR/fed_exps_p07"
+
+# screen -S client2
+CUDA_VISIBLE_DEVICES=3 python -m sorted_video_client --server_address=$SERVER_ADDRESS --cid=2 --cfg_path="examples/afosr2022/configs/afosr_fedavg_p07.yaml" --data_dir=$DATA_DIR --work_dir="$DATA_DIR/fed_exps_p07"
+```
 ### **Run experiment with Sorted Accuracy Strategy**
+Start server
+```shell
+# screen -S fed_server
+CUDA_VISIBLE_DEVICES=1 python -m sorted_video_server --server_address=$SERVER_ADDRESS --cfg_path="examples/afosr2022/configs/afosr_fedavg_sorted.yaml" --data_dir=$DATA_DIR --work_dir="$DATA_DIR/fed_exps_sorted" --num_selected=2
+```
+Then start clients
+```shell
+# screen -S client0
+CUDA_VISIBLE_DEVICES=2 python -m sorted_video_client --server_address=$SERVER_ADDRESS --cid=0 --cfg_path="examples/afosr2022/configs/afosr_fedavg_sorted.yaml" --data_dir=$DATA_DIR --work_dir="$DATA_DIR/fed_exps_sorted"
+
+# screen -S client1
+CUDA_VISIBLE_DEVICES=2 python -m sorted_video_client --server_address=$SERVER_ADDRESS --cid=1 --cfg_path="examples/afosr2022/configs/afosr_fedavg_sorted.yaml" --data_dir=$DATA_DIR --work_dir="$DATA_DIR/fed_exps_sorted"
+
+# screen -S client2
+CUDA_VISIBLE_DEVICES=3 python -m sorted_video_client --server_address=$SERVER_ADDRESS --cid=2 --cfg_path="examples/afosr2022/configs/afosr_fedavg_sorted.yaml" --data_dir=$DATA_DIR --work_dir="$DATA_DIR/fed_exps_sorted"
+```
 ## **Results**
 ### **t-SNE visualization**
+Run this to generate t-SNE visualization
+```shell
+
+```
 
 ### **Global accuracies**
 

@@ -1,0 +1,29 @@
+# local data loaders
+height: 224
+width: 224
+seq_len: 16
+train_bz: 4
+test_bz: 8
+num_workers: 4
+
+# network architecture
+arch: 'resnet183d'
+num_classes: 12
+pretrained_model: 'pre-trained/resnet-18-kinetics.pth'
+
+# local training
+local_e: 3
+epochs: 30
+loss: 'CrossEntropyLoss'
+optimizer: 'SGD'
+lr: 0.0003
+print_freq: 10
+
+# federated learning setting 
+FL: 'FedAvg'
+frac: 1 # partipation ratio
+num_C: 3 # client number
+min_sample_size: 3
+min_num_clients: 3 
+seed: 1234 
+device: 'cuda'

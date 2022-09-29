@@ -3,7 +3,7 @@ import argparse
 import flwr 
 import torch
 import functools
-from federated_learning.server.fedavg_video_server import ThresholdedFedAvgVideoStrategy
+from federated_learning.server.fedavg_video_server import FedAvgVideoStrategy
 from datasets.frame_dataset import get_client_loaders
 from evaluation.video_recognition import evaluate_topk_accuracy
 import yaml 
@@ -64,7 +64,7 @@ if __name__ == '__main__':
     eval_fn = evaluate_topk_accuracy
 
     # create strategy
-    strategy = ThresholdedFedAvgVideoStrategy(
+    strategy = FedAvgVideoStrategy(
         cfgs=cfgs,
         dl_test=test_loader,
         ckpt_dir=server_args.work_dir,

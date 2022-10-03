@@ -5,6 +5,7 @@ import numpy as np
 import torch 
 from models.build import build_model
 from collections import OrderedDict
+import time 
 # import wandb
 
 class FedAvgVideoStrategy(flwr.server.strategy.FedAvg):
@@ -53,6 +54,12 @@ class FedAvgVideoStrategy(flwr.server.strategy.FedAvg):
         if eval_res['top1'] > self.best_top1_acc:
             self.best_top1_acc = eval_res['top1']
             torch.save({'state_dict': model.state_dict()}, self.ckpt_dir + '/best.pth')
+
+        torch.save({'state_dict': model.state_dict()},
+                    self.ckpt_dir + '/{}.pth'.format(
+                    time.strftime('%H%M%S', time.localtime())
+                    )
+        )
 
         return 0., metrics
 

@@ -107,10 +107,6 @@ class ThresholdedFedAvgVideoClient(FedAvgVideoClient):
         ## Topk accuracy
         topk_accuracy_before = self.eval_fn(self.model, self.dl_test, 
                                         self.cfgs.device)
-        torch.save({'state_dict': self.model.state_dict()}, 
-                    self.work_dir + '/client_{}_round_{}_before.pth'.format(
-                        self.client_id, self.round
-                    ))
 
         fit_begin = timeit.default_timer()
         # train model locally 
@@ -188,10 +184,6 @@ class SortedFedAvgVideoClient(FedAvgVideoClient):
         ## Topk accuracy
         topk_accuracy_before = self.eval_fn(self.model, self.dl_test, 
                                         self.cfgs.device)
-        torch.save({'state_dict': self.model.state_dict()}, 
-                    self.work_dir + '/client_{}_round_{}_before.pth'.format(
-                        self.client_id, self.round
-                    ))
 
         # train model locally 
         self.local.train(model=self.model, client_id=self.client_id)

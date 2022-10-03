@@ -98,8 +98,8 @@ class SortedFedAvgVideoStrategy(FedAvgVideoStrategy):
         inds = np.argsort(accs)[-self.num_selected:]
         # Logs for debugging
         with open(self.ckpt_dir + '/server_selected.txt', 'a') as f:
-            accs_str = ' '.join(accs) 
-            inds_str = ' '.join(inds)
+            accs_str = ' '.join([str(acc) for acc in accs]) 
+            inds_str = ' '.join([str(idx) for idx in inds])
             f.write(f'Round {rnd}: Accuracies {accs_str}, Selected {inds_str}\n')
 
         # Convert results

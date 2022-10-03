@@ -16,7 +16,7 @@ source set_paths.sh
 First start server 
 ```shell
 # screen -S fed_server
-CUDA_VISIBLE_DEVICES=1 python -m video_server --server_address=$SERVER_ADDRESS --cfg_path="examples/afosr2022/configs/afosr_fedavg_p10.yaml" --data_dir=$DATA_DIR --work_dir="$DATA_DIR/fed_exps_p10" --num_selected=2
+CUDA_VISIBLE_DEVICES=1 python -m video_server --server_address=$SERVER_ADDRESS --cfg_path="examples/afosr2022/configs/afosr_fedavg_p10.yaml" --data_dir=$DATA_DIR --work_dir="$DATA_DIR/fed_exps_p10"
 ```
 Start clients
 ```shell
@@ -32,7 +32,7 @@ CUDA_VISIBLE_DEVICES=3 python -m sorted_video_client --server_address=$SERVER_AD
 ### **Run experiment with `partition rate = 0.7`**
 ```shell
 # screen -S fed_server
-CUDA_VISIBLE_DEVICES=1 python -m video_server --server_address=$SERVER_ADDRESS --cfg_path="examples/afosr2022/configs/afosr_fedavg_p07.yaml" --data_dir=$DATA_DIR --work_dir="$DATA_DIR/fed_sorted_exps" --num_selected=2
+CUDA_VISIBLE_DEVICES=1 python -m video_server --server_address=$SERVER_ADDRESS --cfg_path="examples/afosr2022/configs/afosr_fedavg_p07.yaml" --data_dir=$DATA_DIR --work_dir="$DATA_DIR/fed_sorted_exps"
 ```
 Then start clients
 ```shell
@@ -72,6 +72,8 @@ CUDA_VISIBLE_DEVICES=1 python -m visualize_tsne --cid=0 --cfg_path=$CFG_PATH --d
 ```
 
 ### **Global accuracies**
-
+| Datetime | Strategy | Best round | Top1 acc | Top5 acc | Notes  
+| :-----: | :-----: | :-----: |:-----:| :-----:| :-----: |
+| 03/10/2022 - 09:25 | Sorted FedAvg | 20 | 81.48% | 97.96% |
 ### **Clients' local accuracies**
 ## **Conclustion and next steps**

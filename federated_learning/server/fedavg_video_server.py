@@ -42,8 +42,8 @@ class FedAvgVideoStrategy(flwr.server.strategy.FedAvg):
         model.load_state_dict(state_dict)
         
         eval_res = self.eval_fn(model, self.dl_test, self.device)
-        if eval_res is None:
-            return None
+        # if eval_res is None:
+        #     return None
         
         metrics = {'top1_accuracy': eval_res['top1'], 'top5_accuracy': eval_res['top5']}
         # wandb.log({f"top1_accuracy": eval_res['top1']})

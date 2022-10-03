@@ -75,5 +75,10 @@ CUDA_VISIBLE_DEVICES=1 python -m visualize_tsne --cid=0 --cfg_path=$CFG_PATH --d
 | Datetime | Strategy | Best round | Top1 acc | Top5 acc | Notes  
 | :-----: | :-----: | :-----: |:-----:| :-----:| :-----: |
 | 03/10/2022 - 09:25 | Sorted FedAvg | 20 | 81.48% | 97.96% |
+| 03/10/2022 - 13:15 | FedAvg | 16 | 81.43% | 97.96% | Bugs: server did not save weights and and logs accs by round
+
+With `num_clients = 4`:
+| Datetime | Strategy | Best round | Top1 acc | Top5 acc | Notes  
+| :-----: | :-----: | :-----: |:-----:| :-----:| :-----: |
 ### **Clients' local accuracies**
 ## **Conclustion and next steps**

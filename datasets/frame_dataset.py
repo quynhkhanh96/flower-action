@@ -192,21 +192,19 @@ def get_client_local_loaders(client_id, data_dir, work_dir, cfgs):
                                             test_size=0.33,
                                             random_state=int(cfgs.seed))
     local_train_path = work_dir + f'/client_{client_id}_local_train.txt'
-    if os.path.exists(local_train_path):
-        os.remove(local_train_path)
     local_val_path = work_dir + f'/client_{client_id}_local_val.txt'
-    if os.path.exists(local_val_path):
-        os.remove(local_val_path)
-    with open(local_train_path, 'a') as f:
-        for idx in train_inds:
-            f.write('{} {}\n'.format(video_ids[idx], labels[idx]))
-    with open(local_val_path, 'a') as f:
-        for idx in val_inds:
-            f.write('{} {}\n'.format(video_ids[idx], labels[idx]))
+    if not os.path.exists(local_train_path):
+        with open(local_train_path, 'a') as f:
+            for idx in train_inds:
+                f.write('{} {}\n'.format(video_ids[idx], labels[idx]))
+    if not os.path.exists(local_val_path):
+        with open(local_val_path, 'a') as f:
+            for idx in val_inds:
+                f.write('{} {}\n'.format(video_ids[idx], labels[idx]))
     
     train_set = FrameDataset(
         frame_dir=data_dir + '/rgb_frames',
-        annotation_file_path=work_dir + f'/client_{client_id}_local_train.txt',
+        annotation_file_path=local_train_path,
         n_frames=cfgs.seq_len,
         mode='train',
         transform=transform,
@@ -219,7 +217,7 @@ def get_client_local_loaders(client_id, data_dir, work_dir, cfgs):
 
     val_set = FrameDataset(
         frame_dir=data_dir + '/rgb_frames',
-        annotation_file_path=work_dir + f'/client_{client_id}_local_val.txt',
+        annotation_file_path=local_val_path,
         n_frames=cfgs.seq_len,
         mode='test',
         transform=transform,

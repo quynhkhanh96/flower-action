@@ -4,7 +4,8 @@ from evaluation.video_tsne import gen_tsne
 import yaml 
 from utils.parsing import Dict2Class
 import argparse
-import torch 
+import torch
+import os 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Visualize t-SNE on each client")
@@ -43,11 +44,15 @@ if __name__ == '__main__':
 
     # model
     model = build_model(cfgs, mode='train')
-    ## load checkpoint by round number
-    checkpoint = torch.load(args.work_dir + '/best.pth')
-    model.load_state_dict(checkpoint['state_dict'])
 
-    # Generate t-SNE visualization
-    gen_tsne(model, val_loader, 
-            cfgs.device, 
-            args.work_dir + f'/client_{client_id}_tSNE.png')
+    os.makedirs(args.work_dir + '/tSNE', exist_ok=True)
+    os.makedirs(args.work_dir + f'/tSNE/client_{client_id}', exist_ok=True)
+    ## load checkpoint by round number
+    for rnd in range(int(cfgs.epochs)):
+        checkpoint = torch.load(args.work_dir + f'/client_{client_id}_round_{rnd}_before.pth')
+        model.load_state_dict(checkpoint['state_dict'])
+
+        # Generate t-SNE visualization
+        gen_tsne(model, val_loader,
+                cfgs.device,
+                args.work_dir + f'/tSNE/client_{client_id}/round_{rnd}.png')

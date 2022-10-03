@@ -66,7 +66,9 @@ CUDA_VISIBLE_DEVICES=3 python -m sorted_video_client --server_address=$SERVER_AD
 ### **t-SNE visualization**
 Run this to generate t-SNE visualization
 ```shell
-
+CFG_PATH="examples/afosr2022/configs/afosr_fedavg_sorted.yaml"
+WORK_DIR="$DATA_DIR/fed_exps_sorted"
+CUDA_VISIBLE_DEVICES=1 python -m visualize_tsne --cid=0 --cfg_path=$CFG_PATH --data_dir=$DATA_DIR --work_dir=$WORK_DIR
 ```
 
 ### **Global accuracies**

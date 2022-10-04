@@ -32,7 +32,7 @@ CUDA_VISIBLE_DEVICES=3 python -m sorted_video_client --server_address=$SERVER_AD
 ### **Run experiment with `partition rate = 0.7`**
 ```shell
 # screen -S fed_server
-CUDA_VISIBLE_DEVICES=1 python -m video_server --server_address=$SERVER_ADDRESS --cfg_path="examples/afosr2022/configs/afosr_fedavg_p07.yaml" --data_dir=$DATA_DIR --work_dir="$DATA_DIR/fed_sorted_exps"
+CUDA_VISIBLE_DEVICES=1 python -m video_server --server_address=$SERVER_ADDRESS --cfg_path="examples/afosr2022/configs/afosr_fedavg_p07.yaml" --data_dir=$DATA_DIR --work_dir="$DATA_DIR/fed_exps_p07"
 ```
 Then start clients
 ```shell
@@ -72,13 +72,14 @@ CUDA_VISIBLE_DEVICES=1 python -m visualize_tsne --cid=0 --cfg_path=$CFG_PATH --d
 ```
 
 ### **Global accuracies**
-| Datetime | Strategy | Best round | Top1 acc | Top5 acc | Notes  
-| :-----: | :-----: | :-----: |:-----:| :-----:| :-----: |
-| 03/10/2022 - 09:25 | Sorted FedAvg | 20 | 81.48% | 97.96% |
-| 03/10/2022 - 13:15 | FedAvg | 16 | 81.43% | 97.96% | Bugs: server did not save weights and and logs accs by round
+| ID | Datetime | Strategy | Best round | Top1 acc | Top5 acc | Notes  
+| :---: | :-----: | :-----: | :-----: |:-----:| :-----:| :-----: |
+| 1 | 03/10/2022 - 09:25 | Sorted FedAvg | 20 | 81.48% | 97.96% |
+| 2 | 03/10/2022 - 13:15 | FedAvg | 16 | 81.43% | 97.96% | 
+| 3 | 03/10/2022 - 18:10 | FedAvg | 15 | 81.37% | 97.68% | Just re-run #2 to see the effect of random seed not being fixed. One client was dead and was not turned on again.
 
 With `num_clients = 4`:
-| Datetime | Strategy | Best round | Top1 acc | Top5 acc | Notes  
-| :-----: | :-----: | :-----: |:-----:| :-----:| :-----: |
+| ID | Datetime | Strategy | Best round | Top1 acc | Top5 acc | Notes  
+| :---: | :-----: | :-----: | :-----: |:-----:| :-----:| :-----: |
 ### **Clients' local accuracies**
 ## **Conclustion and next steps**

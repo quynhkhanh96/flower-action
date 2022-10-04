@@ -7,6 +7,7 @@ from datasets.frame_dataset import get_client_local_loaders
 from models.build import build_model, build_loss
 import yaml 
 from utils.parsing import Dict2Class
+from utils import seed_torch
 DEFAULT_SERVER_ADDRESS = "[::]:8080"
 
 if __name__ == '__main__':
@@ -44,6 +45,8 @@ if __name__ == '__main__':
     with open(client_args.cfg_path, 'r') as yamlfile:
         cfgs = yaml.load(yamlfile, Loader=yaml.FullLoader)
     cfgs = Dict2Class(cfgs)
+
+    seed_torch(int(cfgs.seed))
 
     # datasets
     train_loader, val_loader = get_client_local_loaders(client_id, 

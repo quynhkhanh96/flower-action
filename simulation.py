@@ -194,12 +194,22 @@ class SimulationClient(flwr.client.Client):
                             for _, val in self.model.state_dict().items()]
         weights_prime = self.postprocess_weights(weights_prime)
 
+        # num_examples_train = len(train_loader.dataset)
+        # return weights_prime, num_examples_train, {}
+        params_prime = weights_to_parameters(weights_prime)
         num_examples_train = len(train_loader.dataset)
-        return weights_prime, num_examples_train, {}
+        return FitRes(
+            parameters=params_prime,
+            num_examples=num_examples_train        
+        )
 
     def evaluate(self, ins):
         # Return the number of evaluation examples and the evaluation result (loss)
-        return 0., 1, {'top1': 0., 'top5': 0.}
+        # return 0., 1, {'top1': 0., 'top5': 0.}
+        return EvaluateRes(
+            loss=0., num_examples=1, 
+            metrics={'top1': 0., 'top5': 0.}
+        )
 
 def client_fn(cid: str):
     client_id = int(cid)

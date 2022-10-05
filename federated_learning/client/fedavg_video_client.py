@@ -194,10 +194,10 @@ class SortedFedAvgVideoClient(FedAvgVideoClient):
         with open(self.work_dir + f'/client_{self.client_id}_accs.txt', 'a') as f:
             f.write('{:.3f} {:.3f}\n'.format(topk_accuracy_before['top1'],
                                             topk_accuracy['top1']))
-        torch.save({'state_dict': self.model.state_dict()}, 
-                    self.work_dir + '/client_{}_round_{}_after.pth'.format(
-                        self.client_id, self.round
-                    ))
+        # torch.save({'state_dict': self.model.state_dict()}, 
+        #             self.work_dir + '/client_{}_round_{}_after.pth'.format(
+        #                 self.client_id, self.round
+        #             ))
 
         weights_prime: Weights = [val.cpu().numpy() 
                             for _, val in self.model.state_dict().items()]

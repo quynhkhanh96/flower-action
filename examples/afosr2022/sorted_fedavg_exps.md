@@ -90,7 +90,8 @@ With `num_clients = 4`:
 ```shell
 python -m fedavg_simulation --work_dir="$DATA_DIR/fed_sim" --data_dir=$DATA_DIR --server_device="cuda:1" --cfg_path="configs/afosr_simulation.yaml"
 ```
+Best accuracy at round 29: 76.0%
 `SortedFedAvg` with `n_clients = 20`, 10 clients participate in each round, 5 clients with the best top1 accuracies are selected:
 ```shell
-python -m sorted_fedavg_simulation --work_dir="$DATA_DIR/fed_sim" --data_dir=$DATA_DIR --server_device="cuda:1" --cfg_path="configs/afosr_sorted_sim.yaml"
+python -m sorted_fedavg_simulation --work_dir="$DATA_DIR/fed_sorted_sim" --data_dir=$DATA_DIR --server_device="cuda:1" --cfg_path="configs/afosr_sorted_sim.yaml"
 ```

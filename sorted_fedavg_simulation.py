@@ -16,10 +16,10 @@ from evaluation.video_recognition import evaluate_topk_accuracy
 def fedavg_aggregate(results):
     # Calculate the total number of examples used during training
     num_examples_total = sum([num_examples for _, num_examples in results])
-
+    
     agg_wt = []
     for val in results[0][0]:
-        agg_wt.append(torch.full_like(val, 0.))
+        agg_wt.append(np.full_like(val, 0.))
 
     for weight, num_examples in results:
         for i in range(len(weight)):
@@ -199,10 +199,10 @@ if __name__ == '__main__':
         
         # select clients with the best accuracies
         best_inds = np.argsort(top1_accs)[:top_clients]
-        results = [res for i, res in enumerate(results) if i in results]
+        results = [res for i, res in enumerate(results) if i in best_inds]
         # aggregate weights
         weights = fedavg_aggregate(results)
         global_model = fl_server.load_weights(weights)
 
         # evaluate new model on server's test data
-        fl_server.evaluate(rnd)        
+        fl_server.evaluate(rnd) 

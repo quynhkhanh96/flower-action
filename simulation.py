@@ -34,10 +34,10 @@ POOL_SIZE = 20 # number of total clients
 NUM_ROUNDS = 30
 NUM_CLIENT_CPUS = 2
 NUM_CLIENT_GPUS = 1
-NUM_SELECTED = 5
+NUM_SELECTED = 2
 
 SERVER_DEVICE = "cuda:0"
-CLIENT_DEVICE = "cuda:0"
+CLIENT_DEVICE = "cuda:1"
 
 CFG_PATH = "examples/afosr2022/configs/afosr_fedavg_sorted.yaml"
 DATA_DIR = "/ext_data2/comvis/khanhdtq/afosr2022"

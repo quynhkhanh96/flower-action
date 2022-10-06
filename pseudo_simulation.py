@@ -60,9 +60,10 @@ class Client:
         weights = [val.cpu().numpy() for _, val in self.model.state_dict().items()]
         return self.postprocess_weights(weights)
 
-    def train(self, rnd, client_id, weights):
+    def train(self, rnd, client_id, global_model):
         # load the new global weights
-        self.load_weights(weights)
+        # self.load_weights(weights)
+        self.model = global_model
 
         train_loader, val_loader = self.get_data_loaders(client_id)
         local_trainer = VideoLocalUpdate(train_loader=train_loader,

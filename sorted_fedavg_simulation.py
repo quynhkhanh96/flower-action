@@ -17,17 +17,15 @@ def fedavg_aggregate(results):
     # Calculate the total number of examples used during training
     num_examples_total = sum([num_examples for _, num_examples in results])
 
-    # Create a list of weights, each multiplied by the related number of examples
-    weighted_weights = [
-        [layer * num_examples for layer in weights] for weights, num_examples in results
-    ]
+    agg_wt = []
+    for val in results[0][0]:
+        agg_wt.append(torch.full_like(val, 0.))
 
-    # Compute average weights of each layer
-    aggregated_weights = [
-        reduce(np.add, layer_updates) / num_examples_total
-        for layer_updates in zip(*weighted_weights)
-    ]
-    return aggregated_weights
+    for weight, num_examples in results:
+        for i in range(len(weight)):
+            agg_wt[i] = np.add(agg_wt[i], weight[i] * num_examples)
+    agg_wt = [layer_w / num_examples_total for layer_w in agg_wt]
+    return agg_wt
 
 class Client:
     def __init__(self, data_dir, work_dir, model,

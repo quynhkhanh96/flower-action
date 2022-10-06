@@ -111,7 +111,7 @@ class Server:
 
     def evaluate(self, rnd):
         topk_accuracy = self.eval_fn(self.model, self.test_loader, self.device)
-        print('\033[1;32m[INFO]Round {}: server accuracy top1 {:.3f}, top5 {:.3f}'.format(
+        print('Round {}: server accuracy top1 {:.3f}, top5 {:.3f}'.format(
             rnd, topk_accuracy['top1'], topk_accuracy['top5']
         ))
         with open(self.work_dir + '/server_accs.txt', 'a') as f:
@@ -175,7 +175,7 @@ if __name__ == '__main__':
         
         # randomly sample clients
         selected_clients = fl_server.sample_clients()
-        print('\033[1;32m[INFO]Round {}: clients {} are selected'.format(
+        print('[INFO]Round {}: clients {} are selected'.format(
             rnd, ', '.join([str(client_id) for client_id in selected_clients])
         ))
 

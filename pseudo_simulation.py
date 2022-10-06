@@ -164,7 +164,7 @@ if __name__ == '__main__':
 
     # client initialization
     fl_client = Client(data_dir=args.data_dir, work_dir=args.work_dir,
-                        model=global_model.copy(), loss_fn=criterion,
+                        model=copy.deepcopy(global_model), loss_fn=criterion,
                         eval_fn=eval_fn, cfgs=cfgs)
 
     for rnd in range(int(cfgs.epochs)):

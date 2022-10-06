@@ -152,8 +152,3 @@ After that start the experiment as described in the above steps, when all is don
 ```shell
 python summarize_comcost.py <path/to/log_file>
 ```
-## **Simulation**
-First run `source set_paths.sh`, then:
-```shell
-python -m pseudo_simulation --work_dir="$DATA_DIR/fed_sim" --data_dir=$DATA_DIR --server_device="cuda:1" --cfg_path="configs/afosr_simulation.yaml"
-```

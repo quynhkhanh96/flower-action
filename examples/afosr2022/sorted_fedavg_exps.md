@@ -83,3 +83,14 @@ With `num_clients = 4`:
 | :---: | :-----: | :-----: | :-----: |:-----:| :-----:| :-----: |
 ### **Clients' local accuracies**
 ## **Conclustion and next steps**
+
+# Date 05/10/2022 - 07/10/2022
+## **Experiments**
+`FedAvg` with `n_clients = 20`, 5 clients participate in each round:
+```shell
+python -m fedavg_simulation --work_dir="$DATA_DIR/fed_sim" --data_dir=$DATA_DIR --server_device="cuda:1" --cfg_path="configs/afosr_simulation.yaml"
+```
+`SortedFedAvg` with `n_clients = 20`, 10 clients participate in each round, 5 clients with the best top1 accuracies are selected:
+```shell
+python -m sorted_fedavg_simulation --work_dir="$DATA_DIR/fed_sim" --data_dir=$DATA_DIR --server_device="cuda:1" --cfg_path="configs/afosr_sorted_sim.yaml"
+```

@@ -89,14 +89,14 @@ Run simulations with more clients, other configurations stay unchanged.
 python -m fedavg_simulation --work_dir="$DATA_DIR/fed_sim" --data_dir=$DATA_DIR --server_device="cuda:1" --cfg_path="configs/afosr_simulation.yaml"
 ```
 Best accuracy at round 29: $76.0\%$
-
-
 `SortedFedAvg` with `n_clients = 20`, 10 clients participate in each round, 5 clients with the best top1 accuracies are selected:
 ```shell
 python -m sorted_fedavg_simulation --work_dir="$DATA_DIR/fed_sorted_sim" --data_dir=$DATA_DIR --server_device="cuda:1" --cfg_path="configs/afosr_sorted_sim.yaml"
 ```
 Best accuracy at round 24: $71.3\%$
 
+The plot below demonstrates global accuracy in two experiments:
+![Server accuracy](../../images/afosr2022/sorted_fedavg/server_accs_sim.png)
 ## **Conclusions**
 - Done a quick and dirty implementation of simulation feature, will need to expand and refactor it. For future idea, use simulation to verify the effect of the algorithm on converenge. 
 - **Is it correct way to experiment?** Should it be: `n_clients = 100`, `FedAvg` with 10 clients participating in each round and all aggregated, `SortedFedAvg` with also 10 clients in each round but only top 5 with best accuracies are aggregated? Needs longer training?

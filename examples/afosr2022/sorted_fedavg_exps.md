@@ -12,23 +12,6 @@ Set the paths by running:
 ```shell
 source set_paths.sh
 ```
-### **Run experiment with `partition rate = 1.0`**
-First start server 
-```shell
-# screen -S fed_server
-CUDA_VISIBLE_DEVICES=1 python -m video_server --server_address=$SERVER_ADDRESS --cfg_path="examples/afosr2022/configs/afosr_fedavg_p10.yaml" --data_dir=$DATA_DIR --work_dir="$DATA_DIR/fed_exps_p10"
-```
-Start clients
-```shell
-# screen -S client0
-CUDA_VISIBLE_DEVICES=2 python -m sorted_video_client --server_address=$SERVER_ADDRESS --cid=0 --cfg_path="examples/afosr2022/configs/afosr_fedavg_p10.yaml" --data_dir=$DATA_DIR --work_dir="$DATA_DIR/fed_exps_p10"
-
-# screen -S client1
-CUDA_VISIBLE_DEVICES=2 python -m sorted_video_client --server_address=$SERVER_ADDRESS --cid=1 --cfg_path="examples/afosr2022/configs/afosr_fedavg_p10.yaml" --data_dir=$DATA_DIR --work_dir="$DATA_DIR/fed_exps_p10"
-
-# screen -S client2
-CUDA_VISIBLE_DEVICES=3 python -m sorted_video_client --server_address=$SERVER_ADDRESS --cid=2 --cfg_path="examples/afosr2022/configs/afosr_fedavg_p10.yaml" --data_dir=$DATA_DIR --work_dir="$DATA_DIR/fed_exps_p10"
-```
 ### **Run experiment with `partition rate = 0.7`**
 ```shell
 # screen -S fed_server
@@ -63,6 +46,7 @@ CUDA_VISIBLE_DEVICES=2 python -m sorted_video_client --server_address=$SERVER_AD
 CUDA_VISIBLE_DEVICES=3 python -m sorted_video_client --server_address=$SERVER_ADDRESS --cid=2 --cfg_path="examples/afosr2022/configs/afosr_fedavg_sorted.yaml" --data_dir=$DATA_DIR --work_dir="$DATA_DIR/fed_exps_sorted"
 ```
 ## **Results**
+Here are the results from `SortedFedAvg`.
 ### **t-SNE visualization**
 Run this to generate t-SNE visualization
 ```shell
@@ -72,13 +56,13 @@ CUDA_VISIBLE_DEVICES=1 python -m visualize_tsne --cid=0 --cfg_path=$CFG_PATH --d
 ```
 Some results from client 0:
 - Round 0:
-![Round 0](../../images/tSNE/round_0.png)
+![Round 0](../../images/afosr2022/sorted_fedavg/tsne/round_0.png)
 - Round 1:
-![Round 1](../../images/tSNE/round_1.png)
+![Round 1](../../images/afosr2022/sorted_fedavg/tsne/round_1.png)
 - Round 10:
-![Round 10](../../images/tSNE/round_10.png)
+![Round 10](../../images/afosr2022/sorted_fedavg/tsne/round_10.png)
 - Round 29:
-![Round 29](../../images/tSNE/round_29.png)
+![Round 29](../../images/afosr2022/sorted_fedavg/tsne/round_29.png)
 ### **Global accuracies**
 | ID | Datetime | Strategy | Best round | Top1 acc | Top5 acc | Notes  
 | :---: | :-----: | :-----: | :-----: |:-----:| :-----:| :-----: |
@@ -87,19 +71,33 @@ Some results from client 0:
 | 3 | 03/10/2022 - 18:10 | FedAvg | 15 | 81.37% | 97.68% | Just re-run #2 to see the effect of random seed not being fixed. One client was dead and was not turned on again.
 
 ### **Clients' local accuracies**
+These plots illustrates each client's local accuracy before and after local updates:
+- Client 0:
+![Client 0](../../images/afosr2022/sorted_fedavg/local_accs/sorted_fedavg_client0.png)
+- Client 1:
+![Client 1](../../images/afosr2022/sorted_fedavg/local_accs/sorted_fedavg_client1.png)
+- Client 2:
+![Client 2](../../images/afosr2022/sorted_fedavg/local_accs/sorted_fedavg_client2.png)
 ## **Conclustion and next steps**
-
+- Have yet to remove the affect of randomness.
+- Need a much larger number of clients to see the effect?
 # Date 05/10/2022 - 07/10/2022
+Run simulations with more clients, other configurations stay unchanged.
 ## **Experiments**
 `FedAvg` with `n_clients = 20`, 5 clients participate in each round:
 ```shell
 python -m fedavg_simulation --work_dir="$DATA_DIR/fed_sim" --data_dir=$DATA_DIR --server_device="cuda:1" --cfg_path="configs/afosr_simulation.yaml"
 ```
-Best accuracy at round 29: 76.0%
+Best accuracy at round 29: $76.0\%$
 
 
 `SortedFedAvg` with `n_clients = 20`, 10 clients participate in each round, 5 clients with the best top1 accuracies are selected:
 ```shell
 python -m sorted_fedavg_simulation --work_dir="$DATA_DIR/fed_sorted_sim" --data_dir=$DATA_DIR --server_device="cuda:1" --cfg_path="configs/afosr_sorted_sim.yaml"
 ```
-Best accuracy at round 24: 71.3%
+Best accuracy at round 24: $71.3\%$
+
+## **Conclusions**
+- Done a quick and dirty implementation of simulation feature, will need to expand and refactor it. For future idea, use simulation to verify the effect of the algorithm on converenge. 
+- **Is it correct way to experiment?** Should it be: `n_clients = 100`, `FedAvg` with 10 clients participating in each round and all aggregated, `SortedFedAvg` with also 10 clients in each round but only top 5 with best accuracies are aggregated? Needs longer training?
+- Local accuracy hurts global performance? Should **global accuracy** be used instead?

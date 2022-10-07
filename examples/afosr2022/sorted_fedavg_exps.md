@@ -70,7 +70,15 @@ CFG_PATH="examples/afosr2022/configs/afosr_fedavg_sorted.yaml"
 WORK_DIR="$DATA_DIR/fed_exps_sorted"
 CUDA_VISIBLE_DEVICES=1 python -m visualize_tsne --cid=0 --cfg_path=$CFG_PATH --data_dir=$DATA_DIR --work_dir=$WORK_DIR
 ```
-
+Some results from client 0:
+- Round 0:
+![Round 0](../../images/tSNE/round_0.png)
+- Round 1:
+![Round 1](../../images/tSNE/round_1.png)
+- Round 10:
+![Round 10](../../images/tSNE/round_10.png)
+- Round 29:
+![Round 29](../../images/tSNE/round_29.png)
 ### **Global accuracies**
 | ID | Datetime | Strategy | Best round | Top1 acc | Top5 acc | Notes  
 | :---: | :-----: | :-----: | :-----: |:-----:| :-----:| :-----: |
@@ -78,9 +86,6 @@ CUDA_VISIBLE_DEVICES=1 python -m visualize_tsne --cid=0 --cfg_path=$CFG_PATH --d
 | 2 | 03/10/2022 - 13:15 | FedAvg | 16 | 81.43% | 97.96% | 
 | 3 | 03/10/2022 - 18:10 | FedAvg | 15 | 81.37% | 97.68% | Just re-run #2 to see the effect of random seed not being fixed. One client was dead and was not turned on again.
 
-With `num_clients = 4`:
-| ID | Datetime | Strategy | Best round | Top1 acc | Top5 acc | Notes  
-| :---: | :-----: | :-----: | :-----: |:-----:| :-----:| :-----: |
 ### **Clients' local accuracies**
 ## **Conclustion and next steps**
 
@@ -91,7 +96,10 @@ With `num_clients = 4`:
 python -m fedavg_simulation --work_dir="$DATA_DIR/fed_sim" --data_dir=$DATA_DIR --server_device="cuda:1" --cfg_path="configs/afosr_simulation.yaml"
 ```
 Best accuracy at round 29: 76.0%
+
+
 `SortedFedAvg` with `n_clients = 20`, 10 clients participate in each round, 5 clients with the best top1 accuracies are selected:
 ```shell
 python -m sorted_fedavg_simulation --work_dir="$DATA_DIR/fed_sorted_sim" --data_dir=$DATA_DIR --server_device="cuda:1" --cfg_path="configs/afosr_sorted_sim.yaml"
 ```
+Best accuracy at round 24: 71.3%

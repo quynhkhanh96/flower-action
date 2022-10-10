@@ -76,6 +76,41 @@ class FrameDataset(Dataset):
         # data shape (c, s, w, h) where s is seq_len, c is number of channels
         return data, self.labels[idx], video_file 
 
+def non_iid_split(train_labels, n_clients, 
+                        K, alpha=0.5):
+    # Credit: https://github.com/dixiyao/Create-Non-IID-dataset-torch/blob/main/noniid.py
+    '''
+        n_clients: how many datasets to generate; the number of clients in FL
+        alpha: parameter of dirichlet distribution, larger alpha means more strong non iid condition
+        K: number of classes in the dataset
+    '''
+    min_size = 0
+    N = len(train_ids)
+
+    net_dataidx_map = {}
+    while min_size < 10:
+        idx_batch = [[] for _ in range(n_clients)]
+        # for each class in the dataset
+        for k in range(K):
+            idx_k = np.where(train_labels == k)[0]
+            np.random.shuffle(idx_k)
+            proportions = np.random.dirichlet(np.repeat(alpha, n_clients))
+            # Balance
+            '''
+                making every clients have the same dataset size, not necessary for all FL environment
+            '''
+            proportions = np.array([p * (len(idx_j) < N / n_clients) for p, idx_j in zip(proportions, idx_batch)])
+            proportions = proportions / proportions.sum()
+            proportions = (np.cumsum(proportions) * len(idx_k)).astype(int)[:-1]
+            idx_batch = [idx_j + idx.tolist() for idx_j, idx in zip(idx_batch, np.split(idx_k, proportions))]
+            min_size = min([len(idx_j) for idx_j in idx_batch])
+
+    for j in range(n_clients):
+        np.random.shuffle(idx_batch[j])
+        net_dataidx_map[j] = idx_batch[j]
+
+    return net_dataidx_map
+
 def data_partition(n_clients, data_dir,
                     train_annotation_path,
                     mode='iid'):
@@ -94,11 +129,11 @@ def data_partition(n_clients, data_dir,
         train_labels = [int(l.split(' ')[1]) for l in lines]
 
     train_video_ids = np.array(train_video_ids)
+    n_classes = len(set(train_labels))
     train_labels = np.array(train_labels)
     if mode == 'iid':
         # split by labels to `n_clients` clients
         res = defaultdict(list)
-        n_classes = len(set(train_labels))
         for cls in range(n_classes):
             ids = np.where(train_labels == cls)[0]
             random.shuffle(ids)
@@ -111,37 +146,17 @@ def data_partition(n_clients, data_dir,
                 for id in res[i]:
                     f.write('{} {}\n'.format(
                         train_video_ids[id], train_labels[id]))
-    else:
-        # raise ValueError(f'Partition mode {mode} not implemented.')
-        train_sorted_index = np.argsort(train_labels)
-        train_video_ids = train_video_ids[train_sorted_index]
-        train_labels = train_labels[train_sorted_index]
 
-        shard_size = len(train_labels) // n_clients
-        shard_start_index = [i for i in range(0, len(train_labels), shard_size)]
-        random.shuffle(shard_start_index)
+    elif mode == 'non_iid':
+        idx_map = non_iid_split(train_labels, n_clients, n_classes)
 
-        num_shards = len(shard_start_index) // n_clients
         for client_id in range(n_clients):
-            _index = num_shards * client_id
-            local_video_ids = np.concatenate([
-                train_video_ids[shard_start_index[_index +
-                                            i]:shard_start_index[_index + i] +
-                          shard_size] for i in range(num_shards)
-            ], axis=0)
-
-            local_labels = np.concatenate([
-                train_labels[shard_start_index[_index +
-                                              i]:shard_start_index[_index +
-                                                                   i] +
-                            shard_size] for i in range(num_shards)
-            ], axis=0)
-
             with open(data_dir + f'/client_{client_id}_train.txt', 'a') as f:
-                for i in range(len(local_video_ids)):
+                for idx in idx_map[client_id]:
                     f.write('{} {}\n'.format(
-                        local_video_ids[i], local_labels[i]
+                        train_video_ids[idx], train_labels[idx]
                     ))
+        
 
 def get_client_loaders(client_id, data_dir, cfgs):
     '''

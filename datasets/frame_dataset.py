@@ -85,7 +85,7 @@ def non_iid_split(train_labels, n_clients,
         K: number of classes in the dataset
     '''
     min_size = 0
-    N = len(train_ids)
+    N = len(train_labels)
 
     net_dataidx_map = {}
     while min_size < 10:
@@ -149,14 +149,13 @@ def data_partition(n_clients, data_dir,
 
     elif mode == 'non_iid':
         idx_map = non_iid_split(train_labels, n_clients, n_classes)
-
+        
         for client_id in range(n_clients):
             with open(data_dir + f'/client_{client_id}_train.txt', 'a') as f:
                 for idx in idx_map[client_id]:
                     f.write('{} {}\n'.format(
                         train_video_ids[idx], train_labels[idx]
                     ))
-        
 
 def get_client_loaders(client_id, data_dir, cfgs):
     '''

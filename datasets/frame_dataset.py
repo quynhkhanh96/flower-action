@@ -93,11 +93,12 @@ def data_partition(n_clients, data_dir,
         train_video_ids = [l.split(' ')[0] for l in lines]
         train_labels = [int(l.split(' ')[1]) for l in lines]
 
+    train_video_ids = np.array(train_video_ids)
+    train_labels = np.array(train_labels)
     if mode == 'iid':
         # split by labels to `n_clients` clients
         res = defaultdict(list)
         n_classes = len(set(train_labels))
-        train_labels = np.array(train_labels)
         for cls in range(n_classes):
             ids = np.where(train_labels == cls)[0]
             random.shuffle(ids)
@@ -111,7 +112,36 @@ def data_partition(n_clients, data_dir,
                     f.write('{} {}\n'.format(
                         train_video_ids[id], train_labels[id]))
     else:
-        raise ValueError(f'Partition mode {mode} not implemented.')
+        # raise ValueError(f'Partition mode {mode} not implemented.')
+        train_sorted_index = np.argsort(train_labels)
+        train_video_ids = train_video_ids[train_sorted_index]
+        train_labels = train_labels[train_sorted_index]
+
+        shard_size = len(train_labels) // n_clients
+        shard_start_index = [i for i in range(0, len(train_labels), shard_size)]
+        random.shuffle(shard_start_index)
+
+        num_shards = len(shard_start_index) // n_clients
+        for client_id in range(n_clients):
+            _index = num_shards * client_id
+            local_video_ids = np.concatenate([
+                train_video_ids[shard_start_index[_index +
+                                            i]:shard_start_index[_index + i] +
+                          shard_size] for i in range(num_shards)
+            ], axis=0)
+
+            local_labels = np.concatenate([
+                train_labels[shard_start_index[_index +
+                                              i]:shard_start_index[_index +
+                                                                   i] +
+                            shard_size] for i in range(num_shards)
+            ], axis=0)
+
+            with open(data_dir + f'/client_{client_id}_train.txt', 'a') as f:
+                for i in range(len(local_video_ids)):
+                    f.write('{} {}\n'.format(
+                        local_video_ids[i], local_labels[i]
+                    ))
 
 def get_client_loaders(client_id, data_dir, cfgs):
     '''

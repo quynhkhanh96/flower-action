@@ -157,8 +157,10 @@ if __name__ == '__main__':
 
     top_clients = int(args.top_clients)
     if top_clients == 0:
-        top_clients = int(0.5 * max(int(cfgs.frac) * int(cfgs.num_C),
-                            int(cfgs.min_num_clients)))
+        # top_clients = int(0.5 * max(int(cfgs.frac) * int(cfgs.num_C),
+        #                     int(cfgs.min_num_clients)))
+        top_clients = max(int(cfgs.frac) * int(cfgs.num_C),
+                            int(cfgs.min_num_clients))
 
     # fix randomness
     seed_torch(int(cfgs.seed))
@@ -191,7 +193,8 @@ if __name__ == '__main__':
 
         # local training and collect trained weights from clients
         results, top1_accs = [], []
-        for client_id in selected_clients:
+        # for client_id in selected_clients:
+        for client_id in range(int(cfgs.num_C)):
             client_weight, num_examples, top1_acc = fl_client.train(rnd, client_id, 
                                                     copy.deepcopy(global_model))
             results.append((client_weight, num_examples))

@@ -101,3 +101,26 @@ The plot below demonstrates global accuracy in two experiments:
 - Done a quick and dirty implementation of simulation feature, will need to expand and refactor it. For future idea, use simulation to verify the effect of the algorithm on converenge. 
 - **Is it correct way to experiment?** Should it be: `n_clients = 100`, `FedAvg` with 10 clients participating in each round and all aggregated, `SortedFedAvg` with also 10 clients in each round but only top 5 with best accuracies are aggregated? Needs longer training?
 - Local accuracy hurts global performance? Should **global accuracy** be used instead?
+
+# Date 11/10/2022 - 13/10/2022
+## **Experiments**
+### **IID setting**
+Get IID data partition:
+```shell
+python -m datasets.frame_dataset --n_clients=20 --data_dir=$DATA_DIR --train_ann=$DATA_DIR/train.txt --mode="iid"
+```
+`FedAvg` with `n_clients = 20`, 5 random clients are selected to train and aggregate in each round.
+```shell
+python -m fedavg_simulation --work_dir="$DATA_DIR/fed_sim" --data_dir=$DATA_DIR --server_device="cuda:1" --cfg_path="configs/afosr_simulation.yaml"
+```
+`SortedFedAvg` with `n_clients = 20`, all clients participate in training but only 5 with best local accuracies are selected to aggregate.
+```shell
+python -m sorted_fedavg_simulation --work_dir="$DATA_DIR/fed_sorted_sim" --data_dir=$DATA_DIR --server_device="cuda:1" --cfg_path="configs/afosr_sorted_sim.yaml"
+```
+Repeat that with `n_clients = 100`.
+### **Non-IID setting**
+Get Non-IID data partition:
+```shell
+python -m datasets.frame_dataset --n_clients=20 --data_dir=$DATA_DIR --train_ann=$DATA_DIR/train.txt --mode="non_iid"
+```
+Then repeat the steps as above. 

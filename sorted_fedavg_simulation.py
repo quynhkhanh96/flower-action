@@ -185,11 +185,11 @@ if __name__ == '__main__':
                         eval_fn=eval_fn, cfgs=cfgs)
 
     for rnd in range(int(cfgs.epochs)):        
-        # randomly sample clients
-        selected_clients = fl_server.sample_clients()
-        print('[INFO]Round {}: clients {} are selected'.format(
-            rnd, ', '.join([str(client_id) for client_id in selected_clients])
-        ))
+        # # randomly sample clients
+        # selected_clients = fl_server.sample_clients()
+        # print('[INFO]Round {}: clients {} are selected'.format(
+        #     rnd, ', '.join([str(client_id) for client_id in selected_clients])
+        # ))
 
         # local training and collect trained weights from clients
         results, top1_accs = [], []

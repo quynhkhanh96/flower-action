@@ -39,7 +39,7 @@ class FedAvgVideoStrategy(flwr.server.strategy.FedAvg):
             {k: torch.Tensor(v) 
             for k, v in zip(model.state_dict().keys(), weights)}
         )
-        model.load_state_dict(state_dict)
+        model.load_state_dict(state_dict, strict=False)
         
         eval_res = self.eval_fn(model, self.dl_test, self.device)
         if eval_res is None:

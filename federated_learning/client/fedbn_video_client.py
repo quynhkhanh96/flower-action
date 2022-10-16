@@ -65,11 +65,11 @@ class FedBNVideoClient(flwr.client.Client):
         # train model locally 
         self.local.train(model=self.model, client_id=self.client_id)
 
-        # weights_prime: Weights = [val.cpu().numpy() 
-        #                     for _, val in self.model.state_dict().items()]
-        weights_prime = []
-        for k in self.layers:
-            weights_prime.append(self.model.state_dict()[k].cpu().numpy())
+        weights_prime: Weights = [val.cpu().numpy() 
+                            for _, val in self.model.state_dict().items()]
+        # weights_prime = []
+        # for k in self.layers:
+        #     weights_prime.append(self.model.state_dict()[k].cpu().numpy())
         weights_prime = self.postprocess_weights(weights_prime)
 
         params_prime = weights_to_parameters(weights_prime)

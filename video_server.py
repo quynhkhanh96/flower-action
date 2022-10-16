@@ -67,17 +67,20 @@ if __name__ == '__main__':
     eval_fn = evaluate_topk_accuracy
 
     # create strategy
-    strategy = FedAvgVideoStrategy(
-        cfgs=cfgs,
-        dl_test=test_loader,
-        ckpt_dir=server_args.work_dir,
-        device=torch.device("cuda" if torch.cuda.is_available() else "cpu"),
-        fraction_fit=cfgs.frac,
-        min_fit_clients=cfgs.min_sample_size,
-        min_available_clients=cfgs.min_num_clients,
-        eval_fn=eval_fn,
-        on_fit_config_fn=functools.partial(fit_config, cfgs=cfgs),
-    )
+    if cfgs.FL in ['FedAvg', 'FedBN']:
+        strategy = FedAvgVideoStrategy(
+            cfgs=cfgs,
+            dl_test=test_loader,
+            ckpt_dir=server_args.work_dir,
+            device=torch.device("cuda" if torch.cuda.is_available() else "cpu"),
+            fraction_fit=cfgs.frac,
+            min_fit_clients=cfgs.min_sample_size,
+            min_available_clients=cfgs.min_num_clients,
+            eval_fn=eval_fn,
+            on_fit_config_fn=functools.partial(fit_config, cfgs=cfgs),
+        )
+    else:
+        raise ValueError(f'No implementation for {cfgs.FL}.')
 
     # Configure logger and start server
     flwr.common.logger.configure("server", host=server_args.log_host)

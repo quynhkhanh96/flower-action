@@ -1,5 +1,6 @@
 # from federated_learning import FedAvgVideoClient
 from federated_learning.client.fedavg_video_client import FedAvgVideoClient
+from federated_learning.client.fedbn_video_client import FedBNVideoClient
 from federated_learning.client.update.video_base import VideoLocalUpdate 
 from evaluation.video_recognition import evaluate_topk_accuracy
 import flwr
@@ -78,6 +79,13 @@ if __name__ == '__main__':
     # start client
     if cfgs.FL == 'FedAvg':
         fl_client = FedAvgVideoClient(client_id=client_id,
+                dl_train=train_loader, dl_test=test_loader,
+                model=model, loss_fn=criterion, 
+                local_update=local_update, 
+                eval_fn=eval_fn, cfgs=cfgs
+        )
+    elif cfgs.FL == 'FedBN':
+        fl_client = FedBNVideoClient(client_id=client_id,
                 dl_train=train_loader, dl_test=test_loader,
                 model=model, loss_fn=criterion, 
                 local_update=local_update, 

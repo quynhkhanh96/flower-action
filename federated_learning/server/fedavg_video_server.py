@@ -42,8 +42,7 @@ class FedAvgVideoStrategy(flwr.server.strategy.FedAvg):
 
         state_dict = OrderedDict(
             {k: torch.Tensor(v) 
-            for k, v in zip(model.state_dict().keys(), weights)
-            if k in layers}
+            for k, v in zip(layers, weights)}
         )
         model.load_state_dict(state_dict, strict=False)
         

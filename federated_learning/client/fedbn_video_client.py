@@ -16,7 +16,11 @@ class FedBNVideoClient(flwr.client.Client):
         self.dl_train = dl_train
         self.dl_test = dl_test
 
-        self.model = model 
+        self.model = model
+        self.layers = set()
+        for k in self.model.state_dict().keys():
+            if 'bn' not in k:
+                self.layers.add(k) 
         self.loss_fn = loss_fn 
 
         self.eval_fn = eval_fn 
@@ -25,9 +29,10 @@ class FedBNVideoClient(flwr.client.Client):
 
     def get_parameters(self):
         self.model.train()
-        weights = [val.cpu().numpy() 
-                for name, val in self.model.state_dict().items()
-                if 'bn' not in name]
+
+        weights = []
+        for k in self.layers:
+            weights.append(self.model.state_dict()[k].cpu().numpy())
         parameters = weights_to_parameters(weights)
         return ParametersRes(parameters=parameters)
 
@@ -47,19 +52,9 @@ class FedBNVideoClient(flwr.client.Client):
         weights = parameters_to_weights(parameters)
         weights = self.postprocess_weights(weights)
 
-        # state_dict = OrderedDict()
-        # keys = [k for k in self.model.state_dict().keys()]
-        # for i in range(len(weights)):
-        #     if 'bn' not in keys[i]:
-        #          state_dict[keys[i]] = torch.tensor(weights[i])
-        layers = []
-        for k in self.model.state_dict().keys():
-            if 'bn' not in k:
-                layers.append(k)
-
         state_dict = OrderedDict(
             {k: torch.Tensor(v) 
-            for k, v in zip(layers, weights)}
+            for k, v in zip(self.layers, weights)}
         )
         self.model.load_state_dict(state_dict, strict=False)
 
@@ -70,8 +65,11 @@ class FedBNVideoClient(flwr.client.Client):
         # train model locally 
         self.local.train(model=self.model, client_id=self.client_id)
 
-        weights_prime: Weights = [val.cpu().numpy() 
-                            for _, val in self.model.state_dict().items()]
+        # weights_prime: Weights = [val.cpu().numpy() 
+        #                     for _, val in self.model.state_dict().items()]
+        weights_prime = []
+        for k in self.layers:
+            weights_prime.append(self.model.state_dict()[k].cpu().numpy())
         weights_prime = self.postprocess_weights(weights_prime)
 
         params_prime = weights_to_parameters(weights_prime)

@@ -14,7 +14,13 @@ class FedAvgVideoStrategy(flwr.server.strategy.FedAvg):
         self.dl_test = dl_test 
         self.ckpt_dir = ckpt_dir
         self.device = device 
-        self.best_top1_acc = -1 
+        self.best_top1_acc = -1
+        # self.layers = set()
+        # model = build_model(self.cfgs, mode='test')
+        # for k in model.state_dict().keys():
+        #     if 'bn' not in k:
+        #         self.layers.add(k)
+        # del model
         super(FedAvgVideoStrategy, self).__init__(**kwargs) 
 
     @staticmethod
@@ -35,14 +41,9 @@ class FedAvgVideoStrategy(flwr.server.strategy.FedAvg):
         weights = self.postprocess_weights(weights)
 
         model = build_model(self.cfgs, mode='test')
-        layers = []
-        for k in model.state_dict().keys():
-            if 'bn' not in k:
-                layers.append(k)
-
         state_dict = OrderedDict(
             {k: torch.Tensor(v) 
-            for k, v in zip(layers, weights)}
+            for k, v in zip(model.state_dict().keys(), weights)}
         )
         model.load_state_dict(state_dict, strict=False)
         

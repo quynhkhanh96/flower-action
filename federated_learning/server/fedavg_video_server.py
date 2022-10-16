@@ -35,9 +35,15 @@ class FedAvgVideoStrategy(flwr.server.strategy.FedAvg):
         weights = self.postprocess_weights(weights)
 
         model = build_model(self.cfgs, mode='test')
+        layers = []
+        for k in model.state_dict().keys():
+            if 'bn' not in k:
+                layers.append(k)
+
         state_dict = OrderedDict(
             {k: torch.Tensor(v) 
-            for k, v in zip(model.state_dict().keys(), weights)}
+            for k, v in zip(model.state_dict().keys(), weights)
+            if k in layers}
         )
         model.load_state_dict(state_dict, strict=False)
         

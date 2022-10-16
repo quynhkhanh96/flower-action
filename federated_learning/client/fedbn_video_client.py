@@ -47,11 +47,20 @@ class FedBNVideoClient(flwr.client.Client):
         weights = parameters_to_weights(parameters)
         weights = self.postprocess_weights(weights)
 
-        state_dict = OrderedDict()
-        keys = [k for k in self.model.state_dict().keys()]
-        for i in range(len(weights)):
-            if 'bn' not in keys[i]:
-                 state_dict[keys[i]] = torch.tensor(weights[i])
+        # state_dict = OrderedDict()
+        # keys = [k for k in self.model.state_dict().keys()]
+        # for i in range(len(weights)):
+        #     if 'bn' not in keys[i]:
+        #          state_dict[keys[i]] = torch.tensor(weights[i])
+        layers = []
+        for k in self.model.state_dict().keys():
+            if 'bn' not in k:
+                layers.append(k)
+
+        state_dict = OrderedDict(
+            {k: torch.Tensor(v) 
+            for k, v in zip(layers, weights)}
+        )
         self.model.load_state_dict(state_dict, strict=False)
 
     def fit(self, ins):

@@ -28,11 +28,8 @@ class FedBNVideoClient(flwr.client.Client):
         self.cfgs = cfgs 
 
     def get_parameters(self):
-        self.model.train()
-
-        weights = []
-        for k in self.layers:
-            weights.append(self.model.state_dict()[k].cpu().numpy())
+        weights: Weights = [val.cpu().numpy() 
+                for _, val in self.model.state_dict().items()]
         parameters = weights_to_parameters(weights)
         return ParametersRes(parameters=parameters)
 

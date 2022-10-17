@@ -46,9 +46,9 @@ CUDA_VISIBLE_DEVICES=1 python -m video_server --server_address=$SERVER_ADDRESS -
 
 ### Start clients
 ```shell
-CUDA_VISIBLE_DEVICES=1 python -m video_client --server_address=$SERVER_ADDRESS --cid=0 --cfg_path="examples/afosr2022/configs/afosr_fedbn_resnet183d.yaml" --data_dir=$DATA_DIR --work_dir="$DATA_DIR/fedbn_exps"
+CUDA_VISIBLE_DEVICES=1 python -m video_client --server_address=$SERVER_ADDRESS --cid=0 --cfg_path="examples/afosr2022/configs/afosr_fedbn_resnet183d.yaml" --data_dir=$DATA_DIR 
 
-CUDA_VISIBLE_DEVICES=2 python -m video_client --server_address=$SERVER_ADDRESS --cid=1 --cfg_path="examples/afosr2022/configs/afosr_fedbn_resnet183d.yaml" --data_dir=$DATA_DIR --work_dir="$DATA_DIR/fedbn_exps"
+CUDA_VISIBLE_DEVICES=2 python -m video_client --server_address=$SERVER_ADDRESS --cid=1 --cfg_path="examples/afosr2022/configs/afosr_fedbn_resnet183d.yaml" --data_dir=$DATA_DIR 
 
-CUDA_VISIBLE_DEVICES=2 python -m video_client --server_address=$SERVER_ADDRESS --cid=2 --cfg_path="examples/afosr2022/configs/afosr_fedbn_resnet183d.yaml" --data_dir=$DATA_DIR --work_dir="$DATA_DIR/fedbn_exps"
+CUDA_VISIBLE_DEVICES=2 python -m video_client --server_address=$SERVER_ADDRESS --cid=2 --cfg_path="examples/afosr2022/configs/afosr_fedbn_resnet183d.yaml" --data_dir=$DATA_DIR 
 ```

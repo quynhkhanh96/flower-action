@@ -64,7 +64,7 @@ class MMActionLocalUpdate:
                 imgs = Variable(imgs).to(self.cfgs.device)
                 labels = Variable(labels).to(self.cfgs.device)
                 outputs = model(imgs) 
-                loss = self.loss_fn(outputs, labels)       
+                loss = self.loss_fn(outputs, labels.squeeze(1))       
                 optimizer.zero_grad()
                 loss.backward()
                 if self.cfgs.clip_gradient is not None:

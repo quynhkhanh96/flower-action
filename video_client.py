@@ -1,17 +1,12 @@
 # from federated_learning import FedAvgVideoClient
 from federated_learning.client.fedavg_video_client import FedAvgVideoClient
 from federated_learning.client.fedbn_video_client import FedBNVideoClient
-from federated_learning.client.update.video_base import VideoLocalUpdate
-from federated_learning.client.update.video_base import MMActionLocalUpdate 
-from evaluation.video_recognition import evaluate_topk_accuracy
 import flwr
 import argparse
-from datasets.frame_dataset import get_client_loaders, get_client_mmaction_loaders
-from models.build import build_model, build_loss, build_optimizer
-from models.base import build_mmaction_model
+from models.build import build_loss
+from evaluation.video_recognition import evaluate_topk_accuracy
 import yaml 
 from utils.parsing import Dict2Class
-# import wandb 
 import os 
 DEFAULT_SERVER_ADDRESS = "[::]:8080"
 
@@ -52,24 +47,43 @@ if __name__ == '__main__':
         cfgs = yaml.load(yamlfile, Loader=yaml.FullLoader)
     cfgs = Dict2Class(cfgs)
 
-    # datasets
-    train_loader, test_loader = get_client_loaders(client_id, 
-                                        client_args.data_dir,
-                                        cfgs)
-
-    # model
-    model = build_model(cfgs, mode='train')
-
     # loss 
     criterion = build_loss(cfgs)
-
-    # local trainer
-    local_update = VideoLocalUpdate(train_loader=train_loader,
-                                    loss_fn=criterion, cfgs=cfgs)
-
     # evaluate function
     eval_fn = evaluate_topk_accuracy
 
+    if hasattr(cfgs, 'base') and cfgs.base == 'mmaction2':
+        # datasets
+        from datasets.frame_dataset import get_client_mmaction_loaders
+        train_loader, test_loader = get_client_mmaction_loaders(
+            client_id, client_args.data_dir, cfgs
+        )
+
+        # model
+        from models.base import build_mmaction_model
+        model = build_mmaction_model(cfgs, mode='train')
+
+        # local trainer
+        from federated_learning.client.update.video_base import MMActionLocalUpdate 
+        local_update = MMActionLocalUpdate(train_loader=train_loader,
+                                        loss_fn=criterion, cfgs=cfgs)
+
+    else:
+        # datasets
+        from datasets.frame_dataset import get_client_loaders
+        train_loader, test_loader = get_client_loaders(
+            client_id, client_args.data_dir, cfgs
+        )
+
+        # model
+        from models.build import build_model
+        model = build_model(cfgs, mode='train')
+
+        # local trainer
+        from federated_learning.client.update.video_base import VideoLocalUpdate
+        local_update = VideoLocalUpdate(train_loader=train_loader,
+                                        loss_fn=criterion, cfgs=cfgs)
+    
     # start client
     if cfgs.FL == 'FedAvg':
         fl_client = FedAvgVideoClient(client_id=client_id,

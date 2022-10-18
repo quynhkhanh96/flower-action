@@ -5,6 +5,8 @@ import os
 import numpy as np 
 import torch 
 
+from logger import get_root_logger
+
 def seed_torch(seed=42):
     random.seed(seed)
     os.environ['PYTHONHASHSEED'] = str(seed)

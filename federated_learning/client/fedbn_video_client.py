@@ -48,7 +48,7 @@ class FedBNVideoClient(flwr.client.Client):
         state_dict = OrderedDict()
         for i, k in enumerate(self.model.state_dict()):
             if 'bn' not in k:
-                state_dict[k] = weights[i]
+                state_dict[k] = torch.Tensor(weights[i])
         self.model.load_state_dict(state_dict, strict=False)
 
     def fit(self, ins):

@@ -1,6 +1,8 @@
+import os
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from mmcv.runner.checkpoint import load_checkpoint
 
 class Recognizer3D(nn.Module):
     def __init__(self, backbone, neck=None, cls_head=None):
@@ -83,3 +85,23 @@ class Recognizer3D(nn.Module):
         cls_score = self.cls_head(x)
 
         return cls_score
+
+def build_mmaction_model(cfgs, mode='train'):
+    if cfgs.arch == 'slowonly_r50':
+        from .backbones.resnet3d_slowonly import ResNet3dSlowOnly
+        from .heads.i3d_head import I3DHead
+        backbone = ResNet3dSlowOnly(depth=50, pretrained='torchvision://resnet50',
+            lateral=False, conv1_kernel=(1, 7, 7), conv1_stride_t=1,
+            pool1_stride_t=1, inflate=(0, 0, 1, 1), norm_eval=False
+        )
+        cls_head = I3DHead(in_channels=2048, num_classes=51,
+            spatial_type='avg', dropout_ratio=0.5)
+        model = Recognizer3D(backbone=backbone, cls_head=cls_head)
+        if mode == 'train':
+            if not os.path.exists(cfgs.pretrained_model):
+                raise IOError("Can't find pretrained model: {}".format(cfgs.pretrained_model))
+            load_checkpoint(model, cfgs.pretrained_model)
+    else:
+        raise ValueError(f'No implementation for {cfgs.arch}.')
+
+    return model

@@ -1,13 +1,14 @@
 # from federated_learning import FedAvgVideoClient
 from federated_learning.client.fedavg_video_client import FedAvgVideoClient
 from federated_learning.client.fedbn_video_client import FedBNVideoClient
-from federated_learning.client.update.video_base import VideoLocalUpdate 
+from federated_learning.client.update.video_base import VideoLocalUpdate
+from federated_learning.client.update.video_base import MMActionLocalUpdate 
 from evaluation.video_recognition import evaluate_topk_accuracy
 import flwr
 import argparse
-# from datasets.video_dataset import get_client_loaders
-from datasets.frame_dataset import get_client_loaders
+from datasets.frame_dataset import get_client_loaders, get_client_mmaction_loaders
 from models.build import build_model, build_loss, build_optimizer
+from models.base import build_mmaction_model
 import yaml 
 from utils.parsing import Dict2Class
 # import wandb 
@@ -50,13 +51,6 @@ if __name__ == '__main__':
     with open(client_args.cfg_path, 'r') as yamlfile:
         cfgs = yaml.load(yamlfile, Loader=yaml.FullLoader)
     cfgs = Dict2Class(cfgs)
-
-    # set up WandB
-    # os.environ["WANDB_API_KEY"] = cfgs.WANDB_API_KEY
-    # try:
-    #     wandb.init(project=os.path.basename(client_args.cfg_path).split('.')[0])
-    # except:
-    #     pass 
 
     # datasets
     train_loader, test_loader = get_client_loaders(client_id, 

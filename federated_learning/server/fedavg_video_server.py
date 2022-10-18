@@ -2,8 +2,7 @@ import flwr
 from flwr.common import parameters_to_weights, weights_to_parameters
 from flwr.server.strategy.aggregate import aggregate
 import numpy as np
-import torch 
-from models.build import build_model
+import torch
 from collections import OrderedDict
 import time 
 # import wandb
@@ -34,7 +33,13 @@ class FedAvgVideoStrategy(flwr.server.strategy.FedAvg):
         weights = parameters_to_weights(parameters)
         weights = self.postprocess_weights(weights)
 
-        model = build_model(self.cfgs, mode='test')
+        if hasattr(self.cfgs, 'base') and self.cfgs.base == 'mmaction2':
+            from models.base import build_mmaction_model
+            model = build_mmaction_model(self.cfgs, mode='test')
+
+        else:
+            from models.build import build_model
+            model = build_model(self.cfgs, mode='test')
         state_dict = OrderedDict(
             {k: torch.Tensor(v) 
             for k, v in zip(model.state_dict().keys(), weights)}

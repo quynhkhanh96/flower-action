@@ -60,11 +60,20 @@ if __name__ == '__main__':
 
     seed_torch(int(cfgs.seed))
 
-    # Test loader 
-    _, test_loader = get_client_loaders(0, server_args.data_dir, cfgs)
-
     # eval_fn
     eval_fn = evaluate_topk_accuracy
+
+    # test loader
+    if hasattr(cfgs, 'base') and cfgs.base == 'mmaction2':
+        from datasets.frame_dataset import get_client_mmaction_loaders
+        _, test_loader = get_client_mmaction_loaders(
+            0, server_args.data_dir, cfgs
+        )
+    else:
+        from datasets.frame_dataset import get_client_loaders
+        _, test_loader = get_client_loaders(
+            0, server_args.data_dir, cfgs
+        )
 
     # create strategy
     if cfgs.FL in ['FedAvg', 'FedBN']:

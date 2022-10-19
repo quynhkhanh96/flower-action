@@ -1,4 +1,5 @@
 import os
+import shutil
 from collections import defaultdict 
 import cv2
 import random
@@ -172,6 +173,11 @@ def data_partition(n_clients, data_dir,
                         f.write('{} {}\n'.format(
                             train_video_ids[idx], train_labels[idx]
                         ))
+    if mmaction_base:
+        train_ann_fname = os.path.basename(train_annotation_path)
+        val_ann_frame = train_ann_fname.replace('train', 'val')
+        val_ann_path = os.path.dirname(train_annotation_path) + '/' + val_ann_frame
+        shutil.copyfile(val_ann_path, data_dir + '/val.txt')
 
 def get_client_loaders(client_id, data_dir, cfgs):
     '''
@@ -223,7 +229,7 @@ def get_client_loaders(client_id, data_dir, cfgs):
 
 def get_client_mmaction_loaders(client_id, data_dir, cfgs):
     ann_file_train = data_dir + f'/client_{client_id}_train.txt'
-    ann_file_val = data_dir + f'/client_{client_id}_val.txt'
+    ann_file_val = data_dir + '/val.txt'
 
     dataset_type = 'RawframeDataset'
     img_norm_cfg = dict(

@@ -1,7 +1,8 @@
 import os
 from collections import defaultdict 
 import cv2
-import random 
+import random
+import mmaction 
 import numpy as np
 import argparse
 import torch
@@ -114,6 +115,7 @@ def non_iid_split(train_labels, n_clients,
 
 def data_partition(n_clients, data_dir,
                     train_annotation_path,
+                    mmaction_base=False,
                     mode='iid'):
     '''
     Args:
@@ -121,13 +123,18 @@ def data_partition(n_clients, data_dir,
         data_dir (str): path to data (including `rgb_frames`, `train.txt` and `val.txt` directories)
         train_annotation_path (str): path to train annotation file, in which each line is 
                                 <video_id> <label>
+        mmaction_base (bool): True if the data annotation is formatted for mmaction pipeline
         mode (str): data partition mode
     '''
     print(f'Partitioning data among {n_clients} clients ...')
     with open(train_annotation_path, 'r') as f:
         lines = [l.strip() for l in f.readlines()]
         train_video_ids = [l.split(' ')[0] for l in lines]
-        train_labels = [int(l.split(' ')[1]) for l in lines]
+        if mmaction_base:
+            train_lens = np.array([int(l.split(' ')[1]) for l in lines])
+            train_labels = [int(l.split(' ')[2]) for l in lines]
+        else:
+            train_labels = [int(l.split(' ')[1]) for l in lines]
 
     train_video_ids = np.array(train_video_ids)
     n_classes = len(set(train_labels))
@@ -145,8 +152,12 @@ def data_partition(n_clients, data_dir,
         for i in range(n_clients):
             with open(data_dir + f'/client_{i}_train.txt', 'a') as f:
                 for id in res[i]:
-                    f.write('{} {}\n'.format(
-                        train_video_ids[id], train_labels[id]))
+                    if mmaction_base:
+                        f.write('{} {} {}\n'.format(train_video_ids[id],
+                            train_lens[id], train_labels[id]))
+                    else:
+                        f.write('{} {}\n'.format(
+                            train_video_ids[id], train_labels[id]))
 
     elif mode == 'non_iid':
         idx_map = non_iid_split(train_labels, n_clients, n_classes)
@@ -154,9 +165,13 @@ def data_partition(n_clients, data_dir,
         for client_id in range(n_clients):
             with open(data_dir + f'/client_{client_id}_train.txt', 'a') as f:
                 for idx in idx_map[client_id]:
-                    f.write('{} {}\n'.format(
-                        train_video_ids[idx], train_labels[idx]
-                    ))
+                    if mmaction_base:
+                        f.write('{} {} {}\n'.format(train_video_ids[idx],
+                        train_lens[idx], train_labels[idx]))
+                    else:
+                        f.write('{} {}\n'.format(
+                            train_video_ids[idx], train_labels[idx]
+                        ))
 
 def get_client_loaders(client_id, data_dir, cfgs):
     '''
@@ -231,7 +246,7 @@ def get_client_mmaction_loaders(client_id, data_dir, cfgs):
     ]
     dst_train_cfg = dict(type=dataset_type,
             ann_file=ann_file_train,
-            data_prefix=data_dir,
+            data_prefix=data_dir + '/rawframes',
             pipeline=train_pipeline)
 
     val_pipeline = [
@@ -248,7 +263,7 @@ def get_client_mmaction_loaders(client_id, data_dir, cfgs):
     ]
     dst_val_cfg = dict(type=dataset_type,
             ann_file=ann_file_val,
-            data_prefix=data_dir,
+            data_prefix=data_dir + '/rawframes',
             pipeline=val_pipeline)
 
     train_dataset = build_dataset(dst_train_cfg)
@@ -344,8 +359,9 @@ if __name__ == '__main__':
         help="path to train annotation files",
     )
     parser.add_argument(
-        "--val_ann",
-        type=str,
+        "--mmaction_base",
+        type=bool,
+        default=False,
         help="path to val annotation files",
     )
     parser.add_argument(
@@ -355,8 +371,11 @@ if __name__ == '__main__':
         help="Data partition mode"
     )
     args = parser.parse_args()
+    if not args.mmaction_base:
+        print('The partitioned data is not for mmaction pipeline!')
 
     data_partition(n_clients=int(args.n_clients),
                     data_dir=args.data_dir,
                     train_annotation_path=args.train_ann,
+                    mmaction_base=args.mmaction_base,
                     mode=args.mode)

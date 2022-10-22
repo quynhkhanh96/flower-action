@@ -98,8 +98,6 @@ def build_mmaction_model(cfgs, mode='train'):
             spatial_type='avg', dropout_ratio=0.5)
         model = Recognizer3D(backbone=backbone, cls_head=cls_head)
         if mode == 'train':
-            if not os.path.exists(cfgs.pretrained_model):
-                raise IOError("Can't find pretrained model: {}".format(cfgs.pretrained_model))
             load_checkpoint(model, cfgs.pretrained_model)
     else:
         raise ValueError(f'No implementation for {cfgs.arch}.')

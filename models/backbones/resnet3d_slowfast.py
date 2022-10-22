@@ -8,7 +8,7 @@ from mmcv.cnn import ConvModule, kaiming_init
 from mmcv.runner import _load_checkpoint, load_checkpoint
 from mmcv.utils import print_log
 
-from ...utils import get_root_logger
+from utils import get_root_logger
 from .resnet3d import ResNet3d
 
 class ResNet3dPathway(ResNet3d):

@@ -7,7 +7,7 @@ import torch.utils.checkpoint as cp
 from mmcv.cnn import (ConvModule, NonLocal3d, build_activation_layer,
                       constant_init, kaiming_init)
 from mmcv.runner import _load_checkpoint, load_checkpoint
-from ...utils import get_root_logger
+from utils import get_root_logger
 from mmcv.utils import _BatchNorm
 from torch.nn.modules.utils import _ntuple, _triple
 

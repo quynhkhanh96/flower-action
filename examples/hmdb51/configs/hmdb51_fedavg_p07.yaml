@@ -18,6 +18,7 @@ epochs: 40
 loss: 'CrossEntropyLoss'
 optimizer: 'SGD'
 lr: 0.00025
+clip_gradient: 20
 print_freq: 10
 
 # federated learning setting 

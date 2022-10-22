@@ -67,7 +67,7 @@ class MMActionLocalUpdate:
                 loss = self.loss_fn(outputs, labels.squeeze(1))       
                 optimizer.zero_grad()
                 loss.backward()
-                if self.cfgs.clip_gradient is not None:
+                if hasattr(self.cfgs, 'clip_gradient') and self.cfgs.clip_gradient is not None:
                     _ = clip_grad_norm_(model.parameters(), self.cfgs.clip_gradient)
                 optimizer.step()
                 losses.update(loss.item(), labels.size(0))

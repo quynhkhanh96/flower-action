@@ -28,7 +28,7 @@ then run `source set_hmdb51_paths.sh`
 ## 3.1. Data partition
 Run this to split the data among the clients
 ```shell
-python -m datasets.frame_dataset --n_clients=3 --data_dir=$DATA_DIR --train_ann=$DATA_DIR/hmdb51_train_split_1_rawframes.txt --mode="iid"
+python -m datasets.frame_dataset --n_clients=3 --data_dir=$DATA_DIR --train_ann=$DATA_DIR/hmdb51_train_split_1_rawframes.txt --mmaction_base=True --mode="iid"
 ```
 After this you shall see three new files `client_0_train.txt`, `client_1_train.txt` and `client_2_train.txt` inside `DATA_DIR`.
 ## 3.2. Start server

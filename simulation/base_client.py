@@ -32,12 +32,8 @@ class Client:
 
         return weights
     
-    def load_weights(self, weights):
-        weights = self.postprocess_weights(weights)
-        state_dict = OrderedDict(
-            {k: torch.Tensor(v) for k, v in zip(self.model.state_dict().keys(), weights)}
-        )
-        self.model.load_state_dict(state_dict)
+    def load_weights(self, global_model):
+        self.model = global_model
 
     def get_weights(self):
         weights = [val.cpu().numpy() for _, val in self.model.state_dict().items()]
@@ -45,8 +41,9 @@ class Client:
 
     def train(self, rnd, client_id, global_model):
         # load the new global weights
-        self.model = global_model
+        self.load_weights(global_model)
 
+        # create the data loaders of the current client
         train_loader, val_loader = self.get_data_loaders(client_id)
         local_trainer = VideoLocalUpdate(train_loader=train_loader,
                                         loss_fn=self.loss_fn, 

@@ -38,6 +38,21 @@ In particular,
 ```shell
 python -m datasets.frame_dataset --n_clients=3 --data_dir=$DATA_DIR --train_ann=$DATA_DIR/train.txt --mode="iid"
 ```
+## FedAvg
+### Start server
+
+### Start clients
+
+### Simulation
+#### Data partition
+```shell
+python -m datasets.frame_dataset --n_clients=20 --data_dir=$DATA_DIR --train_ann=$DATA_DIR/train.txt --mode="iid"
+```
+#### Run
+```shell
+cd simulation/
+python -m fedavg_sim --work_dir="$DATA_DIR/fedavg_sim" --data_dir=$DATA_DIR --server_device="cuda:1" --cfg_path="examples/afosr2022/configs/afosr_fedavg_sim.yaml"
+```
 ## FedBN
 ### Start server
 ```shell

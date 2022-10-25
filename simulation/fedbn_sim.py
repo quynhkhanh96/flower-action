@@ -9,8 +9,8 @@ from utils import seed_torch
 from models.build import build_model, build_loss
 from evaluation.video_recognition import evaluate_topk_accuracy
 
-from .fedbn_client import FedBnClient
-from .base_server import Server
+from fedbn_client import FedBnClient
+from base_server import Server
 
 def get_zero_weights(model):
     weights = []

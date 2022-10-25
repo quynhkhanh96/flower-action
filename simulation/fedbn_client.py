@@ -25,9 +25,16 @@ class FedBnClient(Client):
 
         # create the data loaders of the current client
         train_loader, val_loader = self.get_data_loaders(client_id)
-        local_trainer = VideoLocalUpdate(train_loader=train_loader,
-                                        loss_fn=self.loss_fn, 
-                                        cfgs=self.cfgs)
+        if self.mmaction_base:
+            from federated_learning.client.update.video_base import MMActionLocalUpdate
+            local_trainer = MMActionLocalUpdate(train_loader=train_loader,
+                                            loss_fn=self.loss_fn, 
+                                            cfgs=self.cfgs)
+        else:
+            from federated_learning.client.update.video_base import VideoLocalUpdate
+            local_trainer = VideoLocalUpdate(train_loader=train_loader,
+                                            loss_fn=self.loss_fn, 
+                                            cfgs=self.cfgs)
         # train loop
         local_trainer.train(self.model, client_id)
 

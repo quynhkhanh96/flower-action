@@ -9,7 +9,7 @@ num_workers: 4
 # network architecture
 arch: 'resnet183d'
 num_classes: 12
-pretrained_model: 'pre-trained/resnet-18-kinetics.pth'
+pretrained_model: '../pre-trained/resnet-18-kinetics.pth'
 
 # local training
 local_e: 3

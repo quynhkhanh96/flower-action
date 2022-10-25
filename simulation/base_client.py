@@ -18,7 +18,7 @@ class Client:
 
     def get_data_loaders(self, client_id):
         train_loader, val_loader = get_client_loaders(client_id,
-            self.data_dir, self.work_dir, self.cfgs
+            self.data_dir, self.cfgs
         )
         return train_loader, val_loader
     

@@ -61,7 +61,7 @@ if __name__ == '__main__':
     # model
     if hasattr(cfgs, 'base') and cfgs.base == 'mmaction2':
         from models.base import build_mmaction_model
-        model = build_mmaction_model(cfgs, mode='train')
+        global_model = build_mmaction_model(cfgs, mode='train')
     else:
         from models.build import build_model
         global_model = build_model(cfgs, mode='train')

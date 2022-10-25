@@ -1,6 +1,6 @@
 import torch
 from collections import OrderedDict
-from .base_client import Client
+from base_client import Client
 from federated_learning.client.update.video_base import VideoLocalUpdate
 
 class FedBnClient(Client):

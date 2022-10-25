@@ -50,7 +50,7 @@ python -m datasets.frame_dataset --n_clients=20 --data_dir=$DATA_DIR --train_ann
 ### Simulation
 ```shell
 cd simulation/
-python -m fedavg_sim --work_dir="$DATA_DIR/fedavg_sim" --data_dir=$DATA_DIR --server_device="cuda:1" --cfg_path="examples/afosr2022/configs/afosr_fedavg_sim.yaml"
+python -m fedavg_sim --work_dir="$DATA_DIR/fedavg_sim" --data_dir=$DATA_DIR --server_device="cuda:1" --cfg_path="../examples/afosr2022/configs/afosr_fedavg_sim.yaml"
 ```
 ## FedBN
 ### Start server
@@ -69,5 +69,5 @@ CUDA_VISIBLE_DEVICES=2 python -m video_client --server_address=$SERVER_ADDRESS -
 ### Simulation
 ```shell
 cd simulation/
-python -m fedbn_sim --work_dir="$DATA_DIR/fedbn_sim" --data_dir=$DATA_DIR --server_device="cuda:1" --cfg_path="examples/afosr2022/configs/afosr_fedbn_sim.yaml"
+python -m fedbn_sim --work_dir="$DATA_DIR/fedbn_sim" --data_dir=$DATA_DIR --server_device="cuda:1" --cfg_path="../examples/afosr2022/configs/afosr_fedbn_sim.yaml"
 ```

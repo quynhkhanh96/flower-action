@@ -3,7 +3,6 @@ sys.path.insert(0, os.path.abspath('..'))
 from collections import OrderedDict
 import numpy as np 
 import torch
-from datasets.frame_dataset import get_client_loaders
 
 class Server:
     def __init__(self, data_dir, work_dir, model, eval_fn, cfgs, device):
@@ -13,10 +12,20 @@ class Server:
         self.eval_fn = eval_fn
         self.cfgs = cfgs 
         self.device = device
+        if hasattr(cfgs, 'base') and cfgs.base == 'mmaction2':
+            self.mmaction_base = True
+        else:
+            self.mmaction_base = False 
         self.test_loader = self.get_test_loader()
 
     def get_test_loader(self):
-        _, test_loader = get_client_loaders(0, self.data_dir, self.cfgs)
+        if self.mmaction_base:
+            from datasets.frame_dataset import get_client_mmaction_loaders
+            _, test_loader = get_client_mmaction_loaders(0, self.data_dir,
+                                                            self.cfgs)
+        else:
+            from datasets.frame_dataset import get_client_loaders
+            _, test_loader = get_client_loaders(0, self.data_dir, self.cfgs)
         return test_loader
 
     def sample_clients(self):

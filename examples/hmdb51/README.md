@@ -31,17 +31,17 @@ Run this to split the data among the clients
 python -m datasets.frame_dataset --n_clients=3 --data_dir=$DATA_DIR --train_ann=$DATA_DIR/hmdb51_train_split_1_rawframes.txt --mmaction_base=True --mode="iid"
 ```
 After this you shall see three new files `client_0_train.txt`, `client_1_train.txt` and `client_2_train.txt` inside `DATA_DIR`.
-## 3.2. Start server
-For FedAvg:
+
+For simulation:
+```shell
+python -m datasets.frame_dataset --n_clients=20 --data_dir=$DATA_DIR --train_ann=$DATA_DIR/hmdb51_train_split_1_rawframes.txt --mmaction_base=True --mode="iid"
+```
+## 3.2. FedAvg
+### Start server
 ```shell
 CUDA_VISIBLE_DEVICES=1 python -m video_server --server_address=$SERVER_ADDRESS --cfg_path="examples/hmdb51/configs/hmdb51_fedavg_p07.yaml" --data_dir=$DATA_DIR --work_dir="$DATA_DIR/fedavg_exps"
 ```
-For FedBN:
-```shell
-CUDA_VISIBLE_DEVICES=1 python -m video_server --server_address=$SERVER_ADDRESS --cfg_path="examples/hmdb51/configs/hmdb51_fedbn_p07.yaml" --data_dir=$DATA_DIR --work_dir="$DATA_DIR/fedbn_exps"
-```
-## 3.3. Start clients
-For FedAvg:
+### Start clients
 ```shell
 CUDA_VISIBLE_DEVICES=1 python -m video_client --server_address=$SERVER_ADDRESS --cid=0 --cfg_path="examples/hmdb51/configs/hmdb51_fedavg_p07.yaml" --data_dir=$DATA_DIR 
 
@@ -49,11 +49,27 @@ CUDA_VISIBLE_DEVICES=2 python -m video_client --server_address=$SERVER_ADDRESS -
 
 CUDA_VISIBLE_DEVICES=2 python -m video_client --server_address=$SERVER_ADDRESS --cid=2 --cfg_path="examples/hmdb51/configs/hmdb51_fedavg_p07.yaml" --data_dir=$DATA_DIR 
 ```
-For FedBN:
+### Simulation
+```shell
+cd simulation/
+python -m fedavg_sim --work_dir="$DATA_DIR/fedavg_sim" --data_dir=$DATA_DIR --server_device="cuda:1" --cfg_path="../examples/hmdb51/configs/hmdb51_fedavg_sim.yaml"
+```
+
+## 3.3. FedBN
+### Start server
+```shell
+CUDA_VISIBLE_DEVICES=1 python -m video_server --server_address=$SERVER_ADDRESS --cfg_path="examples/hmdb51/configs/hmdb51_fedbn_p07.yaml" --data_dir=$DATA_DIR --work_dir="$DATA_DIR/fedbn_exps"
+```
+### Start clients
 ```shell
 CUDA_VISIBLE_DEVICES=1 python -m video_client --server_address=$SERVER_ADDRESS --cid=0 --cfg_path="examples/hmdb51/configs/hmdb51_fedbn_p07.yaml" --data_dir=$DATA_DIR 
 
 CUDA_VISIBLE_DEVICES=2 python -m video_client --server_address=$SERVER_ADDRESS --cid=1 --cfg_path="examples/hmdb51/configs/hmdb51_fedbn_p07.yaml" --data_dir=$DATA_DIR 
 
 CUDA_VISIBLE_DEVICES=2 python -m video_client --server_address=$SERVER_ADDRESS --cid=2 --cfg_path="examples/hmdb51/configs/hmdb51_fedbn_p07.yaml" --data_dir=$DATA_DIR 
+```
+### Simulation
+```shell
+cd simulation/
+python -m fedbn_sim --work_dir="$DATA_DIR/fedbn_sim" --data_dir=$DATA_DIR --server_device="cuda:1" --cfg_path="../examples/hmdb51/configs/hmdb51_fedbn_sim.yaml"
 ```

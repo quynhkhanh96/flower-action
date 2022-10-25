@@ -1,0 +1,31 @@
+# local data loaders
+height: 224
+width: 224
+seq_len: 8
+train_bz: 4
+test_bz: 8
+num_workers: 4
+base: 'mmaction2'
+
+# network architecture
+arch: 'slowonly_r50'
+num_classes: 51
+pretrained_model: 'https://download.openmmlab.com/mmaction/recognition/slowonly/slowonly_r50_8x8x1_256e_kinetics400_rgb/slowonly_r50_8x8x1_256e_kinetics400_rgb_20200703-a79c555a.pth'
+
+# local training
+local_e: 3
+epochs: 40
+loss: 'CrossEntropyLoss'
+optimizer: 'SGD'
+lr: 0.00025
+clip_gradient: 20
+print_freq: 10
+
+# federated learning setting 
+FL: 'FedAvg'
+frac: 0.25 # partipation ratio
+num_C: 20 # client number
+min_sample_size: 2
+min_num_clients: 5 
+seed: 1234 
+device: 'cuda'

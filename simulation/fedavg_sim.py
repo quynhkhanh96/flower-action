@@ -6,7 +6,7 @@ import argparse
 import yaml
 from utils.parsing import Dict2Class
 from utils import seed_torch
-from models.build import build_model, build_loss
+from models.build import build_loss
 from evaluation.video_recognition import evaluate_topk_accuracy
 
 from base_client import Client
@@ -59,7 +59,12 @@ if __name__ == '__main__':
     seed_torch(int(cfgs.seed))
 
     # model
-    global_model = build_model(cfgs, mode='train')
+    if hasattr(cfgs, 'base') and cfgs.base == 'mmaction2':
+        from models.base import build_mmaction_model
+        model = build_mmaction_model(cfgs, mode='train')
+    else:
+        from models.build import build_model
+        global_model = build_model(cfgs, mode='train')
 
     # loss function
     criterion = build_loss(cfgs)

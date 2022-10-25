@@ -3,8 +3,6 @@ sys.path.insert(0, os.path.abspath('..'))
 from collections import OrderedDict
 import numpy as np 
 import torch
-from datasets.frame_dataset import get_client_loaders
-from federated_learning.client.update.video_base import VideoLocalUpdate
 
 class Client:
     def __init__(self, data_dir, work_dir, model,
@@ -14,12 +12,23 @@ class Client:
         self.model = model
         self.loss_fn = loss_fn
         self.eval_fn = eval_fn
-        self.cfgs = cfgs 
+        self.cfgs = cfgs
+        if hasattr(cfgs, 'base') and cfgs.base == 'mmaction2':
+            self.mmaction_base = True
+        else:
+            self.mmaction_base = False  
 
     def get_data_loaders(self, client_id):
-        train_loader, val_loader = get_client_loaders(client_id,
-            self.data_dir, self.cfgs
-        )
+        if self.mmaction_base:
+            from datasets.frame_dataset import get_client_mmaction_loaders
+            train_loader, val_loader = get_client_mmaction_loaders(
+                client_id, self.data_dir, self.cfgs 
+            )
+        else:
+            from datasets.frame_dataset import get_client_loaders
+            train_loader, val_loader = get_client_loaders(client_id,
+                self.data_dir, self.cfgs
+            )
         return train_loader, val_loader
     
     @staticmethod
@@ -45,9 +54,16 @@ class Client:
 
         # create the data loaders of the current client
         train_loader, val_loader = self.get_data_loaders(client_id)
-        local_trainer = VideoLocalUpdate(train_loader=train_loader,
-                                        loss_fn=self.loss_fn, 
-                                        cfgs=self.cfgs)
+        if self.mmaction_base:
+            from federated_learning.client.update.video_base import MMActionLocalUpdate
+            local_trainer = MMActionLocalUpdate(train_loader=train_loader,
+                                            loss_fn=self.loss_fn, 
+                                            cfgs=self.cfgs)
+        else:
+            from federated_learning.client.update.video_base import VideoLocalUpdate
+            local_trainer = VideoLocalUpdate(train_loader=train_loader,
+                                            loss_fn=self.loss_fn, 
+                                            cfgs=self.cfgs)
         # train loop
         local_trainer.train(self.model, client_id)
         

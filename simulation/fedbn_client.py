@@ -6,15 +6,18 @@ from federated_learning.client.update.video_base import VideoLocalUpdate
 class FedBnClient(Client):
 
     def load_weights(self, global_model, client_id):
-        last_local_weights = torch.load(
-            self.work_dir + f'/client_{client_id}.pth')
-        self.model.load(last_local_weights['state_dict'])
-        state_dict = OrderedDict()
-        global_weights = global_model.state_dict()
-        for k in global_weights:
-            if 'bn' not in k:
-                state_dict[k] = global_weights[k]
-        self.model.load_state_dict(state_dict, strict=False)
+        try:
+            last_local_weights = torch.load(
+                self.work_dir + f'/client_{client_id}.pth')
+            self.model.load(last_local_weights['state_dict'])
+            state_dict = OrderedDict()
+            global_weights = global_model.state_dict()
+            for k in global_weights:
+                if 'bn' not in k:
+                    state_dict[k] = global_weights[k]
+            self.model.load_state_dict(state_dict, strict=False)
+        except:
+            self.model = global_model
 
     def train(self, rnd, client_id, global_model):
         # load the new global weights

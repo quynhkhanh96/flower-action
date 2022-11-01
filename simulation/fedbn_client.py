@@ -1,3 +1,4 @@
+import os
 import torch
 from collections import OrderedDict
 from base_client import Client
@@ -6,7 +7,7 @@ from federated_learning.client.update.video_base import VideoLocalUpdate
 class FedBnClient(Client):
 
     def load_weights(self, global_model, client_id):
-        try:
+        if os.path.exists(self.work_dir + f'/client_{client_id}.pth'):
             last_local_weights = torch.load(
                 self.work_dir + f'/client_{client_id}.pth')
             self.model.load(last_local_weights['state_dict'])
@@ -17,7 +18,7 @@ class FedBnClient(Client):
                     state_dict[k] = torch.Tensor(global_weights[k])
             self.model.load_state_dict(state_dict, strict=False)
             print(f'[INFO] Client {client_id} successfully loaded new global weights.')
-        except:
+        else:
             self.model = global_model
 
     def train(self, rnd, client_id, global_model):

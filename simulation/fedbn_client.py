@@ -10,7 +10,7 @@ class FedBnClient(Client):
         if os.path.exists(self.work_dir + f'/client_{client_id}.pth'):
             last_local_weights = torch.load(
                 self.work_dir + f'/client_{client_id}.pth')
-            self.model.load(last_local_weights['state_dict'])
+            self.model.load_state_dict(last_local_weights['state_dict'])
             state_dict = OrderedDict()
             global_weights = global_model.state_dict()
             for k in global_weights:

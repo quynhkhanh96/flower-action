@@ -87,9 +87,12 @@ if __name__ == '__main__':
         
         # randomly sample clients
         selected_clients = fl_server.sample_clients()
-        print('[INFO]Round {}: clients {} are selected'.format(
+        msg = '[INFO]Round {}: clients {} are selected'.format(
             rnd, ', '.join([str(client_id) for client_id in selected_clients])
-        ))
+        )
+        print(msg)
+        with open(args.work_dir + '/selection_logs.txt', 'a') as f:
+            f.write(msg + '\n')
 
         # local training and collect trained weights from clients
         num_examples_total = 0

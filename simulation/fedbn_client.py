@@ -15,7 +15,7 @@ class FedBnClient(Client):
             global_weights = global_model.state_dict()
             for k in global_weights:
                 if 'bn' not in k:
-                    state_dict[k] = torch.Tensor(global_weights[k])
+                    state_dict[k] = global_weights[k]
             self.model.load_state_dict(state_dict, strict=False)
             print(f'[INFO] Client {client_id} successfully loaded new global weights.')
         else:

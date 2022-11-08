@@ -71,3 +71,9 @@ CUDA_VISIBLE_DEVICES=2 python -m video_client --server_address=$SERVER_ADDRESS -
 cd simulation/
 python -m fedbn_sim --work_dir="$DATA_DIR/fedbn_sim" --data_dir=$DATA_DIR --server_device="cuda:1" --cfg_path="../examples/afosr2022/configs/afosr_fedbn_sim.yaml"
 ```
+## FedPNS
+### Simulation
+```shell
+cd simulation/
+python -m fedpns_sim --work_dir="$DATA_DIR/fedpns_sim" --data_dir=$DATA_DIR --server_device="cuda:1" --cfg_path="../examples/afosr2022/configs/afosr_fedbn_sim.yaml"
+```

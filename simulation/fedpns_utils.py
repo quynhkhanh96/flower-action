@@ -1,9 +1,10 @@
 import sys, os
 sys.path.insert(0, os.path.abspath('..'))
 import numpy as np
-import torch
 import copy
 import operator
+from collections import OrderedDict
+import torch
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
 
@@ -65,22 +66,37 @@ def test_img(net_g, datatest, args, train_sampler):
 
     return accuracy, test_loss
 
+# def weight_average(w, idxs_users):
+#     w_avg = w[idxs_users[0]]
+#     for k in w_avg.keys():
+#         for i in range(1, len(idxs_users)):    
+#             w_avg[k] += w[idxs_users[i]][k]
+#         w_avg[k] = torch.div(w_avg[k], len(idxs_users))
+#     return w_avg
 def weight_average(w, idxs_users):
     w_avg = w[idxs_users[0]]
-    for k in w_avg.keys():
-        for i in range(1, len(idxs_users)):    
+    for k in range(len(w_avg)):
+        for i in range(1, len(idxs_users)):
             w_avg[k] += w[idxs_users[i]][k]
-        w_avg[k] = torch.div(w_avg[k], len(idxs_users))
-    return w_avg
+        w_avg[k] = w_avg[k] / len(idxs_users)
+    return w_avg 
+
+def convert_numpy_weights(net, np_weights):
+    state_dict = OrderedDict()
+    for i, layer in enumerate(net.state_dict()):
+        state_dict[layer] = torch.Tensor(np_weights[i])
+    return state_dict
 
 def test_part(net_glob, w_locals, idxs_users, 
                 key, dataset_test_part, test_sampler, args):
-    net_all = weight_average(w_locals, idxs_users)
-    
+    weight_all = weight_average(w_locals, idxs_users)
+    net_all = convert_numpy_weights(net_glob, weight_all)
     net_glob.load_state_dict(net_all)
     acc, loss_all = test_img(net_glob, dataset_test_part, args, test_sampler)
+    
     idxs_users.remove(key)
-    net_part = weight_average(w_locals, idxs_users)
+    weight_part = weight_average(w_locals, idxs_users)
+    net_part = convert_numpy_weights(net_glob, weight_part)
     net_glob.load_state_dict(net_part)
     acc, loss_part = test_img(net_glob, dataset_test_part, args, test_sampler)
     
@@ -93,42 +109,6 @@ def get_gradient(pre, now, cfgs, num_samples):
     grad = np.subtract(model_convert(pre), model_convert(now))
     return grad / (num_samples * cfgs.local_e * cfgs.lr / cfgs.train_bz)
 
-def get_relation(avg_grad, idxs_users):
-    innnr_value = {}
-    for i in range(len(idxs_users)):
-        innnr_value[idxs_users[i]] = dot_sum(avg_grad[idxs_users[i]], avg_grad['avg_grad'])
-    return round(sum(list(innnr_value.values())), 3)
-
-def fed_del(net_glob, w_locals, gradient, idxs_users, 
-            max_now, dataset_test, test_sampler, args, test_count):
-    full_user = copy.copy(idxs_users)
-    # nr_th = len(idxs_users) * 0.7
-    gradient.pop('avg_grad')
-    expect_list = {}
-    labeled = []
-    while len(w_locals) > 8:
-        expect_list = node_deleting(expect_list, max_now, idxs_users, gradient)
-        key = max(expect_list.items(), key=operator.itemgetter(1))[0]
-        if expect_list[key] <= expect_list["all"]:
-            break
-        else:
-            labeled.append(key)
-            test_count[key][1] += 1
-            expect_list.pop("all")
-            loss_all, loss_pop, idxs_users = test_part(net_glob, w_locals, idxs_users, 
-                                                key, dataset_test, test_sampler, args)
-            if loss_all < loss_pop:
-                w_locals, idxs_users.append(key)
-                break
-            else:
-                w_locals.pop(key)
-                gradient.pop(key)
-                max_now = expect_list[key]
-                expect_list.pop(key)
-
-    return w_locals, full_user, idxs_users, labeled, test_count
-
-# ========================== probabilistic_selection() ==========================
 def probabilistic_selection(node_prob, node_count, act_indx, part_node_after, labeled):
     remove_list = Diff(act_indx, part_node_after)
     

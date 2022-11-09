@@ -83,5 +83,6 @@ class FedPNSServer(Server):
                     max_now = expect_list[key]
                     expect_list.pop(key)
         
+        print('After filtering adverse clients, take {} clients.'.format(len(idxs_users)))
         w_glob = weight_average(w_locals, idxs_users)
         return w_glob, full_users, idxs_users, labeled, test_count

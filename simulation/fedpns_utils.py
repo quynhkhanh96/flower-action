@@ -7,13 +7,12 @@ import operator
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
 
-from base_server import Server
-
 def model_convert(model_weights):
     ini = []
     if isinstance(model_weights, list):
         for weight in model_weights:
-            ini = ini + torch.flatten(weight).tolist()
+            # ini = ini + torch.flatten(weight).tolist()
+            ini = ini + weight.flatten().tolist()
     else:
         for layer in model_weights.keys():
             ini = ini + torch.flatten(model_weights[layer]).tolist()
@@ -87,26 +86,19 @@ def test_part(net_glob, w_locals, idxs_users,
     
     return loss_all, loss_part, idxs_users
 
-
-# ========================== get_gradient() ==========================
-'''
-    args.num_sample = ?
-    args.local_ep, args.local_bs
-'''
 # def get_gradient(args, pre, now, lr):
 #     grad = np.subtract(model_convert(pre), model_convert(now)) 
 #     return grad / (args.num_sample * args.local_ep * lr / args.local_bs)
 def get_gradient(pre, now, cfgs, num_samples):
     grad = np.subtract(model_convert(pre), model_convert(now))
     return grad / (num_samples * cfgs.local_e * cfgs.lr / cfgs.train_bz)
-# ========================== get_relation() ==========================
+
 def get_relation(avg_grad, idxs_users):
     innnr_value = {}
     for i in range(len(idxs_users)):
         innnr_value[idxs_users[i]] = dot_sum(avg_grad[idxs_users[i]], avg_grad['avg_grad'])
     return round(sum(list(innnr_value.values())), 3)
 
-# ========================== Feddel() ==========================
 def fed_del(net_glob, w_locals, gradient, idxs_users, 
             max_now, dataset_test, test_sampler, args, test_count):
     full_user = copy.copy(idxs_users)

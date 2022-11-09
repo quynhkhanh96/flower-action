@@ -109,6 +109,12 @@ def get_gradient(pre, now, cfgs, num_samples):
     grad = np.subtract(model_convert(pre), model_convert(now))
     return grad / (num_samples * cfgs.local_e * cfgs.lr / cfgs.train_bz)
 
+def get_relation(avg_grad, idxs_users):
+     innnr_value = {}
+     for i in range(len(idxs_users)):
+         innnr_value[idxs_users[i]] = dot_sum(avg_grad[idxs_users[i]], avg_grad['avg_grad'])
+     return round(sum(list(innnr_value.values())), 3)
+
 def probabilistic_selection(node_prob, node_count, act_indx, part_node_after, labeled):
     remove_list = Diff(act_indx, part_node_after)
     

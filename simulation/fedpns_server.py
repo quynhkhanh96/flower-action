@@ -15,6 +15,7 @@ class FedPNSServer(Server):
     def __init__(self, v, **kwargs):
         super(FedPNSServer, self).__init__(**kwargs)     
         self.v = int(v * self.cfgs.num_C * self.cfgs.frac) + 1
+        self.model.eval()
 
     def get_test_loss(self):
         self.model.to(self.device)
@@ -53,7 +54,7 @@ class FedPNSServer(Server):
 
         gradient = {}
         for idx, client_weight in w_locals.items():
-            g = get_gradient(self.model, client_weight, 
+            g = get_gradient(self.model.state_dict(), client_weight, 
                             self.cfgs, num_examples[idx])
             gradient[idx] = copy.deepcopy(g)
 

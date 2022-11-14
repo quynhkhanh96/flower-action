@@ -29,7 +29,7 @@ class FedPNSServer(Server):
             else:
                 imgs, label, _ = data
 
-            imgs = imgs.to(self.device)
+            imgs, label = imgs.to(self.device), label.to(self.device)
             with torch.no_grad():
                 log_probs = self.model(Variable(imgs))
                 test_loss += F.cross_entropy(log_probs, label,

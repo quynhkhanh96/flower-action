@@ -88,6 +88,14 @@ if __name__ == '__main__':
         if rnd == 1:
             idxs_users = fl_server.sample_clients()
 
+        # log the selected clients
+        msg = 'Round {}: clients {} are selected'.format(
+            rnd, ', '.join([str(client_id) for client_id in idxs_users])
+        )
+        print(msg)
+        with open(args.work_dir + '/selection_logs.txt', 'a') as f:
+            f.write(msg + '\n')
+        
         for i in range(len(idxs_users)):
             test_count[idxs_users[i]][0] += 1
 
@@ -106,5 +114,5 @@ if __name__ == '__main__':
         fl_server.evaluate(rnd)
         # Server perform probabilistic selection
         idxs_users, node_prob, test_count = probabilistic_selection(node_prob, 
-                test_count, idxs_before, idxs_left, labeled)
+                test_count, idxs_before, idxs_left, labeled, fl_server.num_selected)
         # Learning rate update??

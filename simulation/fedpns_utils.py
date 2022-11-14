@@ -102,9 +102,6 @@ def test_part(net_glob, w_locals, idxs_users,
     
     return loss_all, loss_part, idxs_users
 
-# def get_gradient(args, pre, now, lr):
-#     grad = np.subtract(model_convert(pre), model_convert(now)) 
-#     return grad / (args.num_sample * args.local_ep * lr / args.local_bs)
 def get_gradient(pre, now, cfgs, num_samples):
     grad = np.subtract(model_convert(pre), model_convert(now))
     return grad / (num_samples * cfgs.local_e * cfgs.lr / cfgs.train_bz)
@@ -115,7 +112,8 @@ def get_relation(avg_grad, idxs_users):
          innnr_value[idxs_users[i]] = dot_sum(avg_grad[idxs_users[i]], avg_grad['avg_grad'])
      return round(sum(list(innnr_value.values())), 3)
 
-def probabilistic_selection(node_prob, node_count, act_indx, part_node_after, labeled):
+def probabilistic_selection(node_prob, node_count, act_indx, 
+                            part_node_after, labeled, num_selected):
     remove_list = Diff(act_indx, part_node_after)
     
     for i in remove_list:
@@ -128,7 +126,7 @@ def probabilistic_selection(node_prob, node_count, act_indx, part_node_after, la
  
     ratio = {}
     for i in labeled:
-        ratio[i] = node_count[i][1]/ node_count[i][0]
+        ratio[i] = node_count[i][1] / node_count[i][0]
         
     for i in labeled:
         prob_change =  node_prob[i] * min((ratio[i] + beta)**alpha, 1)
@@ -138,6 +136,7 @@ def probabilistic_selection(node_prob, node_count, act_indx, part_node_after, la
     for i in rest_nodes:
             node_prob[i] = node_prob[i] + weight / (len(rest_nodes))
 
-    get_node = np.random.choice(list(node_prob.keys()), 10, replace=False, p=list(node_prob.values()))
+    get_node = np.random.choice(list(node_prob.keys()), num_selected, 
+                            replace=False, p=list(node_prob.values()))
 
     return get_node.tolist(), node_prob, node_count

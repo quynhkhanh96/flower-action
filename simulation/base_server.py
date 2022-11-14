@@ -12,6 +12,11 @@ class Server:
         self.eval_fn = eval_fn
         self.cfgs = cfgs 
         self.device = device
+
+        self.num_clients = int(self.cfgs.num_C)
+        self.num_selected = max(int(self.num_clients * self.cfgs.frac), 
+                            int(self.cfgs.min_num_clients))
+
         if hasattr(cfgs, 'base') and cfgs.base == 'mmaction2':
             self.mmaction_base = True
         else:
@@ -29,11 +34,8 @@ class Server:
         return test_loader
 
     def sample_clients(self):
-        num_clients = int(self.cfgs.num_C)
-        num_selected = max(int(num_clients * self.cfgs.frac), 
-                            int(self.cfgs.min_num_clients))
-        selected_client_ids = np.random.choice(range(num_clients), 
-                                num_selected, replace=False)
+        selected_client_ids = np.random.choice(range(self.num_clients), 
+                                self.num_selected, replace=False)
         return selected_client_ids
     
     def load_weights(self, weights):

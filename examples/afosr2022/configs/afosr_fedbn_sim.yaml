@@ -24,6 +24,6 @@ FL: 'FedBN'
 frac: 0.25 # partipation ratio
 num_C: 20 # client number
 min_sample_size: 2
-min_num_clients: 5 
+min_num_clients: 2 
 seed: 1234 
 device: 'cuda'

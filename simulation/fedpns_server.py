@@ -15,6 +15,7 @@ class FedPNSServer(Server):
     def __init__(self, v, **kwargs):
         super(FedPNSServer, self).__init__(**kwargs)     
         self.v = int(v * self.cfgs.num_C * self.cfgs.frac) + 1
+        print(f'For num_C = {self.num_clients}, frac = {self.cfgs.frac}: v = {self.v}.')
         self.model.eval()
 
     def get_test_loss(self):
@@ -87,7 +88,7 @@ class FedPNSServer(Server):
         
         msg = 'After filtering adverse clients, take {} clients.'.format(len(idxs_users))
         print(msg)
-        with open(self.work_dir + '/node_logs.txt', 'a') as f:
+        with open(self.work_dir + f'/node_C{self.num_clients}_frac{self.cfgs.frac}_logs.txt', 'a') as f:
             f.write(msg + '\n')
         
         w_glob = weight_average(w_locals, idxs_users)

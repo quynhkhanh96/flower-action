@@ -50,5 +50,5 @@ class Server:
         print('Round {}: server accuracy top1 {:.3f}, top5 {:.3f}'.format(
             rnd, topk_accuracy['top1'], topk_accuracy['top5']
         ))
-        with open(self.work_dir + '/server_accs.txt', 'a') as f:
+        with open(self.work_dir + f'/server_accs_C{self.num_clients}_frac{self.cfgs.frac}.txt', 'a') as f:
             f.write('{} {:.3f}\n'.format(rnd, topk_accuracy['top1']))

@@ -93,7 +93,7 @@ if __name__ == '__main__':
             rnd, ', '.join([str(client_id) for client_id in idxs_users])
         )
         print(msg)
-        with open(args.work_dir + '/node_logs.txt', 'a') as f:
+        with open(args.work_dir + f'/node_C{cfgs.num_C}_frac{cfgs.frac}_logs.txt', 'a') as f:
             f.write(msg + '\n')
         
         for i in range(len(idxs_users)):

@@ -45,27 +45,6 @@ def node_deleting(expect_list, expect_value, worker_ind, grads):
 def Diff(li1, li2):
     return (list(list(set(li1)-set(li2)) + list(set(li2)-set(li1))))
 
-def test_img(net_g, datatest, args, train_sampler):
-    net_g.eval()
-    # testing
-    test_loss = 0
-    correct = 0
-    data_loader = DataLoader(datatest, batch_size=args.bs, sampler=train_sampler)
-    # print(data_loader)
-    l = len(data_loader)
-    for idx, (data, target) in enumerate(data_loader):
-    
-        log_probs = net_g(data)
-        # sum up batch loss
-        test_loss += F.cross_entropy(log_probs, target, reduction='sum').item()
-        # get the index of the max log-probability
-        y_pred = log_probs.data.max(1, keepdim=True)[1]
-        correct += y_pred.eq(target.data.view_as(y_pred)).long().cpu().sum()
-    test_loss /= len(data_loader.dataset)
-    accuracy = correct.item() / 100
-
-    return accuracy, test_loss
-
 # def weight_average(w, idxs_users):
 #     w_avg = w[idxs_users[0]]
 #     for k in w_avg.keys():
@@ -86,21 +65,6 @@ def convert_numpy_weights(net, np_weights):
     for i, layer in enumerate(net.state_dict()):
         state_dict[layer] = torch.Tensor(np_weights[i])
     return state_dict
-
-def test_part(net_glob, w_locals, idxs_users, 
-                key, dataset_test_part, test_sampler, args):
-    weight_all = weight_average(w_locals, idxs_users)
-    net_all = convert_numpy_weights(net_glob, weight_all)
-    net_glob.load_state_dict(net_all)
-    acc, loss_all = test_img(net_glob, dataset_test_part, args, test_sampler)
-    
-    idxs_users.remove(key)
-    weight_part = weight_average(w_locals, idxs_users)
-    net_part = convert_numpy_weights(net_glob, weight_part)
-    net_glob.load_state_dict(net_part)
-    acc, loss_part = test_img(net_glob, dataset_test_part, args, test_sampler)
-    
-    return loss_all, loss_part, idxs_users
 
 def get_gradient(pre, now, cfgs, num_samples):
     grad = np.subtract(model_convert(pre), model_convert(now))

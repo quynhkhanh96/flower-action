@@ -8,7 +8,7 @@ from torch.autograd import Variable
 from base_server import Server
 from fedpns_utils import (
     get_gradient, get_relation, get_average, 
-    node_deleting, weight_average
+    node_deleting, weight_average, convert_numpy_weights
 )
 
 class FedPNSServer(Server):
@@ -38,12 +38,14 @@ class FedPNSServer(Server):
         return test_loss       
 
     def test_part(self, w_locals, idxs_users, key):
-        net_all = weight_average(w_locals, idxs_users)
+        weight_all = weight_average(w_locals, idxs_users)
+        net_all = convert_numpy_weights(self.model, weight_all)
         self.model.load_state_dict(net_all)
         loss_all = self.get_test_loss()
-        idxs_users.remove(key)
 
-        net_part = weight_average(w_locals, idxs_users)
+        idxs_users.remove(key)
+        weight_part = weight_average(w_locals, idxs_users)
+        net_part = convert_numpy_weights(self.model, weight_part)
         self.model.load_state_dict(net_part)
         loss_part = self.get_test_loss()
 
@@ -83,6 +85,10 @@ class FedPNSServer(Server):
                     max_now = expect_list[key]
                     expect_list.pop(key)
         
-        print('After filtering adverse clients, take {} clients.'.format(len(idxs_users)))
+        msg = 'After filtering adverse clients, take {} clients.'.format(len(idxs_users))
+        print(msg)
+        with open(self.work_dir + '/node_logs.txt', 'a') as f:
+            f.write(msg + '\n')
+        
         w_glob = weight_average(w_locals, idxs_users)
         return w_glob, full_users, idxs_users, labeled, test_count

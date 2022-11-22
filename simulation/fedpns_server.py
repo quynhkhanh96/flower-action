@@ -15,6 +15,8 @@ class FedPNSServer(Server):
     def __init__(self, v, **kwargs):
         super(FedPNSServer, self).__init__(**kwargs)     
         self.v = int(v * self.cfgs.num_C * self.cfgs.frac) + 1
+        if self.v == int(self.cfgs.num_C * self.cfgs.frac):
+            self.v = max(self.v-1, int(self.cfgs.min_num_clients))
         print(f'For num_C = {self.num_clients}, frac = {self.cfgs.frac}: v = {self.v}.')
         self.model.eval()
 

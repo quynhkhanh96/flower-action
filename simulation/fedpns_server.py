@@ -68,7 +68,7 @@ class FedPNSServer(Server):
         gradient.pop('avg_grad')
         expect_list = {}
         labeled = []
-        while len(w_locals) > self.v:
+        while len(w_locals) >= self.v:
             expect_list = node_deleting(expect_list, max_now, idxs_users, gradient)
             key = max(expect_list.items(), key=operator.itemgetter(1))[0]
             if expect_list[key] <= expect_list["all"]:

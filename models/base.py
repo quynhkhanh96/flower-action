@@ -99,7 +99,7 @@ def build_mmaction_model(cfgs, mode='train'):
         model = Recognizer3D(backbone=backbone, cls_head=cls_head)
         if mode == 'train':
             load_checkpoint(model, cfgs.pretrained_model)
-    if cfgs.arch == 'slowfast_r50':
+    elif cfgs.arch == 'slowfast_r50':
         from .backbones.resnet3d_slowfast import ResNet3dSlowFast
         from .heads.slowfast_head import SlowFastHead
         backbone = ResNet3dSlowFast(pretrained=None, resample_rate=8,

@@ -14,7 +14,7 @@ pretrained_model: 'https://download.openmmlab.com/mmaction/recognition/slowonly/
 
 # local training
 local_e: 3
-epochs: 40
+epochs: 100
 loss: 'CrossEntropyLoss'
 optimizer: 'SGD'
 lr: 0.00025

@@ -33,7 +33,7 @@ python -m datasets.frame_dataset --n_clients=20 --data_dir=$DATA_DIR --train_ann
 ### FedAvg
 ```shell
 cd simulation/
-python -m fedavg_sim --work_dir="$DATA_DIR/fedavg_sim" --data_dir=$DATA_DIR --server_device="cuda:0" --cfg_path="configs/egogesture_sim_C20_frac025.yaml"
+python -m fedavg_sim --work_dir="$DATA_DIR/fedavg_sim" --data_dir=$DATA_DIR --server_device="cuda:0" --cfg_path="../examples/egogesture/configs/egogesture_sim_C20_frac025.yaml"
 ```
 ### FedBN
 

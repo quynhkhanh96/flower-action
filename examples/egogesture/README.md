@@ -9,7 +9,7 @@
 ### Data partition
 Run this to split the data among the clients
 ```shell
-python -m datasets.frame_dataset --n_clients=3 --data_dir=$DATA_DIR --train_ann=$DATA_DIR/train.txt --mmaction_base=True --mode="iid"
+python -m datasets.frame_dataset --n_clients=3 --data_dir=$DATA_DIR --train_ann=$DATA_DIR/egogesture_train_rawframes.txt --mmaction_base=True --mode="iid"
 ```
 After this you shall see three new files `client_0_train.txt`, `client_1_train.txt` and `client_2_train.txt` inside `DATA_DIR`.
 ### FedAvg
@@ -28,7 +28,7 @@ After this you shall see three new files `client_0_train.txt`, `client_1_train.t
 ## 4.2. Simulation
 ### Data partition
 ```shell
-python -m datasets.frame_dataset --n_clients=20 --data_dir=$DATA_DIR --train_ann=$DATA_DIR/train.txt --mmaction_base=True --mode="iid"
+python -m datasets.frame_dataset --n_clients=20 --data_dir=$DATA_DIR --train_ann=$DATA_DIR/egogesture_train_rawframes.txt --mmaction_base=True --mode="iid"
 ```
 ### FedAvg
 ```shell

@@ -8,7 +8,7 @@ class Server:
     def __init__(self, data_dir, work_dir, model, eval_fn, cfgs, device):
         self.data_dir = data_dir
         self.work_dir = work_dir
-        self.model = model 
+        self.model = model.to(device) 
         self.eval_fn = eval_fn
         self.cfgs = cfgs 
         self.device = device

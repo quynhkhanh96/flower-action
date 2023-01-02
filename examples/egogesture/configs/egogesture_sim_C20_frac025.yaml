@@ -3,7 +3,7 @@ height: 224
 width: 224
 seq_len: 16
 train_bz: 4
-test_bz: 8
+test_bz: 4
 num_workers: 4
 base: 'mmaction2'
 

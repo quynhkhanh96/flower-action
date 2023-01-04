@@ -24,7 +24,11 @@ class STCServer(Server):
         
         # Compression hyperparameters
         self.hp_comp = stc_utils.get_hp_compression(self.cfgs.compression)
-    
+
+    def load_weights(self):
+        for name, value in self.dW.items():
+            self.model[name] += value.clone()
+
     def aggregate_weight_updates(self, clients, aggregation='mean'):
         if aggregation == 'mean':
             stc_utils.average(
@@ -44,5 +48,5 @@ class STCServer(Server):
                 target=self.dW,
                 sources=[client[0] for client in clients]
             )
-
-    
+        
+        self.load_weights()

@@ -69,7 +69,15 @@ CUDA_VISIBLE_DEVICES=2 python -m video_client --server_address=$SERVER_ADDRESS -
 CUDA_VISIBLE_DEVICES=2 python -m video_client --server_address=$SERVER_ADDRESS --cid=2 --cfg_path="examples/hmdb51/configs/hmdb51_fedbn_p07.yaml" --data_dir=$DATA_DIR 
 ```
 ### Simulation
+
+#### FedBN
 ```shell
 cd simulation/
 python -m fedbn_sim --work_dir="$DATA_DIR/fedbn_sim" --data_dir=$DATA_DIR --server_device="cuda:1" --cfg_path="../examples/hmdb51/configs/hmdb51_fedbn_sim.yaml"
+```
+
+#### STC
+```shell
+cd simulation/
+python -m stc_sim --work_dir="$DATA_DIR/stc_sim" --data_dir=$DATA_DIR --server_device="cuda:1" --aggregation="weighted_mean" --compression="stc_up" --p_up=0.04 --cfg_path="../examples/hmdb51/configs/hmdb51_fedbn_sim.yaml"
 ```

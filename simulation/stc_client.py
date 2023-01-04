@@ -16,10 +16,8 @@ from base_client import Client
 import stc_utils
 
 class STCClient:
-    def __init__(self, data_dir, work_dir, model,
-                        loss_fn, eval_fn, cfgs):
-        super().__init__(data_dir, work_dir, model,
-                        loss_fn, eval_fn, cfgs)
+    def __init__(self, compression, **kwargs):
+        super().__init__(**kwargs)
         
         self.W = {name : value for name, value in self.model.named_parameters()}
         self.W_old = {name : torch.zeros(value.shape).to(self.cfgs.device) 
@@ -48,7 +46,7 @@ class STCClient:
         self.train_loss = 0.0  
 
         # Compression hyperparameters
-        self.hp_comp = stc_utils.get_hp_compression(self.cfgs.compression)
+        self.hp_comp = stc_utils.get_hp_compression(compression)
 
     def load_weights(self, global_model):
         for name in self.W:

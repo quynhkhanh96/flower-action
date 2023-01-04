@@ -10,7 +10,7 @@ from base_server import Server
 import stc_utils
 
 class STCServer(Server):
-    def __init__(self, **kwargs):
+    def __init__(self, compression, **kwargs):
         super(STCServer, self).__init__(**kwargs)
         self.W = {name: value for name, value in self.model.named_parameters()}
         self.dW_compressed = {name : torch.zeros(value.shape).to(self.cfgs.device) 
@@ -23,7 +23,7 @@ class STCServer(Server):
         self.n_params = sum([T.numel() for T in self.W.values()])
         
         # Compression hyperparameters
-        self.hp_comp = stc_utils.get_hp_compression(self.cfgs.compression)
+        self.hp_comp = stc_utils.get_hp_compression(compression)
 
     def load_weights(self):
         for name, value in self.dW.items():

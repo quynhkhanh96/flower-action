@@ -50,7 +50,7 @@ class STCClient(Client):
 
     def load_weights(self, global_model):
         for name in self.W:
-            self.W.data = global_model[name].data.clone()
+            self.W[name].data = global_model[name].data.clone()
     
     def compress_weight_update_up(self, compression=None, accumulate=False):
         if accumulate and compression[0] != "none":

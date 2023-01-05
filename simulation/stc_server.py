@@ -13,15 +13,15 @@ class STCServer(Server):
     def __init__(self, compression, **kwargs):
         super(STCServer, self).__init__(**kwargs)
 
-        # self.W = {name: value for name, value in self.model.named_parameters()}
+        self.W = {name: value for name, value in self.model.named_parameters()}
         self.dW_compressed = {name : torch.zeros(value.shape).to(self.cfgs.device) 
-                                                for name, value in self.model.items()}
+                                                for name, value in self.W.items()}
         self.dW = {name: torch.zeros(value.shape).to(self.cfgs.device) 
-                                for name, value in self.model.items()}
+                                for name, value in self.W.items()}
 
         self.A = {name: torch.zeros(value.shape).to(self.cfgs.device) 
-                                for name, value in self.model.items()}
-        self.n_params = sum([T.numel() for T in self.model.values()])
+                                for name, value in self.W.items()}
+        self.n_params = sum([T.numel() for T in self.W.values()])
         
         # Compression hyperparameters
         self.hp_comp = stc_utils.get_hp_compression(compression)

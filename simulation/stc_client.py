@@ -15,7 +15,7 @@ import time
 from base_client import Client
 import stc_utils
 
-class STCClient:
+class STCClient(Client):
     def __init__(self, compression, **kwargs):
         super().__init__(**kwargs)
         

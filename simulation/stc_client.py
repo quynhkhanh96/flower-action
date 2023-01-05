@@ -48,12 +48,6 @@ class STCClient(Client):
         # Compression hyperparameters
         self.hp_comp = stc_utils.get_hp_compression(compression)
 
-    def load_weights(self, global_model):
-        # for name in self.W:
-        #     self.W[name].data = global_model[name].data.clone()
-        for name in self.model:
-            self.model[name] = global_model[name].data.clone().to(self.cfgs.device)
-
     def compress_weight_update_up(self, compression=None, accumulate=False):
         if accumulate and compression[0] != "none":
             # compression with error accumulation

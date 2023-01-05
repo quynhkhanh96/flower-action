@@ -96,7 +96,7 @@ class STCClient(Client):
         ## W = SGD
         local_trainer.train(self.model, client_id)
         ## dW = W - W_old
-        stc_utils.subtract_(target=self.dW, minuend=self.W, subtrahend=self.W_old)
+        stc_utils.subtract_(target=self.dW, minuend=self.W, subtrachend=self.W_old)
         
         # compress weight updates up
         self.compress_weight_update_up(compression=self.hp_comp['compression_up'],

@@ -2,13 +2,7 @@ import torch
 import torchvision
 import numpy as np
 import itertools as it
-import re
-from math import sqrt
-import random
-
-import torch.nn as nn
-import torch.nn.functional as F
-import torchvision.transforms as transforms
+from collections import OrderedDict
 import torch.optim as optim
 import time
 
@@ -48,10 +42,17 @@ class STCClient(Client):
         # Compression hyperparameters
         self.hp_comp = stc_utils.get_hp_compression(compression)
 
+    def load_weights(self, global_model):
+        state_dict = OrderedDict()
+        for name, value in global_model.items():
+            state_dict[name] = value.clone()
+        self.model.load_state_dict(state_dict)
+        self.W = {name : value for name, value in self.model.named_parameters()}
+
     def compress_weight_update_up(self, compression=None, accumulate=False):
         if accumulate and compression[0] != "none":
             # compression with error accumulation
-            stc_utils.add(target=self.A, source=self.model)
+            stc_utils.add(target=self.A, source=self.W)
             stc_utils.compress(
                 target=self.dW_compressed, source=self.A,
                 compress_fun=stc_utils.compression_function(*compression)
@@ -64,8 +65,6 @@ class STCClient(Client):
                 compress_fun=stc_utils.compression_function(*compression)
             )
         
-        stc_utils.add(target=self.model, source=self.dW_compressed)
-
     def get_weights(self):
         return self.dW_compressed
 
@@ -86,14 +85,13 @@ class STCClient(Client):
                                             loss_fn=self.loss_fn, 
                                             cfgs=self.cfgs)
 
-        self.model.eval()
         # compute weight updates
         ## W_old = W
-        stc_utils.copy(target=self.W_old, source=self.model)
+        stc_utils.copy(target=self.W_old, source=self.W)
         ## W = SGD
-        local_trainer.train(self.model, client_id)
+        local_trainer.train(self.W, client_id)
         ## dW = W - W_old
-        stc_utils.subtract_(target=self.dW, minuend=self.model, subtrachend=self.W_old)
+        stc_utils.subtract_(target=self.dW, minuend=self.W, subtrachend=self.W_old)
         
         # compress weight updates up
         self.compress_weight_update_up(compression=self.hp_comp['compression_up'],

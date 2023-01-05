@@ -19,17 +19,17 @@ class STCClient(Client):
     def __init__(self, compression, **kwargs):
         super().__init__(**kwargs)
         
-        self.W = {name : value for name, value in self.model.named_parameters()}
+        # self.W = {name : value for name, value in self.model.named_parameters()}
         self.W_old = {name : torch.zeros(value.shape).to(self.cfgs.device) 
-                        for name, value in self.W.items()}
+                        for name, value in self.model.items()}
         self.dW = {name : torch.zeros(value.shape).to(self.cfgs.device) 
-                        for name, value in self.W.items()}
+                        for name, value in self.model.items()}
         self.dW_compressed = {name : torch.zeros(value.shape).to(self.cfgs.device) 
-                        for name, value in self.W.items()}
+                        for name, value in self.model.items()}
         self.A = {name : torch.zeros(value.shape).to(self.cfgs.device) 
-                        for name, value in self.W.items()}
+                        for name, value in self.model.items()}
 
-        self.n_params = sum([T.numel() for T in self.W.values()])
+        self.n_params = sum([T.numel() for T in self.model.values()])
         self.bits_sent = []
 
         optimizer_object = getattr(optim, self.cfgs.optimizer)
@@ -49,15 +49,17 @@ class STCClient(Client):
         self.hp_comp = stc_utils.get_hp_compression(compression)
 
     def load_weights(self, global_model):
-        for name in self.W:
-            self.W[name].data = global_model[name].data.clone()
-    
+        # for name in self.W:
+        #     self.W[name].data = global_model[name].data.clone()
+        for name in self.model:
+            self.model[name] = global_model[name].data.clone().to(self.cfgs.device)
+
     def compress_weight_update_up(self, compression=None, accumulate=False):
         if accumulate and compression[0] != "none":
             # compression with error accumulation
-            stc_utils.add(target=self.A, source=self.W)
+            stc_utils.add(target=self.A, source=self.model)
             stc_utils.compress(
-                targt=self.dW_compressed, source=self.A,
+                target=self.dW_compressed, source=self.A,
                 compress_fun=stc_utils.compression_function(*compression)
             )
             stc_utils.subtract(target=self.A, source=self.dW_compressed)
@@ -68,7 +70,7 @@ class STCClient(Client):
                 compress_fun=stc_utils.compression_function(*compression)
             )
         
-        stc_utils.add(target=self.W, source=self.dW_compressed)
+        stc_utils.add(target=self.model, source=self.dW_compressed)
 
     def get_weights(self):
         return self.dW_compressed
@@ -90,13 +92,14 @@ class STCClient(Client):
                                             loss_fn=self.loss_fn, 
                                             cfgs=self.cfgs)
 
+        self.model.eval()
         # compute weight updates
         ## W_old = W
-        stc_utils.copy(target=self.W_old, source=self.W)
+        stc_utils.copy(target=self.W_old, source=self.model)
         ## W = SGD
         local_trainer.train(self.model, client_id)
         ## dW = W - W_old
-        stc_utils.subtract_(target=self.dW, minuend=self.W, subtrachend=self.W_old)
+        stc_utils.subtract_(target=self.dW, minuend=self.model, subtrachend=self.W_old)
         
         # compress weight updates up
         self.compress_weight_update_up(compression=self.hp_comp['compression_up'],

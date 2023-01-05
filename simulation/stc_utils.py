@@ -20,7 +20,7 @@ def subtract(target, source):
 
 def subtract_(target, minuend, subtrachend):
     for name in target:
-        target[name].data = minuend[name].data.clone()-subtrahend[name].data.clone()
+        target[name].data = minuend[name].data.clone()-subtrachend[name].data.clone()
 
 def average(target, sources):
     for name in target:

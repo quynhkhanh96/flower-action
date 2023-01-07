@@ -36,13 +36,14 @@ class STCServer(Server):
             stc_utils.weighted_average(
                 target=self.dW,
                 sources=[client[0] for client in clients],
-                weights=[client[1] for client in clients]
+                weights=torch.stack([client[1] for client in clients])
             )
         
         elif aggregation == 'majority':
             stc_utils.majority_vote(
                 target=self.dW,
-                sources=[client[0] for client in clients]
+                sources=[client[0] for client in clients],
+                lr=self.cfgs.lr
             )
         
         self.load_weights()

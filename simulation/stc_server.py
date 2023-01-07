@@ -14,7 +14,7 @@ class STCServer(Server):
     def __init__(self, compression, **kwargs):
         super(STCServer, self).__init__(**kwargs)
 
-        self.dW = {name: torch.zeros(value.shape).to(self.cfgs.device)
+        self.dW = {name: torch.zeros(value.shape).to(self.device)
                     for name, value in self.model.named_parameters()}        
         # Compression hyperparameters
         self.hp_comp = stc_utils.get_hp_compression(compression)
@@ -36,7 +36,7 @@ class STCServer(Server):
             stc_utils.weighted_average(
                 target=self.dW,
                 sources=[client[0] for client in clients],
-                weights=torch.stack([client[1] for client in clients])
+                weights=torch.stack([torch.Tensor(client[1]).to(self.device) for client in clients])
             )
         
         elif aggregation == 'majority':

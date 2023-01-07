@@ -45,7 +45,7 @@ class STCClient(Client):
     def load_weights(self, global_model):
         state_dict = OrderedDict()
         for name, value in global_model.state_dict().items():
-            state_dict[name] = value.clone()
+            state_dict[name] = value.clone().to(self.cfgs.device)
         self.model.load_state_dict(state_dict)
         self.W = {name: value for name, value in self.model.named_parameters()}
 

@@ -43,10 +43,8 @@ class STCClient(Client):
         self.hp_comp = stc_utils.get_hp_compression(compression)
 
     def load_weights(self, global_model):
-        state_dict = OrderedDict()
-        for name, value in global_model.state_dict().items():
-            state_dict[name] = value.clone().to(self.cfgs.device)
-        self.model.load_state_dict(state_dict)
+        self.model.load_state_dict(global_model.state_dict())
+        self.model.to(self.cfgs.device)
         self.W = {name: value for name, value in self.model.named_parameters()}
 
     def compress_weight_update_up(self, compression=None, accumulate=False):

@@ -22,7 +22,7 @@ class STCServer(Server):
     def load_weights(self):
         state_dict = self.model.state_dict()
         for name, value in self.dW.items():
-            state_dict[name] += value.clone()
+            state_dict[name] += value.clone().to(self.device)
         self.model.load_state_dict(state_dict, strict=False)
 
     def aggregate_weight_updates(self, clients, aggregation='mean'):

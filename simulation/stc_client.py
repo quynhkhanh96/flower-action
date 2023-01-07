@@ -47,7 +47,7 @@ class STCClient(Client):
         for name, value in global_model.state_dict().items():
             state_dict[name] = value.clone()
         self.model.load_state_dict(state_dict)
-        self.W = {name : value for name, value in self.model.named_parameters()}
+        self.W = {name: value for name, value in self.model.named_parameters()}
 
     def compress_weight_update_up(self, compression=None, accumulate=False):
         if accumulate and compression[0] != "none":
@@ -89,7 +89,7 @@ class STCClient(Client):
         ## W_old = W
         stc_utils.copy(target=self.W_old, source=self.W)
         ## W = SGD
-        local_trainer.train(self.W, client_id)
+        local_trainer.train(self.model, client_id)
         ## dW = W - W_old
         stc_utils.subtract_(target=self.dW, minuend=self.W, subtrachend=self.W_old)
         

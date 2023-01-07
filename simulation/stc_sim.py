@@ -107,7 +107,7 @@ if __name__ == '__main__':
         res = []
         for client_id in selected_clients:
             weight_updates, num_examples = fl_client.train(rnd, client_id,
-                                            fl_server.W)
+                                            fl_server.model)
             res.append([weight_updates, num_examples])
         
         # server aggregates the updates to create new global model

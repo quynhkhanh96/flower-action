@@ -1,3 +1,4 @@
+import os
 import torch
 import torchvision
 import numpy as np
@@ -20,8 +21,8 @@ class STCClient(Client):
                         for name, value in self.W.items()}
         self.dW_compressed = {name : torch.zeros(value.shape).to(self.cfgs.device) 
                         for name, value in self.W.items()}
-        self.A = {name : torch.zeros(value.shape).to(self.cfgs.device) 
-                        for name, value in self.W.items()}
+        # self.A = {name : torch.zeros(value.shape).to(self.cfgs.device) 
+        #                 for name, value in self.W.items()}
 
         self.n_params = sum([T.numel() for T in self.W.values()])
         self.bits_sent = []
@@ -47,15 +48,21 @@ class STCClient(Client):
         self.model.to(self.cfgs.device)
         self.W = {name: value for name, value in self.model.named_parameters()}
 
-    def compress_weight_update_up(self, compression=None, accumulate=False):
+    def compress_weight_update_up(self, client_id, compression=None, accumulate=False):
         if accumulate and compression[0] != "none":
+            if os.path.exists(self.work_dir + f'/A_{client_id}.pth'):
+                self.A = torch.load(self.work_dir + f'/A_{client_id}.pth')
+            else:
+                self.A = {name : torch.zeros(value.shape).to(self.cfgs.device) 
+                                for name, value in self.W.items()}
             # compression with error accumulation
-            stc_utils.add(target=self.A, source=self.W)
+            stc_utils.add(target=self.A, source=self.dW)
             stc_utils.compress(
                 target=self.dW_compressed, source=self.A,
                 compress_fun=stc_utils.compression_function(*compression)
             )
             stc_utils.subtract(target=self.A, source=self.dW_compressed)
+            torch.save(self.A, self.work_dir + f'/A_{client_id}.pth')
         else:
             # compression without error accumulation
             stc_utils.compress(
@@ -92,7 +99,8 @@ class STCClient(Client):
         stc_utils.subtract_(target=self.dW, minuend=self.W, subtrachend=self.W_old)
         
         # compress weight updates up
-        self.compress_weight_update_up(compression=self.hp_comp['compression_up'],
-                                        accumulate=self.hp_comp['accumulation_up'])
+        self.compress_weight_update_up(client_id,
+                                compression=self.hp_comp['compression_up'],
+                                accumulate=self.hp_comp['accumulation_up'])
         
         return self.get_weights(), len(train_loader.dataset)

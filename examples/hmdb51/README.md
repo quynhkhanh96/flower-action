@@ -79,5 +79,5 @@ python -m fedbn_sim --work_dir="$DATA_DIR/fedbn_sim" --data_dir=$DATA_DIR --serv
 #### STC
 ```shell
 cd simulation/
-python -m stc_sim --work_dir="$DATA_DIR/stc_sim" --data_dir=$DATA_DIR --server_device="cuda:1" --aggregation="weighted_mean" --compression="stc_up" --p_up=0.04 --cfg_path="../examples/hmdb51/configs/hmdb51_fedbn_sim.yaml"
+python -m stc_sim --work_dir="$DATA_DIR/stc_sim" --data_dir=$DATA_DIR --server_device="cuda:1" --aggregation="mean" --compression="stc_up" --p_up=0.04 --cfg_path="../examples/hmdb51/configs/hmdb51_fedbn_sim.yaml"
 ```

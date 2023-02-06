@@ -54,6 +54,8 @@ if __name__ == '__main__':
         help="Upstream compression factor for STC and DGC",
     )
     args = parser.parse_args()
+    work_dir = args.work_dir + '/p' + str(args.p_up).replace('.', '')
+    os.makedirs(work_dir, exist_ok=True)
 
     # configurations 
     with open(args.cfg_path, 'r') as yamlfile:
@@ -82,7 +84,7 @@ if __name__ == '__main__':
     # server initialization
     fl_server = STCServer(
         compression=compression,
-        data_dir=args.data_dir, work_dir=args.work_dir,
+        data_dir=args.data_dir, work_dir=work_dir,
         eval_fn=eval_fn, model=global_model,
         cfgs=cfgs, device=args.server_device
     )
@@ -90,7 +92,7 @@ if __name__ == '__main__':
     # client initialization
     fl_client = STCClient(
         compression=compression,
-        data_dir=args.data_dir, work_dir=args.work_dir,
+        data_dir=args.data_dir, work_dir=work_dir,
         model=copy.deepcopy(global_model), loss_fn=criterion,
         eval_fn=eval_fn, cfgs=cfgs
     )
@@ -113,3 +115,8 @@ if __name__ == '__main__':
         # server aggregates the updates to create new global model
         fl_server.aggregate_weight_updates(res, args.aggregation)
         fl_server.evaluate(rnd)
+    
+    # Remove all temporary checkpoint files
+    for fname in os.listdir(work_dir):
+        if fname.endswith('.pth'):
+            os.remove(work_dir + '/' + fname)

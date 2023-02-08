@@ -22,6 +22,7 @@ clip_gradient: 20
 print_freq: 10
 
 # federated learning setting 
+FL: 'FedAvg'
 frac: 0.5 # partipation ratio
 num_C: 2 # client number
 min_sample_size: 2

@@ -9,17 +9,19 @@
 ### Data partition
 Run this to split the data among the clients
 ```shell
-python -m datasets.frame_dataset --n_clients=3 --data_dir=$DATA_DIR --train_ann=$DATA_DIR/egogesture_train_rawframes.txt --mmaction_base=True --mode="iid"
+python -m datasets.frame_dataset --n_clients=2 --data_dir=$DATA_DIR --train_ann=$DATA_DIR/egogesture_train_rawframes.txt --mmaction_base=True --mode="iid"
 ```
-After this you shall see three new files `client_0_train.txt`, `client_1_train.txt` and `client_2_train.txt` inside `DATA_DIR`.
+After this you shall see three new files `client_0_train.txt` and `client_1_train.txt` inside `DATA_DIR`.
 ### FedAvg
 - Start server
 ```shell
-
+CUDA_VISIBLE_DEVICES=1 python -m video_server --server_address=$SERVER_ADDRESS --cfg_path="examples/egogesture/configs/egogesture_fedavg_p05.yaml" --data_dir=$DATA_DIR --work_dir="$DATA_DIR/fedavg_exps"
 ```
 - Start clients
 ```shell
+CUDA_VISIBLE_DEVICES=1 python -m video_client --server_address=$SERVER_ADDRESS --cid=0 --cfg_path="examples/egogesture/configs/egogesture_fedavg_p05.yaml" --data_dir=$DATA_DIR 
 
+CUDA_VISIBLE_DEVICES=2 python -m video_client --server_address=$SERVER_ADDRESS --cid=1 --cfg_path="examples/egogesture/configs/egogesture_fedavg_p05.yaml" --data_dir=$DATA_DIR 
 ```
 ### FedBN
 

@@ -4,6 +4,7 @@ import flwr
 import torch
 import functools
 from federated_learning.server.fedavg_video_server import FedAvgVideoStrategy
+from federated_learning.server.stc_video_server import STCVideoStrategy
 from datasets.frame_dataset import get_client_loaders
 from evaluation.video_recognition import evaluate_topk_accuracy
 import yaml 
@@ -50,6 +51,12 @@ if __name__ == '__main__':
         type=str,
         help="where checkpoints are saved, progress is logged, etc",
     )
+    parser.add_argument(
+        "--p_up",
+        default=-1.,
+        type=float,
+        help="Upstream compression factor for STC and DGC",
+    )
     server_args = parser.parse_args()
     os.makedirs(server_args.work_dir, exist_ok=True)
 
@@ -57,6 +64,8 @@ if __name__ == '__main__':
     with open(server_args.cfg_path, 'r') as yamlfile:
         cfgs = yaml.load(yamlfile, Loader=yaml.FullLoader)
     cfgs = Dict2Class(cfgs)
+    if server_args.p_up != -1:
+        cfgs.p_up = server_args.p_up
 
     seed_torch(int(cfgs.seed))
 
@@ -78,6 +87,18 @@ if __name__ == '__main__':
     # create strategy
     if cfgs.FL in ['FedAvg', 'FedBN']:
         strategy = FedAvgVideoStrategy(
+            cfgs=cfgs,
+            dl_test=test_loader,
+            ckpt_dir=server_args.work_dir,
+            device=torch.device("cuda" if torch.cuda.is_available() else "cpu"),
+            fraction_fit=cfgs.frac,
+            min_fit_clients=cfgs.min_sample_size,
+            min_available_clients=cfgs.min_num_clients,
+            eval_fn=eval_fn,
+            on_fit_config_fn=functools.partial(fit_config, cfgs=cfgs),
+        )
+    elif cfgs.FL in ['STC']:
+        strategy = STCVideoStrategy(
             cfgs=cfgs,
             dl_test=test_loader,
             ckpt_dir=server_args.work_dir,

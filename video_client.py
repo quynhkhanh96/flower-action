@@ -1,6 +1,7 @@
 # from federated_learning import FedAvgVideoClient
 from federated_learning.client.fedavg_video_client import FedAvgVideoClient
 from federated_learning.client.fedbn_video_client import FedBNVideoClient
+from federated_learning.client.stc_video_client import STCVideoClient
 import flwr
 import argparse
 from models.build import build_loss
@@ -39,6 +40,12 @@ if __name__ == '__main__':
         type=str,
         help="image, metadata directory",
     )
+    parser.add_argument(
+        "--p_up",
+        default=-1.,
+        type=float,
+        help="Upstream compression factor for STC and DGC",
+    )
     client_args = parser.parse_args()
     client_id = client_args.cid
 
@@ -46,6 +53,8 @@ if __name__ == '__main__':
     with open(client_args.cfg_path, 'r') as yamlfile:
         cfgs = yaml.load(yamlfile, Loader=yaml.FullLoader)
     cfgs = Dict2Class(cfgs)
+    if client_args.p_up != -1:
+        cfgs.p_up = client_args.p_up
 
     # loss 
     criterion = build_loss(cfgs)
@@ -94,6 +103,13 @@ if __name__ == '__main__':
         )
     elif cfgs.FL == 'FedBN':
         fl_client = FedBNVideoClient(client_id=client_id,
+                dl_train=train_loader, dl_test=test_loader,
+                model=model, loss_fn=criterion, 
+                local_update=local_update, 
+                eval_fn=eval_fn, cfgs=cfgs
+        )
+    elif cfgs.FL == 'STC':
+        fl_client = STCVideoClient(client_id=client_id,
                 dl_train=train_loader, dl_test=test_loader,
                 model=model, loss_fn=criterion, 
                 local_update=local_update, 

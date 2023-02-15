@@ -16,7 +16,7 @@ from utils import stc_ops, stc_compress
 
 class STCVideoClient(FedAvgVideoClient):
 
-    def __init__(self, compression, **kwargs):
+    def __init__(self, **kwargs):
         super(STCVideoClient, self).__init__(**kwargs)
 
         self.W = {name : value for name, value in self.model.named_parameters()}
@@ -36,6 +36,7 @@ class STCVideoClient(FedAvgVideoClient):
         self.optimizer = optimizer_object(self.model.parameters(), **optimizer_parameters)
 
         # Compression hyperparameters
+        compression = [self.cfgs.compression, {'p_up': self.cfgs.p_up}]
         self.hp_comp = stc_compress.get_hp_compression(compression)
 
     def compress_weight_update_up(self, compression=None, accumulate=False):

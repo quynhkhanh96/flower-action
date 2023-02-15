@@ -76,6 +76,21 @@ cd simulation/
 python -m fedbn_sim --work_dir="$DATA_DIR/fedbn_sim" --data_dir=$DATA_DIR --server_device="cuda:1" --cfg_path="../examples/hmdb51/configs/hmdb51_fedbn_sim.yaml"
 ```
 
+## 3.4. FedPNS
+
+## 3.5. Sparse Ternary Compression
+### Start server
+```shell
+CUDA_VISIBLE_DEVICES=1 python -m video_server --server_address=$SERVER_ADDRESS --cfg_path="examples/hmdb51/configs/hmdb51_stc_p05.yaml" --data_dir=$DATA_DIR --work_dir="$DATA_DIR/stc_exps" --p_up=0.1
+```
+### Start clients
+```shell
+CUDA_VISIBLE_DEVICES=1 python -m video_client --server_address=$SERVER_ADDRESS --cid=0 --cfg_path="examples/hmdb51/configs/hmdb51_stc_p05.yaml" --data_dir=$DATA_DIR --p_up=0.1 
+
+CUDA_VISIBLE_DEVICES=2 python -m video_client --server_address=$SERVER_ADDRESS --cid=1 --cfg_path="examples/hmdb51/configs/hmdb51_stc_p05.yaml" --data_dir=$DATA_DIR --p_up=0.1 
+```
+### Simulation
+
 #### STC
 ```shell
 cd simulation/

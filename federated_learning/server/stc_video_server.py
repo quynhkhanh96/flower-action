@@ -1,6 +1,6 @@
 import sys
 import os 
-sys.path.insert(0, os.path.abspath('..'))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), '..'))
 import flwr 
 from flwr.common import parameters_to_weights, weights_to_parameters
 import numpy as np

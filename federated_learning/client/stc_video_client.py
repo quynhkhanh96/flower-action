@@ -1,6 +1,6 @@
 import sys
 import os 
-sys.path.insert(0, os.path.abspath('..'))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), '..'))
 from flwr.common.typing import FitRes, Parameters
 import flwr 
 from flwr.common import FitIns, FitRes, ParametersRes, EvaluateIns, EvaluateRes, Weights

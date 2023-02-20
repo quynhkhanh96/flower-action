@@ -29,5 +29,6 @@ min_sample_size: 2
 min_num_clients: 1
 compression: 'stc_up'
 p_up: 0.25
+aggregation: 'mean'
 seed: 1234 
 device: 'cuda'

@@ -68,11 +68,11 @@ class STCVideoClient(FedAvgVideoClient):
 
         # compute weight updates
         ## W_old = W
-        fl_utils.stc_ops.copy(target=self.W_old, source=self.W)
+        stc_ops.copy(target=self.W_old, source=self.W)
         ## train model locally 
         self.local.train(model=self.model, client_id=self.client_id)
         ## dW = W - W_old
-        fl_utils.stc_ops.subtract_(target=self.dW, minuend=self.W, subtrachend=self.W_old)
+        stc_ops.subtract_(target=self.dW, minuend=self.W, subtrachend=self.W_old)
         # compress weight updates up
         self.compress_weight_update_up(compression=self.hp_comp['compression_up'],
                                 accumulate=self.hp_comp['accumulation_up'])

@@ -12,7 +12,7 @@ import torch.optim as optim
 from collections import OrderedDict
 
 from fedavg_video_client import FedAvgVideoClient
-import utils
+import fl_utils
 
 class STCVideoClient(FedAvgVideoClient):
 
@@ -37,22 +37,22 @@ class STCVideoClient(FedAvgVideoClient):
 
         # Compression hyperparameters
         compression = [self.cfgs.compression, {'p_up': self.cfgs.p_up}]
-        self.hp_comp = utils.stc_compress.get_hp_compression(compression)
+        self.hp_comp = fl_utils.stc_compress.get_hp_compression(compression)
 
     def compress_weight_update_up(self, compression=None, accumulate=False):
         if accumulate and compression[0] != "none":
             # compression with error accumulation
-            utils.stc_ops.add(target=self.A, source=self.dW)
-            utils.stc_compress.compress(
+            fl_utils.stc_ops.add(target=self.A, source=self.dW)
+            fl_utils.stc_compress.compress(
                 target=self.dW_compressed, source=self.A,
-                compress_fun=utils.stc_compress.compression_function(*compression)
+                compress_fun=fl_utils.stc_compress.compression_function(*compression)
             )
-            utils.stc_ops.subtract(target=self.A, source=self.dW_compressed)
+            fl_utils.stc_ops.subtract(target=self.A, source=self.dW_compressed)
         else:
             # compression without error accumulation
-            utils.stc_compress.compress(
+            fl_utils.stc_compress.compress(
                 target=self.dW_compressed, source=self.dW, 
-                compress_fun=utils.stc_compress.compression_function(*compression)
+                compress_fun=fl_utils.stc_compress.compression_function(*compression)
             )
 
     def fit(self, ins: FitIns) -> FitRes:
@@ -67,11 +67,11 @@ class STCVideoClient(FedAvgVideoClient):
 
         # compute weight updates
         ## W_old = W
-        utils.stc_ops.copy(target=self.W_old, source=self.W)
+        fl_utils.stc_ops.copy(target=self.W_old, source=self.W)
         ## train model locally 
         self.local.train(model=self.model, client_id=self.client_id)
         ## dW = W - W_old
-        utils.stc_ops.subtract_(target=self.dW, minuend=self.W, subtrachend=self.W_old)
+        fl_utils.stc_ops.subtract_(target=self.dW, minuend=self.W, subtrachend=self.W_old)
         # compress weight updates up
         self.compress_weight_update_up(compression=self.hp_comp['compression_up'],
                                 accumulate=self.hp_comp['accumulation_up'])

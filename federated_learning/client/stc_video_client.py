@@ -1,6 +1,6 @@
 import sys
 import os 
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), '..'))
+# sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), '..'))
 from flwr.common.typing import FitRes, Parameters
 import flwr 
 from flwr.common import FitIns, FitRes, ParametersRes, EvaluateIns, EvaluateRes, Weights
@@ -12,7 +12,8 @@ import torch.optim as optim
 from collections import OrderedDict
 
 from fedavg_video_client import FedAvgVideoClient
-import fl_utils
+import stc_ops
+import stc_compress
 
 class STCVideoClient(FedAvgVideoClient):
 
@@ -37,22 +38,22 @@ class STCVideoClient(FedAvgVideoClient):
 
         # Compression hyperparameters
         compression = [self.cfgs.compression, {'p_up': self.cfgs.p_up}]
-        self.hp_comp = fl_utils.stc_compress.get_hp_compression(compression)
+        self.hp_comp = stc_compress.get_hp_compression(compression)
 
     def compress_weight_update_up(self, compression=None, accumulate=False):
         if accumulate and compression[0] != "none":
             # compression with error accumulation
-            fl_utils.stc_ops.add(target=self.A, source=self.dW)
-            fl_utils.stc_compress.compress(
+            stc_ops.add(target=self.A, source=self.dW)
+            stc_compress.compress(
                 target=self.dW_compressed, source=self.A,
-                compress_fun=fl_utils.stc_compress.compression_function(*compression)
+                compress_fun=stc_compress.compression_function(*compression)
             )
-            fl_utils.stc_ops.subtract(target=self.A, source=self.dW_compressed)
+            stc_ops.subtract(target=self.A, source=self.dW_compressed)
         else:
             # compression without error accumulation
-            fl_utils.stc_compress.compress(
+            stc_compress.compress(
                 target=self.dW_compressed, source=self.dW, 
-                compress_fun=fl_utils.stc_compress.compression_function(*compression)
+                compress_fun=stc_compress.compression_function(*compression)
             )
 
     def fit(self, ins: FitIns) -> FitRes:

@@ -1,6 +1,6 @@
 import sys
 import os 
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), '..'))
+# sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), '..'))
 import flwr 
 from flwr.common import parameters_to_weights, weights_to_parameters
 import numpy as np
@@ -8,7 +8,8 @@ import torch
 from collections import OrderedDict
 import time 
 from fedavg_video_server import FedAvgVideoStrategy
-import fl_utils 
+import stc_ops
+import stc_compress
 
 class STCVideoStrategy(FedAvgVideoStrategy):
     def __init__(self, **kwargs):
@@ -25,7 +26,7 @@ class STCVideoStrategy(FedAvgVideoStrategy):
                     for name, value in self.model.named_parameters()}        
         # Compression hyperparameters
         compression = [self.cfgs.compression, {'p_up': self.cfgs.p_up}]
-        self.hp_comp = fl_utils.stc_compress.get_hp_compression(compression)
+        self.hp_comp = stc_compress.get_hp_compression(compression)
         self.aggregation = self.cfgs.aggregation
 
     def aggregate_fit(self, rnd, results, failures):
@@ -42,18 +43,18 @@ class STCVideoStrategy(FedAvgVideoStrategy):
             grad_updates = parameters_to_weights(fit_res.paramaters)
             grads_results.append((grad_updates, fit_res.num_examples))
         if self.aggregation == 'mean':
-            fl_utils.stc_ops.average(
+            stc_ops.average(
                 target=self.dW,
                 source=[grads for grads, _ in grads_results]
             )
         elif self.aggregation == 'weighted_mean':
-            fl_utils.stc_ops.weighted_average(
+            stc_ops.weighted_average(
                 target=self.dW,
                 sources=[grads for grads, _ in grads_results],
                 weights=torch.stack([torch.Tensor(num_examples).to(self.device) for _, num_examples in grads_results])
             )
         elif self.aggregation == 'majority':
-            fl_utils.stc_ops.majority_vote(
+            stc_ops.majority_vote(
                 target=self.dW,
                 sources=[grads for grads, _ in grads_results],
                 lr=self.cfgs.lr

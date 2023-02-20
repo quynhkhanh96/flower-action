@@ -8,7 +8,7 @@ import torch
 from collections import OrderedDict
 import time 
 from fedavg_video_server import FedAvgVideoStrategy
-from utils import stc_ops, stc_compress
+import utils 
 
 class STCVideoStrategy(FedAvgVideoStrategy):
     def __init__(self, **kwargs):
@@ -25,7 +25,7 @@ class STCVideoStrategy(FedAvgVideoStrategy):
                     for name, value in self.model.named_parameters()}        
         # Compression hyperparameters
         compression = [self.cfgs.compression, {'p_up': self.cfgs.p_up}]
-        self.hp_comp = stc_compress.get_hp_compression(compression)
+        self.hp_comp = utils.stc_compress.get_hp_compression(compression)
         self.aggregation = self.cfgs.aggregation
 
     def aggregate_fit(self, rnd, results, failures):
@@ -42,18 +42,18 @@ class STCVideoStrategy(FedAvgVideoStrategy):
             grad_updates = parameters_to_weights(fit_res.paramaters)
             grads_results.append((grad_updates, fit_res.num_examples))
         if self.aggregation == 'mean':
-            stc_ops.average(
+            utils.stc_ops.average(
                 target=self.dW,
                 source=[grads for grads, _ in grads_results]
             )
         elif self.aggregation == 'weighted_mean':
-            stc_ops.weighted_average(
+            utils.stc_ops.weighted_average(
                 target=self.dW,
                 sources=[grads for grads, _ in grads_results],
                 weights=torch.stack([torch.Tensor(num_examples).to(self.device) for _, num_examples in grads_results])
             )
         elif self.aggregation == 'majority':
-            stc_ops.majority_vote(
+            utils.stc_ops.majority_vote(
                 target=self.dW,
                 sources=[grads for grads, _ in grads_results],
                 lr=self.cfgs.lr

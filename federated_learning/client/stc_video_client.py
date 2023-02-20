@@ -20,7 +20,7 @@ class STCVideoClient(FedAvgVideoClient):
     def __init__(self, **kwargs):
         super(STCVideoClient, self).__init__(**kwargs)
 
-        self.W = {name : value for name, value in self.model.named_parameters()}
+        self.W = {name : value.to(self.cfgs.device) for name, value in self.model.named_parameters()}
         self.W_old = {name : torch.zeros(value.shape).to(self.cfgs.device) 
                         for name, value in self.W.items()}
         self.dW = {name : torch.zeros(value.shape).to(self.cfgs.device) 

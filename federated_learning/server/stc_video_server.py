@@ -40,7 +40,7 @@ class STCVideoStrategy(FedAvgVideoStrategy):
         
         grads_results = []
         for _, fit_res in results:
-            grad_updates = parameters_to_weights(fit_res.paramaters)
+            grad_updates = parameters_to_weights(fit_res.parameters)
             grads_results.append((grad_updates, fit_res.num_examples))
         if self.aggregation == 'mean':
             stc_ops.average(

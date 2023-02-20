@@ -45,7 +45,7 @@ class STCVideoStrategy(FedAvgVideoStrategy):
         if self.aggregation == 'mean':
             stc_ops.average(
                 target=self.dW,
-                source=[grads for grads, _ in grads_results]
+                sources=[grads for grads, _ in grads_results]
             )
         elif self.aggregation == 'weighted_mean':
             stc_ops.weighted_average(

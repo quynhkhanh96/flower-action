@@ -42,7 +42,7 @@ class STCVideoStrategy(FedAvgVideoStrategy):
         for _, fit_res in results:
             grads_update = parameters_to_weights(fit_res.parameters)
             grads_update = {name: torch.tensor(grads) for name, grads in zip(
-                self.model.named_parameters(), grads_update
+                list(self.dW.keys()), grads_update
             )}
             grads_results.append((grads_update, fit_res.num_examples))
         if self.aggregation == 'mean':
@@ -66,7 +66,8 @@ class STCVideoStrategy(FedAvgVideoStrategy):
         state_dict = self.model.state_dict()
         for name, value in self.dW.items():
             state_dict[name] += value.clone().to(self.device)
-        weights = [weight for _, weight in state_dict.items()]
+        self.model.load_state_dict(state_dict, strict=False)
+        weights = [weight.cpu().numpy() for _, weight in state_dict.items()]
 
         return weights_to_parameters(weights), {}
 
@@ -74,14 +75,14 @@ class STCVideoStrategy(FedAvgVideoStrategy):
         if self.eval_fn is None:
             return None
 
-        weights = parameters_to_weights(parameters)
-        weights = self.postprocess_weights(weights)
+        # weights = parameters_to_weights(parameters)
+        # weights = self.postprocess_weights(weights)
 
-        state_dict = OrderedDict(
-            {k: torch.Tensor(v) 
-            for k, v in zip(self.model.state_dict().keys(), weights)}
-        )
-        self.model.load_state_dict(state_dict, strict=False)
+        # state_dict = OrderedDict(
+        #     {k: torch.Tensor(v) 
+        #     for k, v in zip(self.model.state_dict().keys(), weights)}
+        # )
+        # self.model.load_state_dict(state_dict, strict=False)
         
         eval_res = self.eval_fn(self.model, self.dl_test, self.device)
         if eval_res is None:

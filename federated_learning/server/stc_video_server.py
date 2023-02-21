@@ -41,7 +41,7 @@ class STCVideoStrategy(FedAvgVideoStrategy):
         grads_results = []
         for _, fit_res in results:
             grads_update = parameters_to_weights(fit_res.parameters)
-            grads_update = {name: grads for name, grads in zip(
+            grads_update = {name: torch.tensor(grads) for name, grads in zip(
                 self.model.state_dict(), grads_update
             )}
             grads_results.append((grads_update, fit_res.num_examples))

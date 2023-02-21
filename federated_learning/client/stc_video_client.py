@@ -77,7 +77,7 @@ class STCVideoClient(FedAvgVideoClient):
         self.compress_weight_update_up(compression=self.hp_comp['compression_up'],
                                 accumulate=self.hp_comp['accumulation_up'])
         
-        dW_comp = [val for _, val in self.dW_compressed.items()]
+        dW_comp = [val.cpu().numpy() for _, val in self.dW_compressed.items()]
         # weights_prime = self.postprocess_weights(self.dW_compressed)
         weights_prime = self.postprocess_weights(dW_comp)
         params_prime = weights_to_parameters(weights_prime)

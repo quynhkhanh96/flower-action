@@ -27,6 +27,17 @@ CUDA_VISIBLE_DEVICES=2 python -m video_client --server_address=$SERVER_ADDRESS -
 
 ### FedPNS
 
+### STC
+- Start server
+```shell
+CUDA_VISIBLE_DEVICES=1 python -m video_server --server_address=$SERVER_ADDRESS --cfg_path="examples/egogesture/configs/egogesture_stc_p05.yaml" --data_dir=$DATA_DIR --work_dir="$DATA_DIR/stc_exps" --p_up=0.3
+```
+- Start clients
+```shell
+CUDA_VISIBLE_DEVICES=1 python -m video_client --server_address=$SERVER_ADDRESS --cid=0 --cfg_path="examples/egogesture/configs/egogesture_stc_p05.yaml" --data_dir=$DATA_DIR --p_up=0.3
+
+CUDA_VISIBLE_DEVICES=2 python -m video_client --server_address=$SERVER_ADDRESS --cid=1 --cfg_path="examples/egogesture/configs/egogesture_stc_p05.yaml" --data_dir=$DATA_DIR --p_up=0.3 
+```
 ## 4.2. Simulation
 ### Data partition
 ```shell

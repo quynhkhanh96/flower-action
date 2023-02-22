@@ -1,6 +1,3 @@
-import sys
-import os 
-# sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), '..'))
 import flwr 
 from flwr.common import parameters_to_weights, weights_to_parameters
 import numpy as np
@@ -74,15 +71,6 @@ class STCVideoStrategy(FedAvgVideoStrategy):
     def evaluate(self, parameters):
         if self.eval_fn is None:
             return None
-
-        # weights = parameters_to_weights(parameters)
-        # weights = self.postprocess_weights(weights)
-
-        # state_dict = OrderedDict(
-        #     {k: torch.Tensor(v) 
-        #     for k, v in zip(self.model.state_dict().keys(), weights)}
-        # )
-        # self.model.load_state_dict(state_dict, strict=False)
         
         eval_res = self.eval_fn(self.model, self.dl_test, self.device)
         if eval_res is None:

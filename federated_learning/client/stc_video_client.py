@@ -1,9 +1,6 @@
-import sys
-import os 
-# sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), '..'))
-from flwr.common.typing import FitRes, Parameters
+from flwr.common.typing import FitRes
 import flwr 
-from flwr.common import FitIns, FitRes, ParametersRes, EvaluateIns, EvaluateRes, Weights
+from flwr.common import FitIns, FitRes, Weights
 from flwr.common import parameters_to_weights, weights_to_parameters
 
 import numpy as np 
@@ -62,9 +59,12 @@ class STCVideoClient(FedAvgVideoClient):
         weights = self.postprocess_weights(weights)
         
         state_dict = OrderedDict(
-            {k: torch.Tensor(v) for k, v in zip(self.model.state_dict().keys(), weights)}
+            {k: torch.Tensor(v) 
+            for k, v in zip(self.model.state_dict().keys(), weights)}
         )
         self.model.load_state_dict(state_dict)
+        self.model.to(self.cfgs.device)
+        self.W = {name: value for name, value in self.model.named_parameters()}
 
         # compute weight updates
         ## W_old = W

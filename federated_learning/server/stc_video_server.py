@@ -14,11 +14,11 @@ class STCVideoStrategy(FedAvgVideoStrategy):
 
         if hasattr(self.cfgs, 'base') and self.cfgs.base == 'mmaction2':
             from models.base import build_mmaction_model
-            self.model = build_mmaction_model(self.cfgs, mode='test')
+            self.model = build_mmaction_model(self.cfgs, mode='train')
 
         else:
             from models.build import build_model
-            self.model = build_model(self.cfgs, mode='test')
+            self.model = build_model(self.cfgs, mode='train')
         self.dW = {name: torch.zeros(value.shape).to(self.device)
                     for name, value in self.model.named_parameters()}        
         # Compression hyperparameters
@@ -61,8 +61,9 @@ class STCVideoStrategy(FedAvgVideoStrategy):
             )
 
         state_dict = self.model.state_dict()
-        for name, value in self.dW.items():
-            state_dict[name] += value.clone().to(self.device)
+        with torch.no_grad():
+            for name, value in self.dW.items():
+                state_dict[name] += value.clone().to(self.device)
         self.model.load_state_dict(state_dict, strict=False)
         weights = [weight.cpu().numpy() for _, weight in state_dict.items()]
 

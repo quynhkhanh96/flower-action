@@ -78,7 +78,6 @@ class STCVideoClient(FedAvgVideoClient):
                                 accumulate=self.hp_comp['accumulation_up'])
         
         dW_comp = [val.cpu().numpy() for _, val in self.dW_compressed.items()]
-        # weights_prime = self.postprocess_weights(self.dW_compressed)
         weights_prime = self.postprocess_weights(dW_comp)
         params_prime = weights_to_parameters(weights_prime)
         num_examples_train = len(self.dl_train.dataset)

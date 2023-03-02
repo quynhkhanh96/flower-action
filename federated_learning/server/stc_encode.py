@@ -2,19 +2,6 @@ import torch
 import numpy as np 
 from functools import reduce
 
-from dataclasses import dataclass
-from typing import Dict, List, Optional, Union
-
-@dataclass
-class STCFitRes:
-    """Fit response from a STC client."""
-    msgs: List[bytes]
-    signs: List[bytes]
-    mus = List[bytes]
-    num_examples: int
-    num_examples_ceil: Optional[int] = None  # Deprecated
-    fit_duration: Optional[float] = None  # Deprecated
-
 def dec_to_base(num, base):  
     # Maximum base - 36
     base_num = ""

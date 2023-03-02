@@ -46,9 +46,9 @@ class STCVideoStrategy(FedAvgVideoStrategy):
             mus = weight_prime.pop()
             mus = bytes_to_ndarray(mus)
             mus = [torch.tensor(mu) for mu in mus]
-            msgs = weight_prime[:(l // 2)]
+            msgs = weight_prime[:l]
             msgs = [msg_.decode('ascii') for msg_ in msgs]
-            signs = weight_prime[(l//2):]
+            signs = weight_prime[l:]
             signs = [sign_.decode('ascii') for sign_ in signs]
             grads_update = {}
             for i, (layer_name, layer_shape) in enumerate(self.layer_shapes.items()):

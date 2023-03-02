@@ -2,6 +2,7 @@ from flwr.common.typing import FitRes
 import flwr 
 from flwr.common import FitIns, FitRes, Weights
 from flwr.common import parameters_to_weights, weights_to_parameters
+from flwr.common import ndarray_to_bytes
 
 import numpy as np 
 import torch 
@@ -96,10 +97,10 @@ class STCVideoClient(FedAvgVideoClient):
             signs.append(sign_.encode('ascii'))
             mus.append(mu_.cpu().numpy())
         
-        mus = weights_to_parameters(mus).tensors
+        mus = ndarray_to_bytes(np.array(mus))
         num_examples_train = len(self.dl_train.dataset)
         
-        params_prime = msgs + signs + mus
+        params_prime = msgs + signs + [mus]
         return FitRes(
             parameters=params_prime,
             num_examples=num_examples_train

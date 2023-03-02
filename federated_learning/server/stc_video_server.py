@@ -1,5 +1,6 @@
 import flwr 
 from flwr.common import parameters_to_weights, weights_to_parameters
+from flwr.common import bytes_to_ndarray
 import numpy as np
 import torch
 from collections import OrderedDict
@@ -42,13 +43,13 @@ class STCVideoStrategy(FedAvgVideoStrategy):
         for _, fit_res in results:
             l = len(fit_res.parameters)
             weight_prime = fit_res.parameters
-            msgs = weight_prime[:(l // 3)]
-            msgs = [msg_.decode('ascii') for msg_ in msgs]
-            signs = weight_prime[(l//3):(2*l//3)]
-            signs = [sign_.decode('ascii') for sign_ in signs]
-            mus = weight_prime[(2*l//3):]
-            mus = parameters_to_weights(mus)
+            mus = weight_prime.pop()
+            mus = bytes_to_ndarray(mus)
             mus = [torch.tensor(mu) for mu in mus]
+            msgs = weight_prime[:(l // 2)]
+            msgs = [msg_.decode('ascii') for msg_ in msgs]
+            signs = weight_prime[(l//2):]
+            signs = [sign_.decode('ascii') for sign_ in signs]
             grads_update = {}
             for i, (layer_name, layer_shape) in enumerate(self.layer_shapes.items()):
                 grads_update[layer_name] = stc_encode.golomb_position_decode(

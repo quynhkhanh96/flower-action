@@ -41,7 +41,7 @@ class STCVideoStrategy(FedAvgVideoStrategy):
         
         grads_results = []
         for _, fit_res in results:
-            l = len(fit_res.parameters)
+            l = len(self.layer_shapes)
             weight_prime = fit_res.parameters
             mus = weight_prime.pop()
             mus = bytes_to_ndarray(mus)

@@ -9,7 +9,6 @@ from fedavg_video_server import FedAvgVideoStrategy
 import stc_ops
 import stc_compress
 import stc_encode
-from stc_encode import STCFitRes
 
 class STCVideoStrategy(FedAvgVideoStrategy):
     def __init__(self, **kwargs):

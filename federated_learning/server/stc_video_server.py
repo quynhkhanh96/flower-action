@@ -7,6 +7,8 @@ import time
 from fedavg_video_server import FedAvgVideoStrategy
 import stc_ops
 import stc_compress
+import stc_encode
+from stc_encode import STCFitRes
 
 class STCVideoStrategy(FedAvgVideoStrategy):
     def __init__(self, **kwargs):
@@ -20,7 +22,8 @@ class STCVideoStrategy(FedAvgVideoStrategy):
             from models.build import build_model
             self.model = build_model(self.cfgs, mode='train')
         self.dW = {name: torch.zeros(value.shape).to(self.device)
-                    for name, value in self.model.named_parameters()}        
+                    for name, value in self.model.named_parameters()}
+        self.layer_shapes = {name: value.shape for name, value in self.dW.items()}        
         # Compression hyperparameters
         compression = [self.cfgs.compression, {'p_up': self.cfgs.p_up}]
         self.hp_comp = stc_compress.get_hp_compression(compression)
@@ -37,11 +40,22 @@ class STCVideoStrategy(FedAvgVideoStrategy):
         
         grads_results = []
         for _, fit_res in results:
-            grads_update = parameters_to_weights(fit_res.parameters)
-            grads_update = {name: torch.tensor(grads) for name, grads in zip(
-                list(self.dW.keys()), grads_update
-            )}
+            msgs = fit_res.msgs.decode('ascii')
+            signs = fit_res.signs.decode('ascii')
+            mus = parameters_to_weights(fit_res.mu)
+            grads_update = {}
+            for i, (layer_name, layer_shape) in enumerate(self.layer_shapes.items()):
+                grads_update[layer_name] = stc_encode.golomb_position_decode(
+                    msgs[i], mus[i], signs[i], self.cfgs.p_up, layer_shape
+                )
             grads_results.append((grads_update, fit_res.num_examples))
+        # grads_results = []
+        # for _, fit_res in results:
+        #     grads_update = parameters_to_weights(fit_res.parameters)
+        #     grads_update = {name: torch.tensor(grads) for name, grads in zip(
+        #         list(self.dW.keys()), grads_update
+        #     )}
+        #     grads_results.append((grads_update, fit_res.num_examples))
         if self.aggregation == 'mean':
             stc_ops.average(
                 target=self.dW,
@@ -67,6 +81,9 @@ class STCVideoStrategy(FedAvgVideoStrategy):
         self.model.load_state_dict(state_dict, strict=False)
         weights = [weight.cpu().numpy() for _, weight in state_dict.items()]
 
+        if (rnd % 10) == 0:
+            torch.save({'state_dict': self.model.state_dict()}, 
+                        self.ckpt_dir + f'/rnd_{rnd}.pth')
         return weights_to_parameters(weights), {}
 
     def evaluate(self, parameters):
@@ -83,6 +100,7 @@ class STCVideoStrategy(FedAvgVideoStrategy):
         with open(self.ckpt_dir + '/server_accs.txt', 'a') as f:
             f.write('{:.3f} {:.3f}\n'.format(metrics['top1_accuracy'],
                                             metrics['top5_accuracy']))
+        
         if eval_res['top1'] > self.best_top1_acc:
             self.best_top1_acc = eval_res['top1']
             torch.save({'state_dict': self.model.state_dict()}, 

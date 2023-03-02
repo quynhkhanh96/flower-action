@@ -11,6 +11,8 @@ from collections import OrderedDict
 from fedavg_video_client import FedAvgVideoClient
 import stc_ops
 import stc_compress
+import stc_encode
+from stc_encode import STCFitRes
 
 class STCVideoClient(FedAvgVideoClient):
 
@@ -53,7 +55,8 @@ class STCVideoClient(FedAvgVideoClient):
                 compress_fun=stc_compress.compression_function(*compression)
             )
 
-    def fit(self, ins: FitIns) -> FitRes:
+    # def fit(self, ins: FitIns) -> FitRes:
+    def fit(self, ins: FitIns) -> STCFitRes:
         # set local model weights with that of the new global model
         weights: Weights = parameters_to_weights(ins.parameters)
         weights = self.postprocess_weights(weights)
@@ -78,11 +81,28 @@ class STCVideoClient(FedAvgVideoClient):
                                 accumulate=self.hp_comp['accumulation_up'])
         
         dW_comp = [val.cpu().numpy() for _, val in self.dW_compressed.items()]
-        weights_prime = self.postprocess_weights(dW_comp)
-        params_prime = weights_to_parameters(weights_prime)
-        num_examples_train = len(self.dl_train.dataset)
+        # weights_prime = self.postprocess_weights(dW_comp)
+        # params_prime = weights_to_parameters(weights_prime)
+        # num_examples_train = len(self.dl_train.dataset)
 
-        return FitRes(
-            parameters=params_prime,
-            num_examples=num_examples_train        
+        # return FitRes(
+        #     parameters=params_prime,
+        #     num_examples=num_examples_train        
+        # )
+
+        msgs, signs, mus = [], [], []
+        for _, dW_layer in self.dW_compressed.items():
+            msg_, sign_, mu_ = stc_encode.golomb_position_encode(dW_layer, 
+                                self.cfgs.p_up)
+            msgs.append(msg_.encode('ascii'))
+            signs.append(sign_.encode('ascii'))
+            mus.append(mu_)
+        
+        mus = weights_to_parameters(mus)
+        num_examples_train = len(self.dl_train.dataset)
+        
+        return STCFitRes(
+            msgs=msgs, signs=signs, mus=mus,
+            num_examples=num_examples_train
         )
+

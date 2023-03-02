@@ -1,4 +1,4 @@
-from flwr.common.typing import FitRes
+from flwr.common.typing import FitRes, Parameters
 import flwr 
 from flwr.common import FitIns, FitRes, Weights
 from flwr.common import parameters_to_weights, weights_to_parameters
@@ -102,7 +102,7 @@ class STCVideoClient(FedAvgVideoClient):
         
         params_prime = msgs + signs + [mus]
         return FitRes(
-            parameters=params_prime,
+            parameters=Parameters(tensors=params_prime, tensor_type="numpy.ndarray"),
             num_examples=num_examples_train
         )
 

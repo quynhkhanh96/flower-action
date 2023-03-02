@@ -42,7 +42,7 @@ class STCVideoStrategy(FedAvgVideoStrategy):
         grads_results = []
         for _, fit_res in results:
             l = len(self.layer_shapes)
-            weight_prime = fit_res.parameters
+            weight_prime = fit_res.parameters.tensors
             mus = weight_prime.pop()
             mus = bytes_to_ndarray(mus)
             mus = [torch.tensor(mu) for mu in mus]

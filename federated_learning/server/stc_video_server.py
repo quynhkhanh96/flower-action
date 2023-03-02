@@ -43,6 +43,7 @@ class STCVideoStrategy(FedAvgVideoStrategy):
             msgs = fit_res.msgs.decode('ascii')
             signs = fit_res.signs.decode('ascii')
             mus = parameters_to_weights(fit_res.mu)
+            mus = [torch.tensor(mu) for mu in mus]
             grads_update = {}
             for i, (layer_name, layer_shape) in enumerate(self.layer_shapes.items()):
                 grads_update[layer_name] = stc_encode.golomb_position_decode(

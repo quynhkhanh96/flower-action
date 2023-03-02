@@ -40,9 +40,14 @@ class STCVideoStrategy(FedAvgVideoStrategy):
         
         grads_results = []
         for _, fit_res in results:
-            msgs = fit_res.msgs.decode('ascii')
-            signs = fit_res.signs.decode('ascii')
-            mus = parameters_to_weights(fit_res.mu)
+            l = len(fit_res.parameters)
+            weight_prime = fit_res.parameters
+            msgs = weight_prime[:(l // 3)]
+            msgs = [msg_.decode('ascii') for msg_ in msgs]
+            signs = weight_prime[(l//3):(2*l//3)]
+            signs = [sign_.decode('ascii') for sign_ in signs]
+            mus = weight_prime[(2*l//3):]
+            mus = parameters_to_weights(mus)
             mus = [torch.tensor(mu) for mu in mus]
             grads_update = {}
             for i, (layer_name, layer_shape) in enumerate(self.layer_shapes.items()):

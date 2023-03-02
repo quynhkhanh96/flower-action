@@ -12,7 +12,6 @@ from fedavg_video_client import FedAvgVideoClient
 import stc_ops
 import stc_compress
 import stc_encode
-from stc_encode import STCFitRes
 
 class STCVideoClient(FedAvgVideoClient):
 
@@ -55,8 +54,7 @@ class STCVideoClient(FedAvgVideoClient):
                 compress_fun=stc_compress.compression_function(*compression)
             )
 
-    # def fit(self, ins: FitIns) -> FitRes:
-    def fit(self, ins: FitIns) -> STCFitRes:
+    def fit(self, ins: FitIns) -> FitRes:
         # set local model weights with that of the new global model
         weights: Weights = parameters_to_weights(ins.parameters)
         weights = self.postprocess_weights(weights)
@@ -101,8 +99,9 @@ class STCVideoClient(FedAvgVideoClient):
         mus = weights_to_parameters(mus)
         num_examples_train = len(self.dl_train.dataset)
         
-        return STCFitRes(
-            msgs=msgs, signs=signs, mus=mus,
+        params_prime = msgs + signs + mus
+        return FitRes(
+            parameters=params_prime,
             num_examples=num_examples_train
         )
 

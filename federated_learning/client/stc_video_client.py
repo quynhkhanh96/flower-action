@@ -96,7 +96,7 @@ class STCVideoClient(FedAvgVideoClient):
                                 self.cfgs.p_up)
             msgs.append(msg_.encode('ascii'))
             signs.append(sign_.encode('ascii'))
-            mus.append(mu_.numpy())
+            mus.append(mu_.cpu().numpy())
         
         mus = weights_to_parameters(mus)
         num_examples_train = len(self.dl_train.dataset)

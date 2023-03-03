@@ -1,11 +1,9 @@
 import sys 
-import matplotlib.pyplot as plt
-import numpy as np 
 
-log_path = sys.argv[1]
-with open(log_path, 'r') as f:
-    content = f.readlines()
+log_fpath = sys.argv[1]
+with open(log_fpath, 'r') as f:
+    logs = f.readlines()
 
-packet_sizes = [int(x.strip().split(',')[-1]) for x in content]
-exp_name = log_path.split('/')[-1].split('.')[0]
-print('Exp at {}: communication cost = {} MBs'.format(exp_name, sum(packet_sizes) / float(1<<20)))
+logs = [int(log.strip().split(' ')[-2]) for log in logs if 'sending' in log]
+exp_name = log_fpath.split('/')[-1].split('.')[0]
+print('Exp {} has communication cost of {} MBs'.format(exp_name, sum(logs) / float(1<<20)))

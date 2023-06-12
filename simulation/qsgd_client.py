@@ -20,7 +20,9 @@ class QSGDClient(Client):
                         for name, value in self.W.items()}
     
     def load_weights(self, global_model):
-        pass 
+        self.model.load_state_dict(global_model.state_dict())
+        self.model.to(self.cfgs.device)
+        self.W = {name: value for name, value in self.model.named_parameters()}
 
     def compress_weight_update_up(self):
         res = {}

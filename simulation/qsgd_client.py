@@ -25,7 +25,7 @@ class QSGDClient(Client):
             weights = {}
             for lname, signature in global_model.items():
                 weights[lname] = self.quantizer.dequantize(signature)
-            self.model.load_state_dict(weights)
+            self.model.load_state_dict(weights, strict=False)
         else:
             self.model.load_state_dict(global_model.state_dict())
         self.model.to(self.cfgs.device)

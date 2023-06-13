@@ -60,8 +60,6 @@ if __name__ == '__main__':
         cfgs = yaml.load(yamlfile, Loader=yaml.FullLoader)
     cfgs = Dict2Class(cfgs)
 
-    # compression hyperparameters
-    compression = [args.compression, {'p_up': args.p_up}]
     # fix randomness
     seed_torch(int(cfgs.seed))
 

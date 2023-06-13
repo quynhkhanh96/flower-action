@@ -11,6 +11,19 @@ def subtract_(target, minuend, subtrachend):
         for name in target:
             target[name].data = minuend[name].data.clone()-subtrachend[name].data.clone()
 
+def average(target, sources):
+    with torch.no_grad():
+        for name in target:
+            target[name].data = torch.mean(torch.stack([source[name].data for source in sources]), dim=0).clone()
+
+def weighted_average(target, sources, weights):
+    with torch.no_grad():
+        for name in target:
+            summ = torch.sum(weights)
+            n = len(sources)
+            modify = [weight/summ*n for weight in weights]
+            target[name].data = torch.mean(torch.stack([m*source[name].data for source, m in zip(sources, modify)]), dim=0).clone()
+
 # https://github.com/xinyandai/gradient-quantization/blob/master/compressors/qsgd_compressor.py
 class QSGDQuantizer:
     def __init__(self, random, n_bit, no_cuda):

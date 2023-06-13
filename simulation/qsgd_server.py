@@ -10,7 +10,7 @@ class QSGDServer(Server):
             random, n_bit, no_cuda
         )
         self.dW = {name: torch.zeros(value.shape).to(self.cfgs.device) 
-                for name, value in self.model.named_parameters().items()}
+                for name, value in self.model.named_parameters()}
 
     def load_weights(self):
         state_dict = self.model.state_dict()

@@ -52,6 +52,11 @@ if __name__ == '__main__':
         type=int,
         help="Number of bits for quantization",
     )
+    parser.add_argument(
+        "--q_down",
+        action="store_true",
+        help="whether compression is applied downlink",
+    )
     args = parser.parse_args()
     os.makedirs(args.work_dir, exist_ok=True)
 
@@ -87,7 +92,8 @@ if __name__ == '__main__':
 
     # client initialization
     fl_client = QSGDClient(
-        random=args.random, n_bit=args.n_bit, no_cuda=False,
+        random=args.random, n_bit=args.n_bit, 
+        no_cuda=False, q_down=args.q_down,
         data_dir=args.data_dir, work_dir=args.work_dir,
         model=copy.deepcopy(global_model), loss_fn=criterion,
         eval_fn=eval_fn, cfgs=cfgs        
@@ -104,8 +110,13 @@ if __name__ == '__main__':
         # clients perform local training and send back weight updates
         res = []
         for client_id in selected_clients:
-            client_updates, num_examples = fl_client.train(rnd, client_id,
-                                            fl_server.model)
+            if args.q_down:
+                quant_global = fl_server.compress_weight_down()
+                client_updates, num_examples = fl_client.train(rnd, client_id,
+                                                quant_global)
+            else:
+                client_updates, num_examples = fl_client.train(rnd, client_id,
+                                                fl_server.model)
             res.append([client_updates, num_examples])
         
         # server aggregates the updates to create new global model

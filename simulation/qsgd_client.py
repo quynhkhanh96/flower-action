@@ -6,13 +6,14 @@ from base_client import Client
 import qsgd_utils
 
 class QSGDClient(Client):
-    def __init__(self, random, n_bit, no_cuda, **kwargs):
+    def __init__(self, random, n_bit, no_cuda, q_down, **kwargs):
         super().__init__(**kwargs)
 
         self.quantizer = qsgd_utils.QSGDQuantizer(
             random, n_bit, no_cuda
         )
 
+        self.q_down = q_down
         self.W = {name: value for name, value in self.model.named_parameters()}
         self.W_old = {name: torch.zeros(value.shape).to(self.cfgs.device) 
                         for name, value in self.W.items()}
@@ -20,7 +21,13 @@ class QSGDClient(Client):
                         for name, value in self.W.items()}
     
     def load_weights(self, global_model):
-        self.model.load_state_dict(global_model.state_dict())
+        if self.q_down:
+            weights = {}
+            for lname, signature in global_model.items():
+                weights[lname] = self.quantizer.dequantize(signature)
+            self.model.load_state_dict(weights)
+        else:
+            self.model.load_state_dict(global_model.state_dict())
         self.model.to(self.cfgs.device)
         self.W = {name: value for name, value in self.model.named_parameters()}
 

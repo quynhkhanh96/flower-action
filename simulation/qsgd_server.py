@@ -18,6 +18,13 @@ class QSGDServer(Server):
             state_dict[name] += value.clone().to(self.device)
         self.model.load_state_dict(state_dict, strict=False)
 
+    def compress_weight_down(self):
+        res = {}
+        for lname, lweight in self.model.named_parameters():
+            res[lname] = self.quantizer.quantize(lweight)
+        
+        return res
+
     def aggregate_weight_updates(self, clients, aggregation='mean'):
         grads = []
         for res, num_samples in clients:

@@ -43,7 +43,7 @@ if __name__ == '__main__':
     )
     parser.add_argument(
         "--random",
-        action="store_false"
+        action="store_false",
         help="whether the quantization is stochastic",
     )
     parser.add_argument(

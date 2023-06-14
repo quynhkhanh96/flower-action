@@ -99,7 +99,12 @@ python -m stc_sim --work_dir="$DATA_DIR/stc_sim" --data_dir=$DATA_DIR --server_d
 
 ## 3.6. QSGD
 ### Simulation
+With upstream compression only:
 ```shell
 cd simulation/
 python -m qsgd_sim --work_dir="$DATA_DIR/qsgd_sim" --data_dir=$DATA_DIR --server_device="cuda:1" --aggregation="mean" --n_bit=8 --cfg_path="../examples/hmdb51/configs/hmdb51_fedbn_sim.yaml"
+```
+Round-trip compression:
+```shell
+python -m qsgd_sim --work_dir="$DATA_DIR/qsgd_sim" --data_dir=$DATA_DIR --server_device="cuda:1" --aggregation="mean" --n_bit=8 --q_down --cfg_path="../examples/hmdb51/configs/hmdb51_fedbn_sim.yaml"
 ```

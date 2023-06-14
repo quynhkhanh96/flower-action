@@ -109,14 +109,13 @@ if __name__ == '__main__':
 
         # clients perform local training and send back weight updates
         res = []
+        if args.q_down:
+            cur_global = fl_server.compress_weight_down()
+        else:
+            cur_global = fl_server.model
         for client_id in selected_clients:
-            if args.q_down:
-                quant_global = fl_server.compress_weight_down()
-                client_updates, num_examples = fl_client.train(rnd, client_id,
-                                                quant_global)
-            else:
-                client_updates, num_examples = fl_client.train(rnd, client_id,
-                                                fl_server.model)
+            client_updates, num_examples = fl_client.train(rnd, client_id,
+                                            cur_global)
             res.append([client_updates, num_examples])
         
         # server aggregates the updates to create new global model

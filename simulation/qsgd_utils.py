@@ -61,7 +61,8 @@ class QSGDQuantizer:
             probabilities = scaled_vec - l.type(torch.float32)
             r = torch.rand(l.size())
             if self.cuda:
-                r = r.cuda()
+                # r = r.cuda()
+                r = r.to(vec.device)
             l[:] += (probabilities > r).type(self.code_dtype)
 
         signs = torch.sign(vec) > 0

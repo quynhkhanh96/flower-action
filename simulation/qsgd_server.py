@@ -3,12 +3,13 @@ from base_server import Server
 import qsgd_utils
 
 class QSGDServer(Server):
-    def __init__(self, random, n_bit, no_cuda, **kwargs):
+    def __init__(self, random, n_bit, lower_bit, no_cuda, **kwargs):
         super(QSGDServer, self).__init__(**kwargs)
 
         self.quantizer = qsgd_utils.QSGDQuantizer(
             random, n_bit, no_cuda
         )
+        self.lower_bit = lower_bit if lower_bit != -1 else n_bit
         self.dW = {name: torch.zeros(value.shape).to(self.cfgs.device) 
                 for name, value in self.model.named_parameters()}
 
@@ -27,12 +28,18 @@ class QSGDServer(Server):
 
     def aggregate_weight_updates(self, clients, aggregation='mean'):
         grads = []
+        s = self.quantizer.s
         for res, num_samples in clients:
             grad_ = {}
             for lname, signature in res.items():
+                if 'conv' in lname and 'bn' not in lname:
+                    self.quantizer.s = s
+                else:
+                    self.quantizer.s = 2 ** self.lower_bit
                 grad_[lname] = self.quantizer.dequantize(signature)
             grads.append([grad_, num_samples])
-
+        self.quantizer.s = s
+        
         if aggregation == 'mean':
             qsgd_utils.average(
                 target=self.dW,

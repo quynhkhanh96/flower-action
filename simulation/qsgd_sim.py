@@ -53,6 +53,12 @@ if __name__ == '__main__':
         help="Number of bits for quantization",
     )
     parser.add_argument(
+        "--lower_bit",
+        default=-1,
+        type=int,
+        help="Used for differential quantization, -1 means same level of quant. for all layer",
+    )
+    parser.add_argument(
         "--q_down",
         action="store_true",
         help="whether compression is applied downlink",
@@ -84,7 +90,8 @@ if __name__ == '__main__':
 
     # server initialization
     fl_server = QSGDServer(
-        random=args.random, n_bit=args.n_bit, no_cuda=False, 
+        random=args.random, n_bit=args.n_bit, 
+        lower_bit=args.lower_bit, no_cuda=False, 
         data_dir=args.data_dir, work_dir=args.work_dir,
         eval_fn=eval_fn, model=global_model,
         cfgs=cfgs, device=args.server_device
@@ -93,10 +100,10 @@ if __name__ == '__main__':
     # client initialization
     fl_client = QSGDClient(
         random=args.random, n_bit=args.n_bit, 
-        no_cuda=False, q_down=args.q_down,
-        data_dir=args.data_dir, work_dir=args.work_dir,
-        model=copy.deepcopy(global_model), loss_fn=criterion,
-        eval_fn=eval_fn, cfgs=cfgs        
+        lower_bit=args.lower_bit, no_cuda=False, 
+        q_down=args.q_down, data_dir=args.data_dir, 
+        work_dir=args.work_dir, model=copy.deepcopy(global_model), 
+        loss_fn=criterion, eval_fn=eval_fn, cfgs=cfgs        
     )
 
     for rnd in range(int(cfgs.epochs)):

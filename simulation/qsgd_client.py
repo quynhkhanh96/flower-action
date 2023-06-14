@@ -6,7 +6,7 @@ from base_client import Client
 import qsgd_utils
 
 class QSGDClient(Client):
-    def __init__(self, random, n_bit, no_cuda, q_down, **kwargs):
+    def __init__(self, random, n_bit, lower_bit, no_cuda, q_down, **kwargs):
         super().__init__(**kwargs)
 
         self.quantizer = qsgd_utils.QSGDQuantizer(
@@ -14,6 +14,7 @@ class QSGDClient(Client):
         )
 
         self.q_down = q_down
+        self.lower_bit = lower_bit if lower_bit != -1 else n_bit
         self.W = {name: value for name, value in self.model.named_parameters()}
         self.W_old = {name: torch.zeros(value.shape).to(self.cfgs.device) 
                         for name, value in self.W.items()}
@@ -33,8 +34,14 @@ class QSGDClient(Client):
 
     def compress_weight_update_up(self):
         res = {}
+        s = self.quantizer.s
         for lname, lgrad in self.dW.items():
+            if 'conv' in lname and 'bn' not in lname:
+                self.quantizer.s = s
+            else:
+                self.quantizer.s = 2 ** self.lower_bit
             res[lname] = self.quantizer.quantize(lgrad)
+        self.quantizer.s = s
         
         return res
 

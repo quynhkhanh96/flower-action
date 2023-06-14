@@ -108,3 +108,7 @@ Round-trip compression:
 ```shell
 python -m qsgd_sim --work_dir="$DATA_DIR/qsgd_sim" --data_dir=$DATA_DIR --server_device="cuda:1" --aggregation="mean" --n_bit=8 --q_down --cfg_path="../examples/hmdb51/configs/hmdb51_fedbn_sim.yaml"
 ```
+Differential quantization:
+```shell
+python -m qsgd_sim --work_dir="$DATA_DIR/qsgd_sim" --data_dir=$DATA_DIR --server_device="cuda:1" --aggregation="mean" --n_bit=8 --lower_bit=2 --q_down --cfg_path="../examples/hmdb51/configs/hmdb51_fedbn_sim.yaml"
+```

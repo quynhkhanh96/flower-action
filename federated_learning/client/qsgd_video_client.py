@@ -62,7 +62,8 @@ class QSGDVideoClient(FedAvgVideoClient):
             params_prime.append(
                 self.coder.encode(norm, signs, epsilon)
             )
-
+        self.quantizer.s = s
+        
         return params_prime             
 
     def fit(self, ins: FitIns) -> FitRes:

@@ -32,7 +32,7 @@ class QSGDVideoClient(FedAvgVideoClient):
         if self.q_down:
             state_dict = {}
             for i, (lname, lweight) in enumerate(self.W.items()):
-                dec = self.coder.decode(msg, 
+                dec = self.coder.decode(params[i], 
                         reduce(lambda x, y: x*y, lweight.shape))
                 state_dict[lname] = torch.tensor(dec).view(lweight.shape)
         else:

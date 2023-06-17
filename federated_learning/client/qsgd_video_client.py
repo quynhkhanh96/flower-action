@@ -9,9 +9,9 @@ from flwr.common import parameters_to_weights, weights_to_parameters
 from fedavg_video_client import FedAvgVideoClient
 from utils import qsgd
 
-class QSGDClient(FedAvgVideoClient):
+class QSGDVideoClient(FedAvgVideoClient):
     
-    def __init__(self, random, n_bit, lower_bit, q_down, **kwargs):
+    def __init__(self, random, n_bit, lower_bit, q_down, no_cuda, **kwargs):
         super().__init__(**kwargs)
 
         self.quantizer = qsgd.QSGDQuantizer(

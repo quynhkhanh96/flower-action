@@ -145,9 +145,9 @@ class QSGDQuantizer:
         """
         w_shape = tuple(vec.shape)
         w_dim = reduce(lambda x, y: x*y, w_shape)
-        vec_ = vec.view(-1, w_dim)
-        norm = torch.max(torch.abs(vec_), dim=1, keepdim=True)[0]
-        normalized_vec = vec_ / norm
+        vec = vec.view(-1, w_dim)
+        norm = torch.max(torch.abs(vec), dim=1, keepdim=True)[0]
+        normalized_vec = vec / norm
 
         scaled_vec = torch.abs(normalized_vec) * self.s
         l = torch.clamp(scaled_vec, 0, self.s-1).type(self.code_dtype)
@@ -157,10 +157,10 @@ class QSGDQuantizer:
             probabilities = scaled_vec - l.type(torch.float32)
             r = torch.rand(l.size())
             if self.cuda:
-                r = r.to(vec_.device)
+                r = r.to(vec.device)
             l[:] += (probabilities > r).type(self.code_dtype)
 
-        signs = torch.sign(vec_) > 0
+        signs = torch.sign(vec) > 0
         return [norm, signs.view(w_shape), l.view(w_shape)]
 
     def dequantize(self, signature):

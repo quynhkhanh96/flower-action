@@ -2,7 +2,6 @@ import sys, os
 sys.path.insert(0, os.path.abspath('..'))
 
 import torch
-import copy
 from collections import OrderedDict
 
 from flwr.common.typing import FitIns, FitRes, Parameters
@@ -35,7 +34,7 @@ class QSGDServer(FedAvgVideoStrategy):
     def compress_weight_down(self):
         params_prime = []
         for lname, lweight in self.model.named_parameters():
-            signature = self.quantizer.quantize(copy.deepcopy(lweight))
+            signature = self.quantizer.quantize(lweight)
 
             norm = signature[0].cpu().numpy()[0][0]
             signs = signature[1].view(-1).cpu().numpy()

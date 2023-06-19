@@ -2,7 +2,6 @@ import sys, os
 sys.path.insert(0, os.path.abspath('..'))
 
 import torch
-import copy
 from collections import OrderedDict
 
 from flwr.common.typing import FitIns, FitRes, Parameters
@@ -54,7 +53,7 @@ class QSGDVideoClient(FedAvgVideoClient):
                 self.quantizer.s = s
             else:
                 self.quantizer.s = 2 ** self.lower_bit
-            signature = self.quantizer.quantize(copy.deepcopy(lgrad))
+            signature = self.quantizer.quantize(lgrad)
 
             norm = signature[0].cpu().numpy()[0][0]
             signs = signature[1].view(-1).cpu().numpy()

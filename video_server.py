@@ -5,6 +5,7 @@ import torch
 import functools
 from federated_learning.server.fedavg_video_server import FedAvgVideoStrategy
 from federated_learning.server.stc_video_server import STCVideoStrategy
+from federated_learning.server.qsgd_video_client import QSGDVideoServer
 from datasets.frame_dataset import get_client_loaders
 from evaluation.video_recognition import evaluate_topk_accuracy
 import yaml 
@@ -108,6 +109,19 @@ if __name__ == '__main__':
             min_available_clients=cfgs.min_num_clients,
             eval_fn=eval_fn,
             on_fit_config_fn=functools.partial(fit_config, cfgs=cfgs),
+        )
+    elif cfgs.FL in ['QSGD']:
+        strategy = QSGDVideoServer(
+            random=cfgs.random, n_bit=cfgs.n_bit, lower_bit=cfgs.lower_bit,
+            q_down=cfgs.q_down, no_cuda=cfgs.no_cuda,
+            cfgs=cfgs, dl_test=test_loader,
+            ckpt_dir=server_args.work_dir,
+            device=torch.device("cuda" if torch.cuda.is_available() else "cpu"),
+            fraction_fit=cfgs.frac,
+            min_fit_clients=cfgs.min_sample_size,
+            min_available_clients=cfgs.min_num_clients,
+            eval_fn=eval_fn,
+            on_fit_config_fn=functools.partial(fit_config, cfgs=cfgs),            
         )
     else:
         raise ValueError(f'No implementation for {cfgs.FL}.')

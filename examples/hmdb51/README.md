@@ -98,6 +98,17 @@ python -m stc_sim --work_dir="$DATA_DIR/stc_sim" --data_dir=$DATA_DIR --server_d
 ```
 
 ## 3.6. QSGD
+### Start server
+```shell
+CUDA_VISIBLE_DEVICES=0 python -m video_server --server_address=$SERVER_ADDRESS --cfg_path="examples/hmdb51/configs/hmdb51_qsgd_p05.yaml" --data_dir=$DATA_DIR --work_dir="$DATA_DIR/qsgd_exps"
+```
+### Start clients
+```shell
+CUDA_VISIBLE_DEVICES=0 python -m video_client --server_address=$SERVER_ADDRESS --cid=0 --cfg_path="examples/hmdb51/configs/hmdb51_qsgd_p05.yaml" --data_dir=$DATA_DIR
+
+CUDA_VISIBLE_DEVICES=1 python -m video_client --server_address=$SERVER_ADDRESS --cid=1 --cfg_path="examples/hmdb51/configs/hmdb51_qsgd_p05.yaml" --data_dir=$DATA_DIR
+```
+
 ### Simulation
 With upstream compression only:
 ```shell

@@ -2,6 +2,7 @@
 from federated_learning.client.fedavg_video_client import FedAvgVideoClient
 from federated_learning.client.fedbn_video_client import FedBNVideoClient
 from federated_learning.client.stc_video_client import STCVideoClient
+from federated_learning.client.qsgd_video_client imprt QSGDVideoClient
 import flwr
 import argparse
 from models.build import build_loss
@@ -114,6 +115,15 @@ if __name__ == '__main__':
                 model=model, loss_fn=criterion, 
                 local_update=local_update, 
                 eval_fn=eval_fn, cfgs=cfgs
+        )
+    elif cfgs.FL == 'QSGD':
+        fl_client = QSGDVideoClient(
+            random=cfgs.random, n_bit=cfgs.n_bit, lower_bit=cfgs.lower_bit,
+            q_down=cfgs.q_down, no_cuda=cfgs.no_cuda, client_id=client_id,
+            dl_train=train_loader, dl_test=test_loader,
+            model=model, loss_fn=criterion, 
+            local_update=local_update, 
+            eval_fn=eval_fn, cfgs=cfgs            
         )
     else:
         raise ValueError(f'No implementation for {cfgs.FL}.')

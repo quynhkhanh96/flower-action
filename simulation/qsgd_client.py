@@ -74,3 +74,40 @@ class QSGDClient(Client):
         res = self.compress_weight_update_up()
 
         return res, len(train_loader.dataset)
+
+class TopKQSGDClient(QSGDClient):
+    def __init__(self, k, **kwargs):
+        super().__init__(**kwargs)
+        self.k = k
+
+    def compress_weight_update_up(self):
+        res = {}
+        s = self.quantizer.s
+        for lname, lgrad in self.dW.items():
+            if 'conv' in lname and 'bn' not in lname:
+                self.quantizer.s = s
+                n_elts = lgrad.numel()
+                n_top = int(np.ceil(n_elts * k))
+                with torch.no_grad():
+                    grad_inds = torch.argsort(torch.abs(lgrad)).cpu().numpy()[::-1]
+                    
+                    # compress and encode the top-k gradients with higher #bits
+                    mask_top = torch.full(lgrad.flatten().shape, 0.).scatter_(0, 
+                                        inds[:n_top], 1).view(*tuple(lgrad.shape))
+                    signature_top = self.quantizer.quantize(lgrad * mask_top)
+                        
+                    # and the rest with less #bits
+                    self.quantizer.s = 2 ** self.lower_bit
+                    mask_rest = torch.full(lgrad.flatten().shape, 0.).scatter_(0, 
+                                        inds[n_top:], 1).view(*tuple(lgrad.shape))
+                    signature_rest = self.quantizer.quantize(lgrad * mask_rest)
+
+                res[lname] = [signature_top, signature_rest]
+            
+            else:
+                self.quantizer.s = 2 ** self.lower_bit
+                res[lname] = self.quantizer.quantize(lgrad)
+
+        self.quantizer.s = s
+        
+        return res

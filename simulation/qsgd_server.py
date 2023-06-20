@@ -26,7 +26,7 @@ class QSGDServer(Server):
         
         return res
 
-    def aggregate_weight_updates(self, clients, aggregation='mean'):
+    def decode_fit_results(self, clients):
         grads = []
         s = self.quantizer.s
         for res, num_samples in clients:
@@ -39,6 +39,11 @@ class QSGDServer(Server):
                 grad_[lname] = self.quantizer.dequantize(signature)
             grads.append([grad_, num_samples])
         self.quantizer.s = s
+
+        return grads        
+
+    def aggregate_weight_updates(self, clients, aggregation='mean'):
+        grads = self.decode_fit_results(clients)
         
         if aggregation == 'mean':
             qsgd_utils.average(
@@ -54,3 +59,39 @@ class QSGDServer(Server):
             )
                 
         self.load_weights()
+
+class TopKQSGDServer(QSGDServer):
+    def __init__(self, k, **kwargs):
+        super().__init__(**kwargs)
+        self.k = k
+
+    def decode_fit_results(self, clients):
+        grads = []
+        s = self.quantizer.s
+        for res, num_samples in clients:
+            grad_ = {}
+
+            for lname in res:
+
+                if 'conv' in lname and 'bn' not in lname:
+                    s_top, s_rest = res[lname]
+
+                    self.quantizer.s = s
+                    grad_top = self.quantizer.dequantize(s_top)
+
+                    self.quantizer.s = 2 ** self.lower_bit
+                    grad_rest = self.quantizer.dequantize(s_rest)
+
+                    with torch.no_grad():
+                        grad_[lname] = torch.full(s_top.shape, 0.) + grad_top + grad_rest
+
+                else:
+                    self.quantizer.s = 2 ** self.lower_bit
+                    grad_[lname] = self.quantizer.dequantize(res[lname])
+
+            grads.append([grad_, num_samples])
+            
+        self.quantizer.s = s
+
+        return grads  
+

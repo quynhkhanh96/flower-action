@@ -62,9 +62,6 @@ class QSGDServer(Server):
         self.load_weights()
 
 class TopKQSGDServer(QSGDServer):
-    def __init__(self, k, **kwargs):
-        super().__init__(**kwargs)
-        self.k = k
 
     def decode_fit_results(self, clients):
         grads = []

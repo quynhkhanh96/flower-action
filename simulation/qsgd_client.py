@@ -88,7 +88,7 @@ class TopKQSGDClient(QSGDClient):
             if 'conv' in lname and 'bn' not in lname:
                 self.quantizer.s = s
                 n_elts = lgrad.numel()
-                n_top = int(np.ceil(n_elts * k))
+                n_top = int(np.ceil(n_elts * self.k))
                 with torch.no_grad():
                     grad_inds = torch.argsort(torch.abs(lgrad)).cpu().numpy()[::-1]
                     

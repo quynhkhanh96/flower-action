@@ -95,7 +95,7 @@ if __name__ == '__main__':
     eval_fn = evaluate_topk_accuracy
 
     # server initialization
-    fl_server = TopKQSGDServer(k=args.k,
+    fl_server = TopKQSGDServer(
         random=args.random, n_bit=args.n_bit, 
         lower_bit=args.lower_bit, no_cuda=False, 
         data_dir=args.data_dir, work_dir=args.work_dir,

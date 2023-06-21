@@ -90,7 +90,7 @@ class TopKQSGDClient(QSGDClient):
                 n_elts = lgrad.numel()
                 n_top = int(np.ceil(n_elts * self.k))
                 with torch.no_grad():
-                    inds = torch.argsort(torch.abs(lgrad)).cpu().numpy()[::-1]
+                    inds = torch.argsort(torch.abs(lgrad), descending=True)
                     
                     # compress and encode the top-k gradients with higher #bits
                     mask_top = torch.full(lgrad.flatten().shape, 0.).scatter_(0, 

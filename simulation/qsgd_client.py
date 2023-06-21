@@ -93,13 +93,13 @@ class TopKQSGDClient(QSGDClient):
                     inds = torch.argsort(torch.abs(lgrad), descending=True)
                     
                     # compress and encode the top-k gradients with higher #bits
-                    mask_top = torch.full(lgrad.flatten().shape, 0.).scatter_(0, 
+                    mask_top = torch.full((lgrad.numel(),), 0.).to(lgrad.device).scatter_(0,
                                         inds[:n_top], 1).view(*tuple(lgrad.shape))
                     signature_top = self.quantizer.quantize(lgrad * mask_top)
-                        
+
                     # and the rest with less #bits
                     self.quantizer.s = 2 ** self.lower_bit
-                    mask_rest = torch.full(lgrad.flatten().shape, 0.).scatter_(0, 
+                    mask_rest = torch.full((lgrad.numel(),), 0.).to(lgrad.device).scatter_(0,
                                         inds[n_top:], 1).view(*tuple(lgrad.shape))
                     signature_rest = self.quantizer.quantize(lgrad * mask_rest)
 

@@ -81,7 +81,7 @@ class TopKQSGDServer(QSGDServer):
                     grad_rest = self.quantizer.dequantize(s_rest)
 
                     with torch.no_grad():
-                        grad_[lname] = torch.full(s_top.shape, 0.) + grad_top + grad_rest
+                        grad_[lname] = grad_top + grad_rest
 
                 else:
                     self.quantizer.s = 2 ** self.lower_bit

@@ -1,6 +1,7 @@
 import torch
 from base_server import Server
 import qsgd_utils
+import numpy as np
 
 class QSGDServer(Server):
     def __init__(self, random, n_bit, lower_bit, no_cuda, **kwargs):
@@ -90,7 +91,7 @@ class TopKQSGDServer(QSGDServer):
                     grad_[lname] = self.quantizer.dequantize(res[lname])
 
             grads.append([grad_, num_samples])
-            
+
         self.quantizer.s = s
 
         return grads  

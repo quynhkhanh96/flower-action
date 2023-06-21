@@ -1,6 +1,7 @@
 import os
 import torch
 import torch.optim as optim
+import numpy as np
 
 from base_client import Client
 import qsgd_utils

@@ -70,7 +70,7 @@ class QSparseSGDClient(Client):
         # update error-feedback
         with torch.no_grad():
             for lname in error_accum:
-                error_accum[lname] = grads[lname] - q_grads[lname]
+                error_accum[lname] = grads[lname] - self.quantizer.dequantize(q_grads[lname])
         torch.save(error_accum, self.work_dir + f'/A_{client_id}.pth')
         
         return q_grads, len(train_loader.dataset)

@@ -52,4 +52,10 @@ python -m fedavg_sim --work_dir="$DATA_DIR/fedavg_sim" --data_dir=$DATA_DIR --se
 
 ### FedPNS
 
+### QSparse Local SGD
+```shell
+cd simulation/
+python -m qsparse_sgd_sim --work_dir="$DATA_DIR/qsparse_sgd_sim" --data_dir=$DATA_DIR --server_device="cuda:0" --cfg_path="../examples/egogesture/configs/egogesture_sim_C8_frac025.yaml"
+```
+
 # 5. Results

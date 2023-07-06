@@ -88,8 +88,8 @@ if __name__ == '__main__':
     # client initialization
     fl_client = QSparseSGDClient(
         random=args.random, n_bit=args.n_bit, no_cuda=False, 
-        q_down=args.q_down, data_dir=args.data_dir, 
-        work_dir=args.work_dir, model=copy.deepcopy(global_model), 
+        data_dir=args.data_dir, work_dir=args.work_dir, 
+        model=copy.deepcopy(global_model), 
         loss_fn=criterion, eval_fn=eval_fn, cfgs=cfgs        
     )
 

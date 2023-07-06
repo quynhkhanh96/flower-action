@@ -27,13 +27,13 @@ class QSparseSGDServer(Server):
         grads = self.decode_fit_results(clients)
         
         if aggregation == 'mean':
-            average(
+            qsgd_utils.average(
                 target=self.dW,
                 sources=[grad_[0] for grad_ in grads]
             )
         
         elif aggregation == 'weighted_mean':
-            weighted_average(
+            qsgd_utils.weighted_average(
                 target=self.dW,
                 sources=[grad_[0] for grad_ in grads],
                 weights=torch.stack([torch.Tensor(grad_[1]).to(self.device) for grad_ in grads])

@@ -4,7 +4,7 @@ import qsgd_utils
 import numpy as np
 
 class QSparseSGDServer(Server):
-    def __init__(self, random, n_bit, lower_bit, no_cuda, **kwargs):
+    def __init__(self, random, n_bit, no_cuda, **kwargs):
         super().__init__(**kwargs)
 
         self.quantizer = qsgd_utils.QSGDQuantizer(

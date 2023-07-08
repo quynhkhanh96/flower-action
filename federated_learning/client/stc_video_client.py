@@ -29,12 +29,6 @@ class STCVideoClient(FedAvgVideoClient):
         self.A = {name : torch.zeros(value.shape).to(self.cfgs.device) 
                         for name, value in self.W.items()}
 
-        optimizer_object = getattr(optim, self.cfgs.optimizer)
-        optimizer_parameters = {k : v for k, v in self.cfgs.__dict__.items() 
-                        if k in optimizer_object.__init__.__code__.co_varnames}
-
-        self.optimizer = optimizer_object(self.model.parameters(), **optimizer_parameters)
-
         # Compression hyperparameters
         compression = [self.cfgs.compression, {'p_up': self.cfgs.p_up}]
         self.hp_comp = stc_compress.get_hp_compression(compression)

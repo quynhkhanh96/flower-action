@@ -5,7 +5,6 @@ from flwr.common import parameters_to_weights, weights_to_parameters
 
 import timeit
 import numpy as np 
-# from update.base import BaseLocalUpdate
 
 class FedAvgClient(flwr.client.Client):
     def __init__(self, client_id, 

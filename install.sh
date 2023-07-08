@@ -11,6 +11,7 @@ pip install mmcv-full==1.3.17 -f https://download.openmmlab.com/mmcv/dist/cu111/
 pip install Pillow==7.0.0
 
 pip install mmaction2==0.24.1
+pip install git+https://github.com/Atze00/MoViNet-pytorch.git
 
 # pip install flwr
 pip install flwr==0.17.0

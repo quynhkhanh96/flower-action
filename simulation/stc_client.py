@@ -21,24 +21,6 @@ class STCClient(Client):
                         for name, value in self.W.items()}
         self.dW_compressed = {name : torch.zeros(value.shape).to(self.cfgs.device) 
                         for name, value in self.W.items()}
-        # self.A = {name : torch.zeros(value.shape).to(self.cfgs.device) 
-        #                 for name, value in self.W.items()}
-
-        self.n_params = sum([T.numel() for T in self.W.values()])
-        self.bits_sent = []
-
-        optimizer_object = getattr(optim, self.cfgs.optimizer)
-        optimizer_parameters = {k : v for k, v in self.cfgs.__dict__.items() 
-                        if k in optimizer_object.__init__.__code__.co_varnames}
-
-        self.optimizer = optimizer_object(self.model.parameters(), **optimizer_parameters)
-
-        # # Learning Rate Schedule
-        # self.scheduler = getattr(optim.lr_scheduler, self.hp['lr_decay'][0])(self.optimizer, **self.hp['lr_decay'][1])
-
-        # State
-        self.epoch = 0
-        self.train_loss = 0.0  
 
         # Compression hyperparameters
         self.hp_comp = stc_utils.get_hp_compression(compression)

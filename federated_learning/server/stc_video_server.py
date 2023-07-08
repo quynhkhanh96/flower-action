@@ -55,13 +55,7 @@ class STCVideoStrategy(FedAvgVideoStrategy):
                     msgs[i], mus[i], signs[i], self.cfgs.p_up, layer_shape
                 )
             grads_results.append((grads_update, fit_res.num_examples))
-        # grads_results = []
-        # for _, fit_res in results:
-        #     grads_update = parameters_to_weights(fit_res.parameters)
-        #     grads_update = {name: torch.tensor(grads) for name, grads in zip(
-        #         list(self.dW.keys()), grads_update
-        #     )}
-        #     grads_results.append((grads_update, fit_res.num_examples))
+
         if self.aggregation == 'mean':
             stc_ops.average(
                 target=self.dW,

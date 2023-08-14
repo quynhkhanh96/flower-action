@@ -63,6 +63,11 @@ if __name__ == '__main__':
         action="store_true",
         help="whether compression is applied downlink",
     )
+    parser.add_argument(
+        "--fp_layers",
+        default='',
+        help="Layers that are not to quantize, this argument is a string of layer names separated by `,`",
+    )
     args = parser.parse_args()
     os.makedirs(args.work_dir, exist_ok=True)
 
@@ -92,6 +97,7 @@ if __name__ == '__main__':
     fl_server = QSGDServer(
         random=args.random, n_bit=args.n_bit, 
         lower_bit=args.lower_bit, no_cuda=False, 
+        fp_layers=args.fp_layers,
         data_dir=args.data_dir, work_dir=args.work_dir,
         eval_fn=eval_fn, model=global_model,
         cfgs=cfgs, device=args.server_device
@@ -100,10 +106,11 @@ if __name__ == '__main__':
     # client initialization
     fl_client = QSGDClient(
         random=args.random, n_bit=args.n_bit, 
-        lower_bit=args.lower_bit, no_cuda=False, 
-        q_down=args.q_down, data_dir=args.data_dir, 
-        work_dir=args.work_dir, model=copy.deepcopy(global_model), 
-        loss_fn=criterion, eval_fn=eval_fn, cfgs=cfgs        
+        lower_bit=args.lower_bit, no_cuda=False,
+        q_down=args.q_down, fp_layers=args.fp_layers, 
+        data_dir=args.data_dir, work_dir=args.work_dir, 
+        model=copy.deepcopy(global_model), loss_fn=criterion, 
+        eval_fn=eval_fn, cfgs=cfgs        
     )
 
     for rnd in range(int(cfgs.epochs)):
@@ -122,7 +129,7 @@ if __name__ == '__main__':
             cur_global = fl_server.model
         for client_id in selected_clients:
             client_updates, num_examples = fl_client.train(rnd, client_id,
-                                            cur_global)
+                                            copy.deepcopy(cur_global))
             res.append([client_updates, num_examples])
         
         # server aggregates the updates to create new global model

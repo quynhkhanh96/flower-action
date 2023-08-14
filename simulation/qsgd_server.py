@@ -4,13 +4,14 @@ import qsgd_utils
 import numpy as np
 
 class QSGDServer(Server):
-    def __init__(self, random, n_bit, lower_bit, no_cuda, **kwargs):
+    def __init__(self, random, n_bit, lower_bit, no_cuda, fp_layers, **kwargs):
         super(QSGDServer, self).__init__(**kwargs)
 
         self.quantizer = qsgd_utils.QSGDQuantizer(
             random, n_bit, no_cuda
         )
         self.lower_bit = lower_bit if lower_bit != -1 else n_bit
+        self.fp_layers = fp_layers.split(',')
         self.dW = {name: torch.zeros(value.shape).to(self.cfgs.device) 
                 for name, value in self.model.named_parameters()}
 
@@ -24,6 +25,9 @@ class QSGDServer(Server):
     def compress_weight_down(self):
         res = {}
         for lname, lweight in self.model.named_parameters():
+            if lname in self.fp_layers:
+                res[lname] = lweight
+                continue
             res[lname] = self.quantizer.quantize(lweight)
         
         return res

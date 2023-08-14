@@ -47,6 +47,12 @@ class QSGDQuantizer:
         :param vec: torch tensor
         :return: norm, signs, quantized_intervals
         """
+        try:
+            _ = len(vec)
+        except:
+            print(vec, 'not quantized.')
+            return [vec]
+        
         w_shape = tuple(vec.shape)
         w_dim = reduce(lambda x, y: x*y, w_shape)
         vec = vec.view(-1, w_dim)
@@ -61,7 +67,6 @@ class QSGDQuantizer:
             probabilities = scaled_vec - l.type(torch.float32)
             r = torch.rand(l.size())
             if self.cuda:
-                # r = r.cuda()
                 r = r.to(vec.device)
             l[:] += (probabilities > r).type(self.code_dtype)
 
@@ -69,6 +74,9 @@ class QSGDQuantizer:
         return [norm, signs.view(w_shape), l.view(w_shape)]
 
     def dequantize(self, signature):
+        if len(signature) == 1:
+            return signature[0]
+        
         [norm, signs, l] = signature
         assert l.shape == signs.shape
         w_shape = tuple(l.shape)

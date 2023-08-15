@@ -16,8 +16,9 @@ class QSGDClient(Client):
 
         self.q_down = q_down
         self.lower_bit = lower_bit if lower_bit != -1 else n_bit
-        self.fp_layers = fp_layers.split(',')
-        self.W = {name: value for name, value in self.model.named_parameters()}
+        self.fp_layers = [fp_layer for fp_layer in fp_layers.split(',')
+                            if fp_layer != '']
+        self.W = {name: value for name, value in self.model.state_dict().items()}
         self.W_old = {name: torch.zeros(value.shape).to(self.cfgs.device) 
                         for name, value in self.W.items()}
         self.dW = {name: torch.zeros(value.shape).to(self.cfgs.device) 
@@ -32,7 +33,7 @@ class QSGDClient(Client):
         else:
             self.model.load_state_dict(global_model.state_dict())
         self.model.to(self.cfgs.device)
-        self.W = {name: value for name, value in self.model.named_parameters()}
+        self.W = {name: value for name, value in self.model.state_dict().items()}
 
     def _keep_layer_full_precision(self, lname):
         for fp_layer in self.fp_layers:

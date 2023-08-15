@@ -34,12 +34,18 @@ class QSGDClient(Client):
         self.model.to(self.cfgs.device)
         self.W = {name: value for name, value in self.model.named_parameters()}
 
+    def _keep_layer_full_precision(self, lname):
+        for fp_layer in self.fp_layers:
+            if fp_layer in lname:
+                return True
+        return False
+
     def compress_weight_update_up(self):
         res = {}
         s = self.quantizer.s
         for lname, lgrad in self.dW.items():
             # if 'bn' in lname:
-            if lname in self.fp_layers:
+            if self._keep_layer_full_precision(lname):
                 res[lname] = [lgrad]
                 continue
 
@@ -92,7 +98,7 @@ class TopKQSGDClient(QSGDClient):
         res = {}
         s = self.quantizer.s
         for lname, lgrad in self.dW.items():
-            if lname in self.fp_layers:
+            if self._keep_layer_full_precision(lname):
                 res[lname] = [lgrad]
                 continue
 

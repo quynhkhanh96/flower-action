@@ -13,7 +13,7 @@ class QSGDServer(Server):
         self.lower_bit = lower_bit if lower_bit != -1 else n_bit
         self.fp_layers = fp_layers.split(',')
         self.dW = {name: torch.zeros(value.shape).to(self.cfgs.device) 
-                for name, value in self.model.named_parameters()}
+                for name, value in self.model.state_dict().items()}
 
     def load_weights(self):
         state_dict = self.model.state_dict()

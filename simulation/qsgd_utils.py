@@ -14,7 +14,10 @@ def subtract_(target, minuend, subtrachend):
 def average(target, sources):
     with torch.no_grad():
         for name in target:
-            target[name].data = torch.mean(torch.stack([source[name].data for source in sources]), dim=0).clone()
+            try:
+                target[name].data = torch.mean(torch.stack([source[name].data for source in sources]), dim=0).clone()
+            except:
+                pass
 
 def weighted_average(target, sources, weights):
     with torch.no_grad():

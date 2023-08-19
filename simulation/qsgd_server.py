@@ -11,7 +11,8 @@ class QSGDServer(Server):
             random, n_bit, no_cuda
         )
         self.lower_bit = lower_bit if lower_bit != -1 else n_bit
-        self.fp_layers = fp_layers.split(',')
+        self.fp_layers = [fp_layer for fp_layer in fp_layers.split(',')
+                            if fp_layer != '']
         self.dW = {name: torch.zeros(value.shape).to(self.cfgs.device) 
                 for name, value in self.model.state_dict().items()}
 
@@ -22,10 +23,16 @@ class QSGDServer(Server):
                 state_dict[name] = state_dict[name] + value.clone().to(self.device)
         self.model.load_state_dict(state_dict, strict=False)
 
+    def _keep_layer_full_precision(self, lname):
+        for fp_layer in self.fp_layers:
+            if fp_layer in lname:
+                return True
+        return False
+
     def compress_weight_down(self):
         res = {}
         for lname, lweight in self.model.named_parameters():
-            if lname in self.fp_layers:
+            if self._keep_layer_full_precision(lname):
                 res[lname] = lweight
                 continue
             res[lname] = self.quantizer.quantize(lweight)

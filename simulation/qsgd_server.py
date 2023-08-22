@@ -33,7 +33,7 @@ class QSGDServer(Server):
         res = {}
         for lname, lweight in self.model.state_dict().items():
             if self._keep_layer_full_precision(lname):
-                res[lname] = lweight
+                res[lname] = [lweight]
                 continue
             res[lname] = self.quantizer.quantize(lweight)
         

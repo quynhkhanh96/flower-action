@@ -129,7 +129,7 @@ if __name__ == '__main__':
             cur_global = fl_server.model
         for client_id in selected_clients:
             client_updates, num_examples = fl_client.train(rnd, client_id,
-                                            copy.deepcopy(cur_global))
+                                                            cur_global)
             res.append([client_updates, num_examples])
         
         # server aggregates the updates to create new global model

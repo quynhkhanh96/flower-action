@@ -1,4 +1,5 @@
 import os
+import copy
 import torch
 import torch.optim as optim
 import numpy as np
@@ -31,7 +32,7 @@ class QSGDClient(Client):
                 weights[lname] = self.quantizer.dequantize(signature)
             self.model.load_state_dict(weights, strict=False)
         else:
-            self.model.load_state_dict(global_model.state_dict())
+            self.model.load_state_dict(copy.deepcopy(global_model).state_dict())
         self.model.to(self.cfgs.device)
         self.W = {name: value for name, value in self.model.state_dict().items()}
 

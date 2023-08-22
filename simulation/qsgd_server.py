@@ -31,7 +31,7 @@ class QSGDServer(Server):
 
     def compress_weight_down(self):
         res = {}
-        for lname, lweight in self.model.named_parameters():
+        for lname, lweight in self.model.state_dict().items():
             if self._keep_layer_full_precision(lname):
                 res[lname] = lweight
                 continue

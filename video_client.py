@@ -1,8 +1,7 @@
-# from federated_learning import FedAvgVideoClient
 from federated_learning.client.fedavg_video_client import FedAvgVideoClient
 from federated_learning.client.fedbn_video_client import FedBNVideoClient
 from federated_learning.client.stc_video_client import STCVideoClient
-from federated_learning.client.qsgd_video_client imprt QSGDVideoClient
+from federated_learning.client.qsgd_video_client import QSGDVideoClient
 import flwr
 import argparse
 from models.build import build_loss

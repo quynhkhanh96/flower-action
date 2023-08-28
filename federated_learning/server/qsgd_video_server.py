@@ -2,6 +2,7 @@ import sys, os
 sys.path.insert(0, os.path.abspath('..'))
 
 import torch
+from functools import reduce
 from collections import OrderedDict
 
 from flwr.common.typing import FitIns, FitRes, Parameters
@@ -29,11 +30,13 @@ class QSGDServer(FedAvgVideoStrategy):
             from models.build import build_model
             self.model = build_model(self.cfgs, mode='train')
         self.dW = {name: torch.zeros(value.shape).to(self.device)
-                    for name, value in self.model.named_parameters()}       
+                    for name, value in self.model.state_dict().items()} 
+        
+        self.best_top1_acc = -1      
 
     def compress_weight_down(self):
         params_prime = []
-        for lname, lweight in self.model.named_parameters():
+        for lname, lweight in self.model.state_dict().items():
             signature = self.quantizer.quantize(lweight)
 
             norm = signature[0].cpu().numpy()[0][0]
@@ -91,7 +94,7 @@ class QSGDServer(FedAvgVideoStrategy):
 
         # compress and encode global model to send downstream
         self.model.eval()
-        return compress_weight_down(), {}
+        return self.compress_weight_down(), {}
 
     def evaluate(self, parameters):
         if self.eval_fn is None:

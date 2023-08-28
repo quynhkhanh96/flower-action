@@ -36,7 +36,7 @@ class FedAvgVideoClient(flwr.client.Client):
             try:
                 _ = len(w)
             except:
-                weights[i] = np.array([0])
+                weights[i] = np.array([w.item()])
 
         return weights
 

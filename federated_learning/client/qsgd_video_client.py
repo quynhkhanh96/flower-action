@@ -50,7 +50,7 @@ class QSGDVideoClient(FedAvgVideoClient):
                 if self._keep_layer_full_precision(lname):
                     state_dict[lname] = torch.Tensor(bytes_to_ndarray(params.tensors[i]))
                 else:
-                    dec = self.coder.decode(params[i], 
+                    dec = self.coder.decode(params.tensors[i], 
                             reduce(lambda x, y: x*y, lweight.shape))
                     state_dict[lname] = torch.Tensor(dec).view(lweight.shape)
         else:

@@ -81,7 +81,7 @@ python -m fedpns_sim --work_dir="$DATA_DIR/fedpns_sim" --data_dir=$DATA_DIR --se
 ## QSGD
 ### Start server
 ```shell
-CUDA_VISIBLE_DEVICES=1 python -m video_server --server_address=$SERVER_ADDRESS --cfg_path="examples/afosr2022/configs/afosr_qsgd_resnet183d.yaml" --data_dir=$DATA_DIR --work_dir="$DATA_DIR/qsgd_8b_both_nobnvar_exps"
+CUDA_VISIBLE_DEVICES=0 python -m video_server --server_address=$SERVER_ADDRESS --cfg_path="examples/afosr2022/configs/afosr_qsgd_resnet183d.yaml" --data_dir=$DATA_DIR --work_dir="$DATA_DIR/qsgd_8b_both_nobnvar_exps"
 ```
 ### Start clients
 ```shell

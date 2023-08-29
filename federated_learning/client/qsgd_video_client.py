@@ -1,6 +1,4 @@
-import sys, os
-sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)) + '/..')
-
+import os 
 import torch
 from collections import OrderedDict
 from functools import reduce 
@@ -11,7 +9,7 @@ from flwr.common import (
     ndarray_to_bytes, bytes_to_ndarray
 )
 from fedavg_video_client import FedAvgVideoClient
-from utils import qsgd
+from ..utils import qsgd
 
 class QSGDVideoClient(FedAvgVideoClient):
     

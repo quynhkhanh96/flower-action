@@ -1,6 +1,4 @@
-import sys, os
-sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)) + '/..')
-
+import os
 import torch
 from functools import reduce
 from collections import OrderedDict
@@ -8,7 +6,7 @@ from collections import OrderedDict
 from flwr.common.typing import FitIns, FitRes, Parameters
 from flwr.common import ndarray_to_bytes, bytes_to_ndarray
 from fedavg_video_server import FedAvgVideoStrategy
-from utils import qsgd
+from ..utils import qsgd
 
 class QSGDVideoServer(FedAvgVideoStrategy):
     def __init__(self, random, n_bit, lower_bit, q_down, no_cuda, fp_layers, **kwargs):
@@ -32,7 +30,7 @@ class QSGDVideoServer(FedAvgVideoStrategy):
         self.dW = {name: torch.zeros(value.shape).to(self.device)
                     for name, value in self.model.state_dict().items()} 
 
-        for lname, weight in self.W.items():
+        for lname, weight in self.model.state_dict().items():
             try:
                 _ = len(weight)
             except:

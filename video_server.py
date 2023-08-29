@@ -3,9 +3,6 @@ import argparse
 import flwr 
 import torch
 import functools
-from federated_learning.server.fedavg_video_server import FedAvgVideoStrategy
-from federated_learning.server.stc_video_server import STCVideoStrategy
-from federated_learning.server.qsgd_video_client import QSGDVideoServer
 from datasets.frame_dataset import get_client_loaders
 from evaluation.video_recognition import evaluate_topk_accuracy
 import yaml 
@@ -58,6 +55,11 @@ if __name__ == '__main__':
         type=float,
         help="Upstream compression factor for STC and DGC",
     )
+    parser.add_argument(
+        "--fp_layers",
+        default='',
+        help="Layers that are not to quantize, this argument is a string of layer names separated by `,`",
+    )
     server_args = parser.parse_args()
     os.makedirs(server_args.work_dir, exist_ok=True)
 
@@ -87,6 +89,7 @@ if __name__ == '__main__':
 
     # create strategy
     if cfgs.FL in ['FedAvg', 'FedBN']:
+        from federated_learning.server.fedavg_video_server import FedAvgVideoStrategy
         strategy = FedAvgVideoStrategy(
             cfgs=cfgs,
             dl_test=test_loader,
@@ -99,6 +102,7 @@ if __name__ == '__main__':
             on_fit_config_fn=functools.partial(fit_config, cfgs=cfgs),
         )
     elif cfgs.FL in ['STC']:
+        from federated_learning.server.stc_video_server import STCVideoStrategy
         strategy = STCVideoStrategy(
             cfgs=cfgs,
             dl_test=test_loader,
@@ -111,11 +115,12 @@ if __name__ == '__main__':
             on_fit_config_fn=functools.partial(fit_config, cfgs=cfgs),
         )
     elif cfgs.FL in ['QSGD']:
+        from federated_learning.server.qsgd_video_server import QSGDVideoServer
         strategy = QSGDVideoServer(
             random=cfgs.random, n_bit=cfgs.n_bit, lower_bit=cfgs.lower_bit,
-            q_down=cfgs.q_down, no_cuda=cfgs.no_cuda,
-            cfgs=cfgs, dl_test=test_loader,
-            ckpt_dir=server_args.work_dir,
+            q_down=cfgs.q_down, no_cuda=False, 
+            fp_layers=server_args.fp_layers, cfgs=cfgs, 
+            dl_test=test_loader, ckpt_dir=server_args.work_dir,
             device=torch.device("cuda" if torch.cuda.is_available() else "cpu"),
             fraction_fit=cfgs.frac,
             min_fit_clients=cfgs.min_sample_size,

@@ -10,7 +10,7 @@ from flwr.common import ndarray_to_bytes, bytes_to_ndarray
 from fedavg_video_server import FedAvgVideoStrategy
 from utils import qsgd
 
-class QSGDServer(FedAvgVideoStrategy):
+class QSGDVideoServer(FedAvgVideoStrategy):
     def __init__(self, random, n_bit, lower_bit, q_down, no_cuda, fp_layers, **kwargs):
         super().__init__(**kwargs)
 

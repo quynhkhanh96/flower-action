@@ -77,3 +77,15 @@ python -m fedbn_sim --work_dir="$DATA_DIR/fedbn_sim" --data_dir=$DATA_DIR --serv
 cd simulation/
 python -m fedpns_sim --work_dir="$DATA_DIR/fedpns_sim" --data_dir=$DATA_DIR --server_device="cuda:1" --cfg_path="../examples/afosr2022/configs/afosr_fedbn_sim.yaml"
 ```
+
+## QSGD
+### Start server
+```shell
+CUDA_VISIBLE_DEVICES=1 python -m video_server --server_address=$SERVER_ADDRESS --cfg_path="examples/afosr2022/configs/afosr_qsgd_resnet183d.yaml" --data_dir=$DATA_DIR --work_dir="$DATA_DIR/qsgd_8b_both_nobnvar_exps"
+```
+### Start clients
+```shell
+CUDA_VISIBLE_DEVICES=1 python -m video_client --server_address=$SERVER_ADDRESS --cid=0 --cfg_path="examples/afosr2022/configs/afosr_qsgd_resnet183d.yaml" --data_dir=$DATA_DIR
+
+CUDA_VISIBLE_DEVICES=1 python -m video_client --server_address=$SERVER_ADDRESS --cid=1 --cfg_path="examples/afosr2022/configs/afosr_qsgd_resnet183d.yaml" --data_dir=$DATA_DIR
+```

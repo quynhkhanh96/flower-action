@@ -1,7 +1,3 @@
-from federated_learning.client.fedavg_video_client import FedAvgVideoClient
-from federated_learning.client.fedbn_video_client import FedBNVideoClient
-from federated_learning.client.stc_video_client import STCVideoClient
-from federated_learning.client.qsgd_video_client import QSGDVideoClient
 import flwr
 import argparse
 from models.build import build_loss
@@ -95,6 +91,7 @@ if __name__ == '__main__':
     
     # start client
     if cfgs.FL == 'FedAvg':
+        from federated_learning.client.fedavg_video_client import FedAvgVideoClient
         fl_client = FedAvgVideoClient(client_id=client_id,
                 dl_train=train_loader, dl_test=test_loader,
                 model=model, loss_fn=criterion, 
@@ -102,6 +99,7 @@ if __name__ == '__main__':
                 eval_fn=eval_fn, cfgs=cfgs
         )
     elif cfgs.FL == 'FedBN':
+        from federated_learning.client.fedbn_video_client import FedBNVideoClient
         fl_client = FedBNVideoClient(client_id=client_id,
                 dl_train=train_loader, dl_test=test_loader,
                 model=model, loss_fn=criterion, 
@@ -109,6 +107,7 @@ if __name__ == '__main__':
                 eval_fn=eval_fn, cfgs=cfgs
         )
     elif cfgs.FL == 'STC':
+        from federated_learning.client.stc_video_client import STCVideoClient
         fl_client = STCVideoClient(client_id=client_id,
                 dl_train=train_loader, dl_test=test_loader,
                 model=model, loss_fn=criterion, 
@@ -116,9 +115,11 @@ if __name__ == '__main__':
                 eval_fn=eval_fn, cfgs=cfgs
         )
     elif cfgs.FL == 'QSGD':
+        from federated_learning.client.qsgd_video_client import QSGDVideoClient
         fl_client = QSGDVideoClient(
             random=cfgs.random, n_bit=cfgs.n_bit, lower_bit=cfgs.lower_bit,
-            q_down=cfgs.q_down, no_cuda=cfgs.no_cuda, client_id=client_id,
+            q_down=cfgs.q_down, no_cuda=False, 
+            fp_layers=cfgs.fp_layers, client_id=client_id,
             dl_train=train_loader, dl_test=test_loader,
             model=model, loss_fn=criterion, 
             local_update=local_update, 

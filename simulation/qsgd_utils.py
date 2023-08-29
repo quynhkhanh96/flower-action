@@ -15,7 +15,8 @@ def average(target, sources):
     with torch.no_grad():
         for name in target:
             try:
-                target[name].data = torch.mean(torch.stack([source[name].data for source in sources]), dim=0).clone()
+                target[name].data = torch.mean(torch.stack(
+                    [source[name].data for source in sources]), dim=0).clone()
             except:
                 pass
 
@@ -25,7 +26,8 @@ def weighted_average(target, sources, weights):
             summ = torch.sum(weights)
             n = len(sources)
             modify = [weight/summ*n for weight in weights]
-            target[name].data = torch.mean(torch.stack([m*source[name].data for source, m in zip(sources, modify)]), dim=0).clone()
+            target[name].data = torch.mean(torch.stack(
+                [m*source[name].data for source, m in zip(sources, modify)]), dim=0).clone()
 
 # https://github.com/xinyandai/gradient-quantization/blob/master/compressors/qsgd_compressor.py
 class QSGDQuantizer:

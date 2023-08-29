@@ -6,12 +6,12 @@ from functools import reduce
 from collections import OrderedDict
 
 from flwr.common.typing import FitIns, FitRes, Parameters
-from flwr.common import parameters_to_weights, weights_to_parameters
+from flwr.common import ndarray_to_bytes, bytes_to_ndarray
 from fedavg_video_server import FedAvgVideoStrategy
 from utils import qsgd
 
 class QSGDServer(FedAvgVideoStrategy):
-    def __init__(self, random, n_bit, lower_bit, q_down, no_cuda, **kwargs):
+    def __init__(self, random, n_bit, lower_bit, q_down, no_cuda, fp_layers, **kwargs):
         super().__init__(**kwargs)
 
         self.quantizer = qsgd.QSGDQuantizer(
@@ -19,24 +19,39 @@ class QSGDServer(FedAvgVideoStrategy):
         )
         self.q_down = q_down
         self.lower_bit = lower_bit if lower_bit != -1 else n_bit
-
+        self.fp_layers = [fp_layer for fp_layer in fp_layers.split(',')
+                            if fp_layer != '']
         self.coder = qsgd.QSGDCoder(2 ** n_bit)
 
         if hasattr(self.cfgs, 'base') and self.cfgs.base == 'mmaction2':
             from models.base import build_mmaction_model
             self.model = build_mmaction_model(self.cfgs, mode='train')
-
         else:
             from models.build import build_model
             self.model = build_model(self.cfgs, mode='train')
         self.dW = {name: torch.zeros(value.shape).to(self.device)
                     for name, value in self.model.state_dict().items()} 
-        
-        self.best_top1_acc = -1      
+
+        for lname, weight in self.W.items():
+            try:
+                _ = len(weight)
+            except:
+                self.fp_layers.append(lname)
+
+        self.best_top1_acc = -1
+
+    def _keep_layer_full_precision(self, lname):
+        for fp_layer in self.fp_layers:
+            if fp_layer in lname:
+                return True
+        return False      
 
     def compress_weight_down(self):
         params_prime = []
         for lname, lweight in self.model.state_dict().items():
+            if self._keep_layer_full_precision(lname):
+                params_prime.append(ndarray_to_bytes(lweight))
+                continue
             signature = self.quantizer.quantize(lweight)
 
             norm = signature[0].cpu().numpy()[0][0]
@@ -56,20 +71,23 @@ class QSGDServer(FedAvgVideoStrategy):
         if not self.accept_failures and failures:
             return None, {}
         
-        # encode gradients
+        # decode gradients
         grads_results = []
         s = self.coder.s
         for _, fit_res in results:
             grads = {}
             grad_prime = fit_res.parameters.tensors
             for i, (lname, lgrad) in enumerate(self.dW.items()):
+                if self._keep_layer_full_precision(lname):
+                    grads[lname] = torch.Tensor(bytes_to_ndarray(lgrad))
+                    continue 
                 if 'conv' in lname and 'bn' not in lname:
                     self.coder.s = s
                 else:
                     self.coder.s = 2 ** self.lower_bit
                 dec = self.coder.decode(grad_prime[i], 
                         reduce(lambda x, y: x*y, lgrad.shape))
-                grads[lname] = torch.tensor(dec).view(lgrad.shape).to(self.device)
+                grads[lname] = torch.Tensor(dec).view(lgrad.shape).to(self.device)
         grads_results.append((grads, fit_res.num_examples))
         self.coder.s = s
 
@@ -83,7 +101,8 @@ class QSGDServer(FedAvgVideoStrategy):
             qsgd.weighted_average(
                 target=self.dW,
                 sources=[grads for grads, _ in grads_results],
-                weights=torch.stack([torch.Tensor(num_examples).to(self.device) for _, num_examples in grads_results])
+                weights=torch.stack([torch.Tensor(num_examples).to(self.device) 
+                                        for _, num_examples in grads_results])
             )
         # create new global weights
         state_dict = self.model.state_dict()

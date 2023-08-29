@@ -54,7 +54,7 @@ class QSGDVideoClient(FedAvgVideoClient):
                 else:
                     dec = self.coder.decode(params[i], 
                             reduce(lambda x, y: x*y, lweight.shape))
-                    state_dict[lname] = torch.tensor(dec).view(lweight.shape)
+                    state_dict[lname] = torch.Tensor(dec).view(lweight.shape)
         else:
             weights = parameters_to_weights(params)
             state_dict = OrderedDict(

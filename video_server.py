@@ -55,11 +55,6 @@ if __name__ == '__main__':
         type=float,
         help="Upstream compression factor for STC and DGC",
     )
-    parser.add_argument(
-        "--fp_layers",
-        default='',
-        help="Layers that are not to quantize, this argument is a string of layer names separated by `,`",
-    )
     server_args = parser.parse_args()
     os.makedirs(server_args.work_dir, exist_ok=True)
 
@@ -119,7 +114,7 @@ if __name__ == '__main__':
         strategy = QSGDVideoServer(
             random=cfgs.random, n_bit=cfgs.n_bit, lower_bit=cfgs.lower_bit,
             q_down=cfgs.q_down, no_cuda=False, 
-            fp_layers=server_args.fp_layers, cfgs=cfgs, 
+            fp_layers=cfgs.fp_layers, cfgs=cfgs, 
             dl_test=test_loader, ckpt_dir=server_args.work_dir,
             device=torch.device("cuda" if torch.cuda.is_available() else "cpu"),
             fraction_fit=cfgs.frac,

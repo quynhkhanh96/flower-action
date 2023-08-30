@@ -50,6 +50,11 @@ class QSGDVideoServer(FedAvgVideoStrategy):
             if self._keep_layer_full_precision(lname):
                 params_prime.append(ndarray_to_bytes(lweight))
                 continue
+
+            if torch.count_nonzero(lweight) == 0: 
+                params_prime.append(bytes(1 & 0xff))
+                continue
+
             signature = self.quantizer.quantize(lweight)
 
             norm = signature[0].cpu().numpy()[0][0]

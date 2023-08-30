@@ -58,8 +58,8 @@ def bytes_to_bitstring(bs):
     for i in range(len(bs)-2):
         res += str(bin(bs[i]))[2:].zfill(8)
     r = bs[-1]
-    if r != 0:
-        res += str(bin(bs[-2]))[2:].zfill(r)
+    r = 8 if r == 0 else r
+    res += str(bin(bs[-2]))[2:].zfill(r)
     return res
 
 class QSGDCoder:
@@ -86,6 +86,9 @@ class QSGDCoder:
         return struct.pack('!f', norm) + bitstring_to_bytes(msg)
 
     def decode(self, msg, d):
+        if len(msg) == 1:
+            return np.zeros(d)
+        
         # norm back to float32
         norm = struct.unpack('!f', msg[:4])[0]
 

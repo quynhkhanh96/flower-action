@@ -73,6 +73,10 @@ class QSGDVideoClient(FedAvgVideoClient):
                 )
                 continue
 
+            if torch.count_nonzero(lgrad) == 0: 
+                params_prime.append(bytes(1 & 0xff))
+                continue
+
             if 'conv' in lname and 'bn' not in lname:
                 self.quantizer.s = s
             else:
@@ -86,6 +90,7 @@ class QSGDVideoClient(FedAvgVideoClient):
             params_prime.append(
                 self.coder.encode(norm, signs, epsilon)
             )
+
         self.quantizer.s = s
 
         return params_prime             

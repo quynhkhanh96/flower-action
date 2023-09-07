@@ -32,3 +32,4 @@ random: True
 n_bit: 8
 lower_bit: -1
 q_down: True
+aggregation: 'mean'

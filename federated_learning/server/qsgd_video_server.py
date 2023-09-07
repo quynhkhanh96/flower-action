@@ -1,10 +1,14 @@
 import os
 import torch
+import numpy as np
 from functools import reduce
 from collections import OrderedDict
 
 from flwr.common.typing import FitIns, FitRes, Parameters
-from flwr.common import ndarray_to_bytes, bytes_to_ndarray
+from flwr.common import (
+    ndarray_to_bytes, bytes_to_ndarray,
+    weights_to_parameters
+)
 from fedavg_video_server import FedAvgVideoStrategy
 from ..utils import qsgd
 
@@ -36,19 +40,32 @@ class QSGDVideoServer(FedAvgVideoStrategy):
             except:
                 self.fp_layers.append(lname)
 
+        self.aggregation = self.cfgs.aggregation
         self.best_top1_acc = -1
 
     def _keep_layer_full_precision(self, lname):
         for fp_layer in self.fp_layers:
             if fp_layer in lname:
                 return True
-        return False      
+        return False
 
-    def compress_weight_down(self):
+    def initialize_parameters(self, **kwargs):
+        '''
+            Take server's model weights as initial global model.
+        '''
+        return self._exchange_weights()
+
+    def _exchange_weights(self):
+        if not self.q_down:
+            weights = [val.cpu().numpy() 
+                    for _, val in self.model.state_dict().items()]
+            parameters = weights_to_parameters(weights)
+            return parameters
+        
         params_prime = []
         for lname, lweight in self.model.state_dict().items():
             if self._keep_layer_full_precision(lname):
-                params_prime.append(ndarray_to_bytes(lweight))
+                params_prime.append(ndarray_to_bytes(lweight.cpu().numpy()))
                 continue
 
             if torch.count_nonzero(lweight) == 0: 
@@ -82,7 +99,13 @@ class QSGDVideoServer(FedAvgVideoStrategy):
             grad_prime = fit_res.parameters.tensors
             for i, (lname, lgrad) in enumerate(self.dW.items()):
                 if self._keep_layer_full_precision(lname):
-                    grads[lname] = torch.Tensor(bytes_to_ndarray(lgrad))
+                    dec_lgrad = bytes_to_ndarray(grad_prime[i])
+                    try:
+                        _ = len(dec_lgrad)
+                        dec_lgrad = torch.Tensor(dec_lgrad)
+                    except: # for edge case: torch.tensor(0)
+                        dec_lgrad = torch.tensor(dec_lgrad)
+                    grads[lname] = dec_lgrad
                     continue 
                 if 'conv' in lname and 'bn' not in lname:
                     self.coder.s = s
@@ -111,12 +134,12 @@ class QSGDVideoServer(FedAvgVideoStrategy):
         state_dict = self.model.state_dict()
         with torch.no_grad():
             for name, value in self.dW.items():
-                state_dict[name] += value.clone().to(self.device)
+                state_dict[name] += value.type(state_dict[name].dtype).clone().to(self.device)
         self.model.load_state_dict(state_dict, strict=False)
 
-        # compress and encode global model to send downstream
+        # send new global model downstream
         self.model.eval()
-        return self.compress_weight_down(), {}
+        return self._exchange_weights(), {}
 
     def evaluate(self, parameters):
         if self.eval_fn is None:

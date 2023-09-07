@@ -22,7 +22,7 @@ class FedAvgVideoStrategy(flwr.server.strategy.FedAvg):
             try:
                 _ = len(w)
             except:
-                weights[i] = np.array([0])
+                weights[i] = np.array([w.item()])
 
         return weights
 
@@ -51,11 +51,8 @@ class FedAvgVideoStrategy(flwr.server.strategy.FedAvg):
             return None
         
         metrics = {'top1_accuracy': eval_res['top1'], 'top5_accuracy': eval_res['top5']}
-        # wandb.log({f"top1_accuracy": eval_res['top1']})
-        # wandb.log({f"top5_accuracy": eval_res['top5']})
         with open(self.ckpt_dir + '/server_accs.txt', 'a') as f:
-            f.write('{:.3f} {:.3f}\n'.format(metrics['top1_accuracy'],
-                                            metrics['top5_accuracy']))
+            f.write('{:.3f} {:.3f}\n'.format(metrics['top1_accuracy'], metrics['top5_accuracy']))
         if eval_res['top1'] > self.best_top1_acc:
             self.best_top1_acc = eval_res['top1']
             torch.save({'state_dict': model.state_dict()}, self.ckpt_dir + '/best.pth')

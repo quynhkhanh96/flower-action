@@ -55,6 +55,7 @@ class QSGDVideoClient(FedAvgVideoClient):
                     state_dict[lname] = torch.Tensor(dec).view(lweight.shape)
         else:
             weights = parameters_to_weights(params)
+            weights = self.postprocess_weights(weights)
             state_dict = OrderedDict(
                 {k: torch.Tensor(v) 
                 for k, v in zip(self.model.state_dict().keys(), weights)}
@@ -69,7 +70,7 @@ class QSGDVideoClient(FedAvgVideoClient):
         for lname, lgrad in self.dW.items():
             if self._keep_layer_full_precision(lname):
                 params_prime.append(
-                    ndarray_to_bytes(lgrad)
+                    ndarray_to_bytes(lgrad.cpu().numpy())
                 )
                 continue
 

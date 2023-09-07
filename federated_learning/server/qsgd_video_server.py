@@ -53,7 +53,7 @@ class QSGDVideoServer(FedAvgVideoStrategy):
         '''
             Take server's model weights as initial global model.
         '''
-        return self._exchange_weights().parameters
+        return self._exchange_weights()
 
     def _exchange_weights(self):
         if not self.q_down:

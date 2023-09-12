@@ -83,15 +83,8 @@ class QSGDVideoServer(FedAvgVideoStrategy):
             )
         
         return Parameters(tensors=params_prime, tensor_type="numpy.ndarray")
-          
-    def aggregate_fit(self, rnd, results, failures):
-        if not results:
-            return None, {}            
-
-        if not self.accept_failures and failures:
-            return None, {}
-        
-        # decode gradients
+    
+    def _decode_fit_results(self, results):
         grads_results = []
         s = self.coder.s
         for _, fit_res in results:
@@ -116,6 +109,18 @@ class QSGDVideoServer(FedAvgVideoStrategy):
                 grads[lname] = torch.Tensor(dec).view(lgrad.shape).to(self.device)
         grads_results.append((grads, fit_res.num_examples))
         self.coder.s = s
+
+        return grads_results
+          
+    def aggregate_fit(self, rnd, results, failures):
+        if not results:
+            return None, {}            
+
+        if not self.accept_failures and failures:
+            return None, {}
+        
+        # decode gradients
+        grads_results = self._decode_fit_results(results)
 
         # aggregate gradients
         if self.aggregation == 'mean':

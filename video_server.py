@@ -127,7 +127,7 @@ if __name__ == '__main__':
             on_fit_config_fn=functools.partial(fit_config, cfgs=cfgs),            
         )
     elif cfgs.FL == 'Top-k QSGD':
-        from federated_learning.server.topk_qsgd_video_server import TopkQSGDVideoServer
+        from federated_learning.server.qsgd_video_server import TopkQSGDVideoServer
         strategy = TopkQSGDVideoServer(
             random=cfgs.random, n_bit=cfgs.n_bit, lower_bit=cfgs.lower_bit,
             q_down=cfgs.q_down, no_cuda=False, 

@@ -213,6 +213,7 @@ class TopkQSGDVideoServer(QSGDVideoServer):
                     dec_lgrad = self.coder.decode(grad_prime[i],
                                     reduce(lambda x, y: x*y, lgrad.shape))
                     grads[lname] = torch.Tensor(dec_lgrad).view(lgrad.shape).to(self.device)
+                    i += 1
 
         grads_results.append((grads, fit_res.num_examples))
         self.coder.s = s

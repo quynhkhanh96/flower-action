@@ -13,7 +13,7 @@ from fedavg_video_server import FedAvgVideoStrategy
 try:
     from ..utils import qsgd
 except:
-    pass # dirty fix 
+    pass 
 
 class QSGDVideoServer(FedAvgVideoStrategy):
     def __init__(self, random, n_bit, lower_bit, q_down, no_cuda, fp_layers, **kwargs):

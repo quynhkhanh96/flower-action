@@ -9,7 +9,10 @@ from flwr.common import (
     ndarray_to_bytes, bytes_to_ndarray
 )
 from fedavg_video_client import FedAvgVideoClient
-from ..utils import qsgd
+try:
+    from ..utils import qsgd
+except:
+    pass 
 
 class QSGDVideoClient(FedAvgVideoClient):
     

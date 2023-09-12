@@ -2,6 +2,7 @@ import torch
 import numpy as np
 from flwr.common import ndarray_to_bytes
 from qsgd_video_client import QSGDVideoClient
+from ..utils import qsgd
 
 class TopkQSGDVideoClient(QSGDVideoClient):
 

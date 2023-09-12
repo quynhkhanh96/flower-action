@@ -70,6 +70,13 @@ class QSGDVideoClient(FedAvgVideoClient):
         self.model.to(self.cfgs.device)
         self.W = {name: value for name, value in self.model.state_dict().items()}
 
+    def _encode_signature(self, signature):
+        norm = signature[0].cpu().numpy()[0][0]
+        signs = signature[1].view(-1).cpu().numpy()
+        epsilon = signature[2].view(-1).cpu().numpy()
+
+        return self.coder.encode(norm, signs, epsilon)
+
     def compress_weight_update_up(self):
         params_prime = []
         s = self.quantizer.s
@@ -90,12 +97,8 @@ class QSGDVideoClient(FedAvgVideoClient):
                 self.quantizer.s = 2 ** self.lower_bit
             signature = self.quantizer.quantize(lgrad)
 
-            norm = signature[0].cpu().numpy()[0][0]
-            signs = signature[1].view(-1).cpu().numpy()
-            epsilon = signature[2].view(-1).cpu().numpy()
-
             params_prime.append(
-                self.coder.encode(norm, signs, epsilon)
+                self._encode_signature(signature)
             )
 
         self.quantizer.s = s

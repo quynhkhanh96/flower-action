@@ -125,7 +125,7 @@ if __name__ == '__main__':
             local_update=local_update, 
             eval_fn=eval_fn, cfgs=cfgs            
         )
-    elif cfgs.Fl == 'Top-k QSGD':
+    elif cfgs.FL == 'Top-k QSGD':
         from federated_learning.client.topk_qsgd_video_client import TopkQSGDVideoClient
         fl_client = TopkQSGDVideoClient(
             k=cfgs.k, random=cfgs.random, n_bit=cfgs.n_bit, lower_bit=cfgs.lower_bit,

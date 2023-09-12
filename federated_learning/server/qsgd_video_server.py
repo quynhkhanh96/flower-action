@@ -10,7 +10,10 @@ from flwr.common import (
     weights_to_parameters
 )
 from fedavg_video_server import FedAvgVideoStrategy
-from ..utils import qsgd
+try:
+    from ..utils import qsgd
+except:
+    pass # dirty fix 
 
 class QSGDVideoServer(FedAvgVideoStrategy):
     def __init__(self, random, n_bit, lower_bit, q_down, no_cuda, fp_layers, **kwargs):

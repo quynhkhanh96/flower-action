@@ -3,7 +3,7 @@ from functools import reduce
 from flwr.common import bytes_to_ndarray
 from qsgd_video_server import QSGDVideoServer
 
-class QSGDVideoServer(QSGDVideoServer):
+class TopkQSGDVideoServer(QSGDVideoServer):
     def _decode_fit_results(self, results):
         grads_results = []
         s = self.coder.s

@@ -125,6 +125,17 @@ if __name__ == '__main__':
             local_update=local_update, 
             eval_fn=eval_fn, cfgs=cfgs            
         )
+    elif cfgs.Fl == 'Top-k QSGD':
+        from federated_learning.client.topk_qsgd_video_client import TopkQSGDVideoClient
+        fl_client = TopkQSGDVideoClient(
+            k=cfgs.k, random=cfgs.random, n_bit=cfgs.n_bit, lower_bit=cfgs.lower_bit,
+            q_down=cfgs.q_down, no_cuda=False, 
+            fp_layers=cfgs.fp_layers, client_id=client_id,
+            dl_train=train_loader, dl_test=test_loader,
+            model=model, loss_fn=criterion, 
+            local_update=local_update, 
+            eval_fn=eval_fn, cfgs=cfgs
+        )
     else:
         raise ValueError(f'No implementation for {cfgs.FL}.')
 

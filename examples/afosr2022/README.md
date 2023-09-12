@@ -89,3 +89,15 @@ CUDA_VISIBLE_DEVICES=1 python -m video_client --server_address=$SERVER_ADDRESS -
 
 CUDA_VISIBLE_DEVICES=1 python -m video_client --server_address=$SERVER_ADDRESS --cid=1 --cfg_path="examples/afosr2022/configs/afosr_qsgd_resnet183d.yaml" --data_dir=$DATA_DIR
 ```
+
+## Top-k QSGD
+### Start server
+```shell
+CUDA_VISIBLE_DEVICES=0 python -m video_server --server_address=$SERVER_ADDRESS --cfg_path="examples/afosr2022/configs/afosr_topkqsgd_resnet183d.yaml" --data_dir=$DATA_DIR --work_dir="$DATA_DIR/topkqsgd_8b_both_nobnvar_exps"
+```
+### Start clients
+```shell
+CUDA_VISIBLE_DEVICES=1 python -m video_client --server_address=$SERVER_ADDRESS --cid=0 --cfg_path="examples/afosr2022/configs/afosr_topkqsgd_resnet183d.yaml" --data_dir=$DATA_DIR
+
+CUDA_VISIBLE_DEVICES=1 python -m video_client --server_address=$SERVER_ADDRESS --cid=1 --cfg_path="examples/afosr2022/configs/afosr_topkqsgd_resnet183d.yaml" --data_dir=$DATA_DIR
+```

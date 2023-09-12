@@ -81,6 +81,9 @@ if __name__ == '__main__':
         _, test_loader = get_client_loaders(
             0, server_args.data_dir, cfgs
         )
+    
+    # device 
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     # create strategy
     if cfgs.FL in ['FedAvg', 'FedBN']:
@@ -89,34 +92,48 @@ if __name__ == '__main__':
             cfgs=cfgs,
             dl_test=test_loader,
             ckpt_dir=server_args.work_dir,
-            device=torch.device("cuda" if torch.cuda.is_available() else "cpu"),
+            device=device,
             fraction_fit=cfgs.frac,
             min_fit_clients=cfgs.min_sample_size,
             min_available_clients=cfgs.min_num_clients,
             eval_fn=eval_fn,
             on_fit_config_fn=functools.partial(fit_config, cfgs=cfgs),
         )
-    elif cfgs.FL in ['STC']:
+    elif cfgs.FL == 'STC':
         from federated_learning.server.stc_video_server import STCVideoStrategy
         strategy = STCVideoStrategy(
             cfgs=cfgs,
             dl_test=test_loader,
             ckpt_dir=server_args.work_dir,
-            device=torch.device("cuda" if torch.cuda.is_available() else "cpu"),
+            device=device,
             fraction_fit=cfgs.frac,
             min_fit_clients=cfgs.min_sample_size,
             min_available_clients=cfgs.min_num_clients,
             eval_fn=eval_fn,
             on_fit_config_fn=functools.partial(fit_config, cfgs=cfgs),
         )
-    elif cfgs.FL in ['QSGD']:
+    elif cfgs.FL == 'QSGD':
         from federated_learning.server.qsgd_video_server import QSGDVideoServer
         strategy = QSGDVideoServer(
             random=cfgs.random, n_bit=cfgs.n_bit, lower_bit=cfgs.lower_bit,
             q_down=cfgs.q_down, no_cuda=False, 
             fp_layers=cfgs.fp_layers, cfgs=cfgs, 
             dl_test=test_loader, ckpt_dir=server_args.work_dir,
-            device=torch.device("cuda" if torch.cuda.is_available() else "cpu"),
+            device=device,
+            fraction_fit=cfgs.frac,
+            min_fit_clients=cfgs.min_sample_size,
+            min_available_clients=cfgs.min_num_clients,
+            eval_fn=eval_fn,
+            on_fit_config_fn=functools.partial(fit_config, cfgs=cfgs),            
+        )
+    elif cfgs.FL == 'Top-k QSGD':
+        from federated_learning.server.topk_qsgd_video_server import TopkQSGDVideoServer
+        strategy = TopkQSGDVideoServer(
+            random=cfgs.random, n_bit=cfgs.n_bit, lower_bit=cfgs.lower_bit,
+            q_down=cfgs.q_down, no_cuda=False, 
+            fp_layers=cfgs.fp_layers, cfgs=cfgs, 
+            dl_test=test_loader, ckpt_dir=server_args.work_dir,
+            device=device,
             fraction_fit=cfgs.frac,
             min_fit_clients=cfgs.min_sample_size,
             min_available_clients=cfgs.min_num_clients,

@@ -186,12 +186,8 @@ class TopkQSGDVideoServer(QSGDVideoServer):
             while i < len(grad_prime) and j < n_layers:
                 lname = lnames[j]
                 lgrad = self.dW[lname]
-                with open(self.ckpt_dir + '/debug.txt', 'a') as f:
-                    f.write(lname)
                 if self._keep_layer_full_precision(lname):
-                    dec_lgrad = bytes_to_ndarray(grad_prime[i])
-                    with open(self.ckpt_dir + '/debug.txt', 'a') as f:
-                        f.write(f': {i}\n')                    
+                    dec_lgrad = bytes_to_ndarray(grad_prime[i])                    
                     try:
                         _ = len(dec_lgrad)
                         dec_lgrad = torch.Tensor(dec_lgrad)
@@ -204,9 +200,7 @@ class TopkQSGDVideoServer(QSGDVideoServer):
                     grads[lname] = torch.zeros(*lgrad.shape, dtype=lgrad.dtype).to(self.device)
                     i += 1
                 elif 'conv' in lname and 'bn' not in lname:
-                    s_top, s_rest = grad_prime[i], grad_prime[i+1]
-                    with open(self.ckpt_dir + '/debug.txt', 'a') as f:
-                        f.write(f': {i}, {i+1}\n') 
+                    s_top, s_rest = grad_prime[i], grad_prime[i+1] 
                     self.coder.s = s 
                     grad_top = self.coder.decode(
                         s_top, reduce(lambda x, y: x*y, lgrad.shape)
@@ -222,8 +216,6 @@ class TopkQSGDVideoServer(QSGDVideoServer):
                         grads[lname] = grad_top + grad_rest
                     i += 2
                 else:
-                    with open(self.ckpt_dir + '/debug.txt', 'a') as f:
-                        f.write(f': {i}\n') 
                     self.coder.s = 2 ** self.lower_bit
                     dec_lgrad = self.coder.decode(grad_prime[i],
                                     reduce(lambda x, y: x*y, lgrad.shape))

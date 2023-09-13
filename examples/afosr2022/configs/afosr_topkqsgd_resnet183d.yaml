@@ -12,7 +12,7 @@ num_classes: 12
 pretrained_model: 'pre-trained/resnet-18-kinetics.pth'
 
 # local training
-local_e: 3
+local_e: 1
 epochs: 30
 loss: 'CrossEntropyLoss'
 optimizer: 'SGD'

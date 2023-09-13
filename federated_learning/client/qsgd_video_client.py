@@ -133,15 +133,22 @@ class TopkQSGDVideoClient(QSGDVideoClient):
     def compress_weight_update_up(self):
         params_prime = []
         s = self.quantizer.s
+        # i = 0
         for lname, lgrad in self.dW.items():
             if self._keep_layer_full_precision(lname):
                 params_prime.append(
                     ndarray_to_bytes(lgrad.cpu().numpy())
                 )
+                # with open(f'/debug_c{self.client_id}.txt', 'a') as f:
+                #     f.write(f'{lname}: {i}, type 1\n')
+                # i += 1
                 continue
 
             if torch.count_nonzero(lgrad) == 0: 
                 params_prime.append(bytes(1 & 0xff))
+                # with open(f'/debug_c{self.client_id}.txt', 'a') as f:
+                #     f.write(f'{lname}: {i}, type 2\n')
+                # i += 1
                 continue
 
             if 'conv' in lname and 'bn' not in lname:
@@ -166,6 +173,9 @@ class TopkQSGDVideoClient(QSGDVideoClient):
                     [self._encode_signature(signature_top),
                     self._encode_signature(signature_rest)]
                 )
+                # with open(f'/debug_c{self.client_id}.txt', 'a') as f:
+                #     f.write(f'{lname}: {i}, {i+1}, type 3\n')
+                # i += 2
 
             else:
                 self.quantizer.s = 2 ** self.lower_bit
@@ -173,6 +183,9 @@ class TopkQSGDVideoClient(QSGDVideoClient):
                 params_prime.append(
                     self._encode_signature(signature)
                 )
+                # with open(f'/debug_c{self.client_id}.txt', 'a') as f:
+                #     f.write(f'{lname}: {i}, type 4\n')
+                # i += 1
 
         self.quantizer.s = s
         

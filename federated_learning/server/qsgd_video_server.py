@@ -99,7 +99,11 @@ class QSGDVideoServer(FedAvgVideoStrategy):
                     except: # for edge case: torch.tensor(0)
                         dec_lgrad = torch.tensor(dec_lgrad)
                     grads[lname] = dec_lgrad
-                    continue 
+                    continue
+                # another edge case: layers with all zeroes, which are decoded by `bytes(1 & 0xff)`
+                if len(grad_prime[i]) == 1:
+                    grads[lname] = torch.zeros(*lgrad.shape, dtype=lgrad.dtype).to(self.device) 
+                    continue
                 if 'conv' in lname and 'bn' not in lname:
                     self.coder.s = s
                 else:
@@ -178,12 +182,16 @@ class TopkQSGDVideoServer(QSGDVideoServer):
         for _, fit_res in results:
             grads = {}
             grad_prime = fit_res.parameters.tensors
-            i = 0 
-            while i < n_layers:
-                lname = lnames[i]
+            i, j = 0, 0 
+            while i < len(grad_prime) and j < n_layers:
+                lname = lnames[j]
                 lgrad = self.dW[lname]
+                with open(self.ckpt_dir + '/debug.txt', 'a') as f:
+                    f.write(lname)
                 if self._keep_layer_full_precision(lname):
                     dec_lgrad = bytes_to_ndarray(grad_prime[i])
+                    with open(self.ckpt_dir + '/debug.txt', 'a') as f:
+                        f.write(f': {i}\n')                    
                     try:
                         _ = len(dec_lgrad)
                         dec_lgrad = torch.Tensor(dec_lgrad)
@@ -191,9 +199,14 @@ class TopkQSGDVideoServer(QSGDVideoServer):
                         dec_lgrad = torch.tensor(dec_lgrad)
                     grads[lname] = dec_lgrad
                     i += 1
+                # another edge case: layers with all zeroes, which are decoded by `bytes(1 & 0xff)`
+                elif len(grad_prime[i]) == 1:
+                    grads[lname] = torch.zeros(*lgrad.shape, dtype=lgrad.dtype).to(self.device)
+                    i += 1
                 elif 'conv' in lname and 'bn' not in lname:
                     s_top, s_rest = grad_prime[i], grad_prime[i+1]
-
+                    with open(self.ckpt_dir + '/debug.txt', 'a') as f:
+                        f.write(f': {i}, {i+1}\n') 
                     self.coder.s = s 
                     grad_top = self.coder.decode(
                         s_top, reduce(lambda x, y: x*y, lgrad.shape)
@@ -209,11 +222,15 @@ class TopkQSGDVideoServer(QSGDVideoServer):
                         grads[lname] = grad_top + grad_rest
                     i += 2
                 else:
+                    with open(self.ckpt_dir + '/debug.txt', 'a') as f:
+                        f.write(f': {i}\n') 
                     self.coder.s = 2 ** self.lower_bit
                     dec_lgrad = self.coder.decode(grad_prime[i],
                                     reduce(lambda x, y: x*y, lgrad.shape))
                     grads[lname] = torch.Tensor(dec_lgrad).view(lgrad.shape).to(self.device)
                     i += 1
+                
+                j += 1
 
         grads_results.append((grads, fit_res.num_examples))
         self.coder.s = s

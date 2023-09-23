@@ -150,17 +150,21 @@ class TopkQSGDVideoClient(QSGDVideoClient):
                 n_elts = lgrad.numel()
                 n_top = int(np.ceil(n_elts * self.k))
                 with torch.no_grad():
-                    inds = torch.argsort(torch.abs(lgrad).flatten(), descending=True)
+                    # inds = torch.argsort(torch.abs(lgrad).flatten(), descending=True)
+                    _, inds_top = torch.abs(lgrad).flatten().topk(n_top)
                     
                     # compress and encode the top-k gradients with higher #bits
+                    # mask_top = torch.full((lgrad.numel(),), 0.).to(lgrad.device).scatter_(0,
+                    #                     inds[:n_top], 1).view(*tuple(lgrad.shape))
                     mask_top = torch.full((lgrad.numel(),), 0.).to(lgrad.device).scatter_(0,
-                                        inds[:n_top], 1).view(*tuple(lgrad.shape))
+                                        inds_top, 1).view(*tuple(lgrad.shape))
                     signature_top = self.quantizer.quantize(lgrad * mask_top)
 
                     # and the rest with less #bits
                     self.quantizer.s = 2 ** self.lower_bit
-                    mask_rest = torch.full((lgrad.numel(),), 0.).to(lgrad.device).scatter_(0,
-                                        inds[n_top:], 1).view(*tuple(lgrad.shape))
+                    # mask_rest = torch.full((lgrad.numel(),), 0.).to(lgrad.device).scatter_(0,
+                    #                     inds[n_top:], 1).view(*tuple(lgrad.shape))
+                    mask_rest = 1 - mask_top
                     signature_rest = self.quantizer.quantize(lgrad * mask_rest)
 
                 params_prime.extend(

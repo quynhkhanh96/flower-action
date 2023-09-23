@@ -145,10 +145,13 @@ The step is optional, and if you wish to measure the communication cost caused b
 On the machine that runs server, open a terminal then run:
 ```shell
 cd communication_cost/
-sudo $(which python) capture_packets.py <port> <path/to/logs_dir>
+python proxy.py <ip> <server_port> <client_port> <log_fpath>
+# For example: 
+# python proxy.py 127.0.0.1 5004 5005 afosr.log
 ```
-This script will capture every packet that runs to and from `<port2>` of server and get the size of the packet and log it to a file that is named under format `logs_<HhMmSs>.txt` (where `<HhMmSs>` is the time when the experiment starts, for example `logs_15h31m57s.txt`) under directory `logs_dir`.
-After that start the experiment as described in the above steps, when all is done, stop the packet capture script (by typing `Ctrl` + `C`) and then run the following to compute the total communication cost (in megabytes):
+This script will capture every packet that is exchanged between the two sides, get the size of the packet and log it to `log_fpath`. Note that it will modify the name of the `log_fpath` by adding a suffix, which represents the datetime of the experiments being conducted. 
+
+After that start the experiment as described in the above steps, when all is done, stop the packet capture script (by typing `Ctrl` + `C`) and then run the following to compute the total communication cost (in megabytes) and the total runtime:
 ```shell
-python summarize_comcost.py <path/to/log_file>
+python summarize_comcost.py <log_fpath>
 ```

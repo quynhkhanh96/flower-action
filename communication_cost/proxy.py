@@ -2,11 +2,16 @@ import socket
 import threading
 import sys
 import logging
+import time 
 
 ip = sys.argv[1]
 server_port = sys.argv[2]
 client_port = sys.argv[3]
 log_fpath = sys.argv[4]
+fname = log_fpath.split('/')[-1].split('.')[0]
+fname = fname + time.strftime("%Y%m%d_%H-%M-%S", time.localtime()) + '.log'
+log_fpath = '/'.join(log_fpath.split('/')[:-1]) + '/' + fname
+logging.info(f'[INFO] Logs saved in this file: {log_fpath}.')
 
 format = '%(asctime)s - %(filename)s:%(lineno)d - %(levelname)s: %(message)s'
 # logging.basicConfig(level=logging.INFO, format=format)

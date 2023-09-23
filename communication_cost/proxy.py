@@ -14,8 +14,8 @@ logging.basicConfig(
     #  filename='log_file_name.log',
      filename=log_fpath,
      level=logging.INFO, 
-     format= format,
-     datefmt='%H:%M:%S'
+     format=format,
+     datefmt='%Y-%m-%d %H:%M:%S',
  )
 
 def handle(buffer, direction, src_address, src_port, dst_address, dst_port):

@@ -39,6 +39,7 @@ if __name__ == '__main__':
         help="device for running server",
     )
     args = parser.parse_args()
+    os.makedirs(args.work_dir, exist_ok=True)
 
     # configurations 
     with open(args.cfg_path, 'r') as yamlfile:

@@ -50,3 +50,15 @@ coverage.xml
 docs/_build/
 
 pre-trained/*
+simulation/__pycache__
+datasets/__pycache__
+datasets/partitioners/__pycache__
+evaluation/__pycache__
+federated_learning/__pycache__
+federated_learning/client/__pycache__
+federated_learning/client/update/__pycache__
+models/__pycache__
+models/backbones/__pycache__
+models/efficientnet_pytorch_3d/__pycache__
+models/fusion/__pycache__
+models/heads/__pycache__
